@@ -19,11 +19,11 @@
 #define	LCD_H
 
 #include <p30f2010.h>
-#include "Timer.h"
+#define FCY 7372800UL
+#include <libpic30.h>
 
 //Constants
 #define LCD_INITIALIZE 0x30
-
 #define OUTPUT  0
 #define INPUT   1
 
@@ -40,7 +40,7 @@ struct LCD {
 
 void SendCommand(char Command) {
     
-    LATBbits.LATB0 = 0;
+    LATBbits.LATB1 = 0;
     LATBbits.LATB3 = 0;
     
     if (CHECK_BIT(Command, 0))  { LATEbits.LATE0 = 1; }
@@ -61,14 +61,14 @@ void SendCommand(char Command) {
     else                        { LATBbits.LATB5 = 0; }
     
     //Set falling clock edge
-    LATBbits.LATB0 = 0;
-    Delay(1);
     LATBbits.LATB0 = 1;
+    __delay32(12);
+    LATBbits.LATB0 = 0;
 }
 
 void WriteCharacter(char Data) {
     
-    LATBbits.LATB0 = 0;
+    LATBbits.LATB1 = 0;
     LATBbits.LATB3 = 1;
     
     if (CHECK_BIT(Data, 0))     { LATEbits.LATE0 = 1; }
@@ -89,9 +89,15 @@ void WriteCharacter(char Data) {
     else                        { LATBbits.LATB5 = 0; }
     
     //Set falling clock edge
-    LATBbits.LATB0 = 0;
-    Delay(1);
     LATBbits.LATB0 = 1;
+    __delay32(12);
+    LATBbits.LATB0 = 0;
+    
+    LATBbits.LATB1 = 1;
+    LATBbits.LATB3 = 0;
+    TRISBbits.TRISB5 = INPUT;  //DB7 pin
+    while (PORTBbits.RB5 == 1) { }
+    TRISBbits.TRISB5 = OUTPUT;  //DB7 pin
 }
 
 
@@ -115,7 +121,7 @@ void InitializeLCD() {
     TRISEbits.TRISE4 = OUTPUT;  //DB4 pin
     TRISEbits.TRISE5 = OUTPUT;  //DB5 pin
     
-    LATBbits.LATB0 = 1;
+    LATBbits.LATB0 = 0;
     LATBbits.LATB1 = 0;
     LATBbits.LATB3 = 0;
     
@@ -128,31 +134,37 @@ void InitializeLCD() {
     LATBbits.LATB4 = 0;
     LATBbits.LATB5 = 0;
     
-    Delay(40);    
+    __delay_ms(40);    
     SendCommand(LCD_INITIALIZE);
-    Delay(1);
+    __delay_ms(1);
     SendCommand(LCD_INITIALIZE);
-    Delay(4);
+    __delay_ms(1);
     SendCommand(LCD_INITIALIZE);
-    Delay(1);
+    __delay_ms(1);
     
     SendCommand(0x38);
-    Delay(1);
+    __delay_ms(1);
     SendCommand(0x06);
-    Delay(1);
+    __delay_ms(1);
     SendCommand(0x0C);
-    Delay(1);
-    //SendCommand(0x01);
-    //Delay(5);
+    __delay_ms(1);
+    SendCommand(0x01);
+    __delay_ms(5);
+    SendCommand(0x02);
+    __delay_ms(1);
     
-    WriteCharacter(0xFF);
-    Delay(2);
-    WriteCharacter(0x42);
-    Delay(2);
-    WriteCharacter(0x44);
-    Delay(2);
-    //WriteCharacter(0x45);
-    //Delay(2);
+    WriteCharacter(0x53);
+    __delay_ms(1);
+    WriteCharacter(0x50);
+    __delay_ms(1);
+    WriteCharacter(0x41);
+    __delay_ms(1);
+    WriteCharacter(0x52);
+    __delay_ms(1);
+    WriteCharacter(0x4B);
+    __delay_ms(1);
+    WriteCharacter(0x59);
+    __delay_ms(1);
 }
 
 #endif	/* LCD_H */

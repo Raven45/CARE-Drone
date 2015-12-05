@@ -16,10 +16,10 @@ Command:
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/dsPIC33E/gld \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/dsPIC33F/gld \
   build/default/debug/_ext/351475380/Main.o \
-  -TC:\\tmp00001b68.00 \
-  -TC:\\tmp00001b68.01 \
-  -TC:\\tmp00001b68.02 \
-  -TC:\\tmp00001b68.03 \
+  -TC:\\tmp0000142c.00 \
+  -TC:\\tmp0000142c.01 \
+  -TC:\\tmp0000142c.02 \
+  -TC:\\tmp0000142c.03 \
   --defsym=__MPLAB_BUILD=1 \
   --defsym=__MPLAB_DEBUG=1 \
   --defsym=__DEBUG=1 \
@@ -54,6 +54,8 @@ c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.
                               (__resetPRI)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
                               c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o) (__data_init_standard)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                              build/default/debug/_ext/351475380/Main.o (___delay32)
 
 
 xc16-ld 1.25 (A)
@@ -63,10 +65,11 @@ Program Memory  [Origin = 0x100, Length = 0x1f00]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x100                0x9e            0xed  (237)
-.text                        0x19e               0x216           0x321  (801)
-.dinit                       0x3b4                 0x8             0xc  (12)
+.text                        0x19e               0x1f2           0x2eb  (747)
+.init.delay32                0x390                0x1c            0x2a  (42)
+.dinit                       0x3ac                 0x2             0x3  (3)
 
-                     Total program memory used (bytes):          0x41a  (1050) 8%
+                     Total program memory used (bytes):          0x405  (1029) 8%
 
 
 Data Memory  [Origin = 0x800, Length = 0x200]
@@ -77,9 +80,8 @@ reserve_data_0x800           0x800                0x20            0x20  (32)
 reserve_data_0x820           0x820                 0x2             0x2  (2)
 reserve_data_0x822           0x822                 0x2             0x2  (2)
 reserve_data_0x824           0x824                0x2c            0x2c  (44)
-.nbss                        0x850                   0             0x4  (4)
 
-                        Total data memory used (bytes):           0x54  (84) 16%
+                        Total data memory used (bytes):           0x50  (80) 15%
 
 
 Dynamic Memory Usage
@@ -87,52 +89,36 @@ Dynamic Memory Usage
 region                     address                      maximum length  (dec)
 ------                     -------                      ---------------------
 heap                             0                                   0  (0)
-stack                        0x854                               0x1ac  (428)
+stack                        0x850                               0x1b0  (432)
 
-                        Maximum dynamic memory (bytes):          0x1ac  (428)
+                        Maximum dynamic memory (bytes):          0x1b0  (432)
 
-
-External Symbols in Data Memory (by address):
-
-                    0x0850                  _TimerEnabled
-                    0x0852                  _TimeElapsed
-
-External Symbols in Data Memory (by name):
-
-                    0x0852                  _TimeElapsed
-                    0x0850                  _TimerEnabled
 
 External Symbols in Program Memory (by address):
 
                   0x000100                  __resetPRI
                   0x00012c                  __psv_init
-                  0x00013c                  __data_init
                   0x00013c                  __data_init_standard
+                  0x00013c                  __data_init
                   0x00019a                  __DefaultInterrupt
-                  0x00019e                  _InitializeTimer
-                  0x0001c2                  _ToggleTimer
-                  0x0001d4                  _Delay
-                  0x0001e6                  __T1Interrupt
-                  0x000200                  _SendCommand
-                  0x000288                  _WriteCharacter
-                  0x000310                  _InitializeLCD
-                  0x0003a8                  _main
+                  0x00019e                  _SendCommand
+                  0x000228                  _WriteCharacter
+                  0x0002b2                  _InitializeLCD
+                  0x000384                  _main
+                  0x000390                  ___delay32
 
 External Symbols in Program Memory (by name):
 
-                  0x0001d4                  _Delay
-                  0x000310                  _InitializeLCD
-                  0x00019e                  _InitializeTimer
-                  0x000200                  _SendCommand
-                  0x0001c2                  _ToggleTimer
-                  0x000288                  _WriteCharacter
+                  0x0002b2                  _InitializeLCD
+                  0x00019e                  _SendCommand
+                  0x000228                  _WriteCharacter
                   0x00019a                  __DefaultInterrupt
-                  0x0001e6                  __T1Interrupt
+                  0x000390                  ___delay32
                   0x00013c                  __data_init
                   0x00013c                  __data_init_standard
                   0x00012c                  __psv_init
                   0x000100                  __resetPRI
-                  0x0003a8                  _main
+                  0x000384                  _main
 
 Memory Configuration
 
@@ -276,26 +262,26 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000        0xcc1
+.debug_info       0x000000        0x5ca
  *(.debug_info)
- .debug_info      0x000000        0xcc1 build/default/debug/_ext/351475380/Main.o
+ .debug_info      0x000000        0x5ca build/default/debug/_ext/351475380/Main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x133
+.debug_abbrev     0x000000         0xf9
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x133 build/default/debug/_ext/351475380/Main.o
+ .debug_abbrev    0x000000         0xf9 build/default/debug/_ext/351475380/Main.o
 
-.debug_line       0x000000        0x4fd
+.debug_line       0x000000        0x45c
  *(.debug_line)
- .debug_line      0x000000        0x4fd build/default/debug/_ext/351475380/Main.o
+ .debug_line      0x000000        0x45c build/default/debug/_ext/351475380/Main.o
 
-.debug_frame      0x000000         0x94
+.debug_frame      0x000000         0x54
  *(.debug_frame)
- .debug_frame     0x000000         0x94 build/default/debug/_ext/351475380/Main.o
+ .debug_frame     0x000000         0x54 build/default/debug/_ext/351475380/Main.o
 
-.debug_str        0x000000         0x70
+.debug_str        0x000000         0x26
  *(.debug_str)
- .debug_str       0x000000         0x70 build/default/debug/_ext/351475380/Main.o
+ .debug_str       0x000000         0x26 build/default/debug/_ext/351475380/Main.o
 
 .debug_loc
  *(.debug_loc)
@@ -304,10 +290,10 @@ userdata
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000         0xb0
+                  0x000000         0x50
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0xb0 build/default/debug/_ext/351475380/Main.o
+                  0x000000         0x50 build/default/debug/_ext/351475380/Main.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -329,7 +315,7 @@ userdata
                   0x000014          0x4 LONG 0x19a DEFINED (__INT0Interrupt)?ABSOLUTE (__INT0Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000016          0x4 LONG 0x19a DEFINED (__IC1Interrupt)?ABSOLUTE (__IC1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000018          0x4 LONG 0x19a DEFINED (__OC1Interrupt)?ABSOLUTE (__OC1Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x00001a          0x4 LONG 0x1e6 DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x00001a          0x4 LONG 0x19a DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00001c          0x4 LONG 0x19a DEFINED (__IC2Interrupt)?ABSOLUTE (__IC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00001e          0x4 LONG 0x19a DEFINED (__OC2Interrupt)?ABSOLUTE (__OC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000020          0x4 LONG 0x19a DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
@@ -393,7 +379,7 @@ userdata
                   0x000094          0x4 LONG 0x19a DEFINED (__AltINT0Interrupt)?ABSOLUTE (__AltINT0Interrupt):DEFINED (__INT0Interrupt)?ABSOLUTE (__INT0Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000096          0x4 LONG 0x19a DEFINED (__AltIC1Interrupt)?ABSOLUTE (__AltIC1Interrupt):DEFINED (__IC1Interrupt)?ABSOLUTE (__IC1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000098          0x4 LONG 0x19a DEFINED (__AltOC1Interrupt)?ABSOLUTE (__AltOC1Interrupt):DEFINED (__OC1Interrupt)?ABSOLUTE (__OC1Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x00009a          0x4 LONG 0x1e6 DEFINED (__AltT1Interrupt)?ABSOLUTE (__AltT1Interrupt):DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x00009a          0x4 LONG 0x19a DEFINED (__AltT1Interrupt)?ABSOLUTE (__AltT1Interrupt):DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00009c          0x4 LONG 0x19a DEFINED (__AltIC2Interrupt)?ABSOLUTE (__AltIC2Interrupt):DEFINED (__IC2Interrupt)?ABSOLUTE (__IC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00009e          0x4 LONG 0x19a DEFINED (__AltOC2Interrupt)?ABSOLUTE (__AltOC2Interrupt):DEFINED (__OC2Interrupt)?ABSOLUTE (__OC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a0          0x4 LONG 0x19a DEFINED (__AltT2Interrupt)?ABSOLUTE (__AltT2Interrupt):DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
@@ -888,34 +874,31 @@ LOAD default_isr
 LOAD data_init
 
 .debug_pubtypes
-                  0x000018        0x123
+                  0x000018         0x8a
  .debug_pubtypes
-                  0x000018        0x123 build/default/debug/_ext/351475380/Main.o
+                  0x000018         0x8a build/default/debug/_ext/351475380/Main.o
 
 __c30_signature
-                  0x00013b         0x12
+                  0x0000a2         0x18
  __c30_signature
-                  0x00013b          0x6 build/default/debug/_ext/351475380/Main.o
+                  0x0000a2          0x6 build/default/debug/_ext/351475380/Main.o
  __c30_signature
-                  0x000141          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
+                  0x0000a8          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
  __c30_signature
-                  0x000147          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
+                  0x0000ae          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
+ __c30_signature
+                  0x0000b4          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
 
-.nbss               0x0850          0x4
- .nbss              0x0850          0x4 build/default/debug/_ext/351475380/Main.o
-                    0x0850                  _TimerEnabled
-                    0x0852                  _TimeElapsed
+.text             0x00019e        0x1f2
+ .text            0x00019e        0x1f2 build/default/debug/_ext/351475380/Main.o
+                  0x00019e                  _SendCommand
+                  0x000228                  _WriteCharacter
+                  0x0002b2                  _InitializeLCD
+                  0x000384                  _main
 
-.text             0x00019e        0x216
- .text            0x00019e        0x216 build/default/debug/_ext/351475380/Main.o
-                  0x00019e                  _InitializeTimer
-                  0x0001c2                  _ToggleTimer
-                  0x0001d4                  _Delay
-                  0x0001e6                  __T1Interrupt
-                  0x000200                  _SendCommand
-                  0x000288                  _WriteCharacter
-                  0x000310                  _InitializeLCD
-                  0x0003a8                  _main
+.init.delay32     0x000390         0x1c
+ .init.delay32    0x000390         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x000390                  ___delay32
 
-.dinit            0x0003b4          0x8
- .dinit           0x0003b4          0x8 data_init
+.dinit            0x0003ac          0x2
+ .dinit           0x0003ac          0x2 data_init

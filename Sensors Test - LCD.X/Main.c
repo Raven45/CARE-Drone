@@ -12,7 +12,7 @@
  */
 int main(int argc, char** argv) {
 
-    InitializeTimer();
+    //InitializeTimer();
     InitializeLCD();
     
     while (1) {
