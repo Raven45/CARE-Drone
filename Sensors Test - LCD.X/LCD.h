@@ -32,6 +32,7 @@
 #define CLEAR_BIT(var,pos) ((var) &= ~(1<<(pos)))
 #define SET_BIT(var,pos)   ((var) |= (1<<(pos)))
 
+
 struct LCD {
     
     unsigned int Rows;
@@ -100,20 +101,31 @@ void WriteCharacter(char Data) {
     TRISBbits.TRISB5 = OUTPUT;  //DB7 pin
 }
 
+void ClearLCD() {
+    
+    SendCommand(0x01);
+    __delay_ms(5);
+    SendCommand(0x02);
+    __delay_ms(1);
+}
+
 
 void InitializeLCD() {
     
+    //Turn off the analog to digital converter so we can use the 
+    //Port B pins as both digital input and digital output pins.
+    //The PIC defaults to analog inputs on startup.
     ADCON1 = 0x0000;
     ADCON2 = 0x0000;
     ADCON3 = 0x0000;
     ADPCFG = 0xFFFF;
     
+    //Configure interface pins with Hitachi HD44780 LCD screen.
     TRISBbits.TRISB0 = OUTPUT;  //E pin
     TRISBbits.TRISB1 = OUTPUT;  //R/W pin
     TRISBbits.TRISB3 = OUTPUT;  //RS pin
     TRISBbits.TRISB4 = OUTPUT;  //DB6 pin
     TRISBbits.TRISB5 = OUTPUT;  //DB7 pin
-    
     TRISEbits.TRISE0 = OUTPUT;  //DB0 pin
     TRISEbits.TRISE1 = OUTPUT;  //DB1 pin
     TRISEbits.TRISE2 = OUTPUT;  //DB2 pin
@@ -121,10 +133,12 @@ void InitializeLCD() {
     TRISEbits.TRISE4 = OUTPUT;  //DB4 pin
     TRISEbits.TRISE5 = OUTPUT;  //DB5 pin
     
+    //Set RS, R/W, and E pins to LOW
     LATBbits.LATB0 = 0;
     LATBbits.LATB1 = 0;
     LATBbits.LATB3 = 0;
     
+    //Set DB0-7 pins to LOW
     LATEbits.LATE0 = 0;
     LATEbits.LATE1 = 0;
     LATEbits.LATE2 = 0;
@@ -134,18 +148,18 @@ void InitializeLCD() {
     LATBbits.LATB4 = 0;
     LATBbits.LATB5 = 0;
     
+    //Go through Hitachi HD44780 initialization process
     __delay_ms(40);    
     SendCommand(LCD_INITIALIZE);
-    __delay_ms(1);
+    __delay_ms(5);
     SendCommand(LCD_INITIALIZE);
-    __delay_ms(1);
+    __delay_us(100);
     SendCommand(LCD_INITIALIZE);
-    __delay_ms(1);
-    
+    __delay_us(100);
     SendCommand(0x38);
-    __delay_ms(1);
+    __delay_ms(53);
     SendCommand(0x06);
-    __delay_ms(1);
+    __delay_ms(53);
     SendCommand(0x0C);
     __delay_ms(1);
     SendCommand(0x01);
@@ -153,18 +167,13 @@ void InitializeLCD() {
     SendCommand(0x02);
     __delay_ms(1);
     
-    WriteCharacter(0x53);
-    __delay_ms(1);
-    WriteCharacter(0x50);
-    __delay_ms(1);
-    WriteCharacter(0x41);
-    __delay_ms(1);
-    WriteCharacter(0x52);
-    __delay_ms(1);
-    WriteCharacter(0x4B);
-    __delay_ms(1);
-    WriteCharacter(0x59);
-    __delay_ms(1);
+    
+    //WriteCharacter(0x53);
+    //WriteCharacter(0x50);
+    //WriteCharacter(0x41);
+    //WriteCharacter(0x52);
+    //WriteCharacter(0x4B);
+    //WriteCharacter(0x59);
 }
 
 #endif	/* LCD_H */

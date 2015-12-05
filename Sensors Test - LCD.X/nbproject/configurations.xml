@@ -5,6 +5,7 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>C:/Users/Aaron/Documents/GitHub/CARE-Drone/Sensors Test - LCD.X/LCD.h</itemPath>
+      <itemPath>C:/Users/Aaron/Documents/GitHub/CARE-Drone/Sensors Test - LCD.X/dsp30SPI.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
