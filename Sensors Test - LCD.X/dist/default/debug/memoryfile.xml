@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <executable name="dist/default/debug/Sensors_Test_-_LCD.X.debug.elf">
+    <memory name="data">
+      <units>bytes</units>
+      <length>512</length>
+      <used>84</used>
+      <free>428</free>
+    </memory>
+    <memory name="program">
+      <units>bytes</units>
+      <length>11904</length>
+      <used>1050</used>
+      <free>10854</free>
+    </memory>
+  </executable>
+</project>
