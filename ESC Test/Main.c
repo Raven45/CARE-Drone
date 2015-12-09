@@ -48,6 +48,7 @@ void InitializePWM() {
     PTPER = 0x5F;
     SetThrottle(0);
     PTMR = 0;
+    DTCON1 = 0x1;
     _PTEN = 1;
     
     TogglePWMChannel(1);
@@ -89,9 +90,9 @@ void SetThrottle(unsigned int Throttle) {
     if (Throttle >=0 || Throttle < 100) {
         
         CurrentThrottle = Throttle;
-        PDC1 = PWM_Channel_1 * (Throttle * (2*PTPER))/100;
-        PDC2 = PWM_Channel_2 * (Throttle * (2*PTPER))/100;
-        PDC3 = PWM_Channel_3 * (Throttle * (2*PTPER))/100;
+        PDC1 = (Throttle * (2*PTPER))/100;
+        PDC2 = (Throttle * (2*PTPER))/100;
+        PDC3 = (Throttle * (2*PTPER))/100;
     }
 }
 
@@ -102,7 +103,7 @@ unsigned int GetThrottle() {
 
 void SectorChange() {
     
-    if (CurrentSector == 2) {
+    if (CurrentSector == 5) {
         CurrentSector = 0;
     }
     else {
@@ -110,22 +111,22 @@ void SectorChange() {
     }
     
     if (CurrentSector == 0) { 
-        PWM_Channel_1 = 1;
-        PWM_Channel_2 = 0;
-        PWM_Channel_3 = 0;
-        SetThrottle(CurrentThrottle);
+        OVDCON = 0x24;
     }
     else if (CurrentSector == 1) {
-        PWM_Channel_1 = 0;
-        PWM_Channel_2 = 1;
-        PWM_Channel_3 = 0;
-        SetThrottle(CurrentThrottle);
+        OVDCON = 0x21;
     }
     else if (CurrentSector == 2) {
-        PWM_Channel_1 = 0;
-        PWM_Channel_2 = 0;
-        PWM_Channel_3 = 1;
-        SetThrottle(CurrentThrottle);
+        OVDCON = 0x09;
+    }
+    else if (CurrentSector == 3) {
+        OVDCON = 0x18;
+    }
+    else if (CurrentSector == 4) {
+        OVDCON = 0x12;
+    }
+    else if (CurrentSector == 5) {
+        OVDCON = 0x06;
     }
 }
 
@@ -137,15 +138,10 @@ int main(int argc, char** argv) {
     int Throttle = 30;
 
     InitializePWM();
-   
+    SetThrottle(Throttle);
+    
     while (1) {
-
-        //Incoming = ReadSPI(0);
-        SetThrottle(Throttle);
-        SectorChange();
-        __delay_ms(10);
-        SectorChange();
-        __delay_ms(10);
+        
         SectorChange();
         __delay_ms(10);
     }

@@ -62,11 +62,11 @@ Program Memory  [Origin = 0x100, Length = 0x1f00]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x100                0x9e            0xed  (237)
-.text                        0x19e               0x168           0x21c  (540)
-.init.delay32                0x306                0x1c            0x2a  (42)
-.dinit                       0x322                0x10            0x18  (24)
+.text                        0x19e               0x15e           0x20d  (525)
+.init.delay32                0x2fc                0x1c            0x2a  (42)
+.dinit                       0x318                0x10            0x18  (24)
 
-                     Total program memory used (bytes):          0x34b  (843) 7%
+                     Total program memory used (bytes):          0x33c  (828) 6%
 
 
 Data Memory  [Origin = 0x800, Length = 0x200]
@@ -125,27 +125,27 @@ External Symbols in Program Memory (by address):
                   0x00013c                  __data_init_standard
                   0x00019a                  __DefaultInterrupt
                   0x00019e                  _InitializePWM
-                  0x0001c6                  _TogglePWMChannel
-                  0x00020e                  _SetThrottle
-                  0x00026e                  _GetThrottle
-                  0x000284                  _SectorChange
-                  0x0002d4                  _main
-                  0x000306                  ___delay32
+                  0x0001ca                  _TogglePWMChannel
+                  0x000212                  _SetThrottle
+                  0x000260                  _GetThrottle
+                  0x000276                  _SectorChange
+                  0x0002d2                  _main
+                  0x0002fc                  ___delay32
 
 External Symbols in Program Memory (by name):
 
-                  0x00026e                  _GetThrottle
+                  0x000260                  _GetThrottle
                   0x00019e                  _InitializePWM
-                  0x000284                  _SectorChange
-                  0x00020e                  _SetThrottle
-                  0x0001c6                  _TogglePWMChannel
+                  0x000276                  _SectorChange
+                  0x000212                  _SetThrottle
+                  0x0001ca                  _TogglePWMChannel
                   0x00019a                  __DefaultInterrupt
-                  0x000306                  ___delay32
+                  0x0002fc                  ___delay32
                   0x00013c                  __data_init
                   0x00013c                  __data_init_standard
                   0x00012c                  __psv_init
                   0x000100                  __resetPRI
-                  0x0002d4                  _main
+                  0x0002d2                  _main
 
 Memory Configuration
 
@@ -266,18 +266,18 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000        0x5db
+.debug_info       0x000000        0x5f4
  *(.debug_info)
- .debug_info      0x000000        0x5db build/default/production/_ext/1831751244/Main.o
+ .debug_info      0x000000        0x5f4 build/default/production/_ext/1831751244/Main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x171
+.debug_abbrev     0x000000        0x162
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x171 build/default/production/_ext/1831751244/Main.o
+ .debug_abbrev    0x000000        0x162 build/default/production/_ext/1831751244/Main.o
 
-.debug_line       0x000000        0x319
+.debug_line       0x000000        0x2f9
  *(.debug_line)
- .debug_line      0x000000        0x319 build/default/production/_ext/1831751244/Main.o
+ .debug_line      0x000000        0x2f9 build/default/production/_ext/1831751244/Main.o
 
 .debug_frame      0x000000         0x74
  *(.debug_frame)
@@ -910,18 +910,18 @@ __c30_signature
  .ndata             0x0814          0x2 build/default/production/_ext/1831751244/Main.o
                     0x0814                  _PWM_Prescale
 
-.text             0x00019e        0x168
- .text            0x00019e        0x168 build/default/production/_ext/1831751244/Main.o
+.text             0x00019e        0x15e
+ .text            0x00019e        0x15e build/default/production/_ext/1831751244/Main.o
                   0x00019e                  _InitializePWM
-                  0x0001c6                  _TogglePWMChannel
-                  0x00020e                  _SetThrottle
-                  0x00026e                  _GetThrottle
-                  0x000284                  _SectorChange
-                  0x0002d4                  _main
+                  0x0001ca                  _TogglePWMChannel
+                  0x000212                  _SetThrottle
+                  0x000260                  _GetThrottle
+                  0x000276                  _SectorChange
+                  0x0002d2                  _main
 
-.init.delay32     0x000306         0x1c
- .init.delay32    0x000306         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
-                  0x000306                  ___delay32
+.init.delay32     0x0002fc         0x1c
+ .init.delay32    0x0002fc         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x0002fc                  ___delay32
 
-.dinit            0x000322         0x10
- .dinit           0x000322         0x10 data_init
+.dinit            0x000318         0x10
+ .dinit           0x000318         0x10 data_init
