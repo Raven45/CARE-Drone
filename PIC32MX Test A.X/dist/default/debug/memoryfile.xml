@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<project>                                  
+  <executable name="dist/default/debug/PIC32MX_Test_A.X.debug.elf">                 
+    <memory name="program">                 
+      <units>bytes</units>                 
+      <length>263312</length>                 
+      <used>18736</used>                     
+      <free>244576</free>                     
+    </memory>                              
+    <memory name="data">              
+      <units>bytes</units>                 
+      <length>16896</length>                 
+      <used>3872</used>                     
+      <free>13024</free>                     
+    </memory>                              
+  </executable>                            
+</project>                                 

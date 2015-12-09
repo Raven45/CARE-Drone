@@ -74,11 +74,11 @@ Program Memory  [Origin = 0x100, Length = 0x1f00]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x100                0xf4           0x16e  (366)
-.text                        0x1f4               0x3e8           0x5dc  (1500)
-.init.delay32                0x5dc                0x1c            0x2a  (42)
-.dinit                       0x5f8                 0x2             0x3  (3)
+.text                        0x1f4               0x514           0x79e  (1950)
+.init.delay32                0x708                0x1c            0x2a  (42)
+.dinit                       0x724                 0x2             0x3  (3)
 
-                     Total program memory used (bytes):          0x777  (1911) 16%
+                     Total program memory used (bytes):          0x939  (2361) 19%
 
 
 Data Memory  [Origin = 0x800, Length = 0x200]
@@ -122,7 +122,7 @@ External Symbols in Program Memory (by address):
                   0x00048a                  _InitializeSPI
                   0x0004ba                  __SPI1Interrupt
                   0x0004d0                  _main
-                  0x0005dc                  ___delay32
+                  0x000708                  ___delay32
 
 External Symbols in Program Memory (by name):
 
@@ -142,7 +142,7 @@ External Symbols in Program Memory (by name):
                   0x0001ea                  _WriteSPI1
                   0x00019a                  __DefaultInterrupt
                   0x0004ba                  __SPI1Interrupt
-                  0x0005dc                  ___delay32
+                  0x000708                  ___delay32
                   0x00013c                  __data_init
                   0x00013c                  __data_init_standard
                   0x00012c                  __psv_init
@@ -280,18 +280,18 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000        0xaa2
+.debug_info       0x000000        0xb0d
  *(.debug_info)
- .debug_info      0x000000        0xaa2 build/default/production/_ext/351475380/Main.o
+ .debug_info      0x000000        0xb0d build/default/production/_ext/351475380/Main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x11a
+.debug_abbrev     0x000000        0x123
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x11a build/default/production/_ext/351475380/Main.o
+ .debug_abbrev    0x000000        0x123 build/default/production/_ext/351475380/Main.o
 
-.debug_line       0x000000        0x75a
+.debug_line       0x000000        0x860
  *(.debug_line)
- .debug_line      0x000000        0x75a build/default/production/_ext/351475380/Main.o
+ .debug_line      0x000000        0x860 build/default/production/_ext/351475380/Main.o
 
 .debug_frame      0x000000         0xb4
  *(.debug_frame)
@@ -919,8 +919,8 @@ __c30_signature
  __c30_signature
                   0x000139          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
 
-.text             0x0001f4        0x3e8
- .text            0x0001f4        0x3e8 build/default/production/_ext/351475380/Main.o
+.text             0x0001f4        0x514
+ .text            0x0001f4        0x514 build/default/production/_ext/351475380/Main.o
                   0x0001f4                  _SendCommand
                   0x00027e                  _WriteCharacter
                   0x00031c                  _ClearLCD
@@ -932,9 +932,9 @@ __c30_signature
                   0x0004ba                  __SPI1Interrupt
                   0x0004d0                  _main
 
-.init.delay32     0x0005dc         0x1c
- .init.delay32    0x0005dc         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
-                  0x0005dc                  ___delay32
+.init.delay32     0x000708         0x1c
+ .init.delay32    0x000708         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x000708                  ___delay32
 
-.dinit            0x0005f8          0x2
- .dinit           0x0005f8          0x2 data_init
+.dinit            0x000724          0x2
+ .dinit           0x000724          0x2 data_init

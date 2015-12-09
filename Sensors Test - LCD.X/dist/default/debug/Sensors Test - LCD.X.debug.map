@@ -9,17 +9,23 @@ Command:
   dist/default/debug/Sensors_Test_-_LCD.X.debug.elf \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/.. \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib \
+  -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/PIC24E \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/PIC24E/gld \
+  -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/PIC24F \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/PIC24F/gld \
+  -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/PIC24H \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/PIC24H/gld \
+  -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/dsPIC30F/gld \
+  -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC33E \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/dsPIC33E/gld \
+  -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC33F \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/dsPIC33F/gld \
   build/default/debug/_ext/351475380/Main.o \
-  -TC:\\tmp0000142c.00 \
-  -TC:\\tmp0000142c.01 \
-  -TC:\\tmp0000142c.02 \
-  -TC:\\tmp0000142c.03 \
+  -TC:\\tmp00001598.00 \
+  -TC:\\tmp00001598.01 \
+  -TC:\\tmp00001598.02 \
+  -TC:\\tmp00001598.03 \
   --defsym=__MPLAB_BUILD=1 \
   --defsym=__MPLAB_DEBUG=1 \
   --defsym=__DEBUG=1 \
@@ -46,10 +52,20 @@ Command:
   --library=lega-c-elf \
   -end-group \
 
-
-Optional library libp30F2010.a not found
 Archive member included because of file (symbol)
 
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(CloseSPI1.o)
+                              build/default/debug/_ext/351475380/Main.o (_CloseSPI1)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ConfigIntSPI1.o)
+                              build/default/debug/_ext/351475380/Main.o (_ConfigIntSPI1)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(DataRdySPI1.o)
+                              build/default/debug/_ext/351475380/Main.o (_DataRdySPI1)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(OpenSPI1.o)
+                              build/default/debug/_ext/351475380/Main.o (_OpenSPI1)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ReadSPI1.o)
+                              build/default/debug/_ext/351475380/Main.o (_ReadSPI1)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(WriteSPI1.o)
+                              build/default/debug/_ext/351475380/Main.o (_WriteSPI1)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
                               (__resetPRI)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
@@ -64,12 +80,12 @@ Program Memory  [Origin = 0x100, Length = 0x1f00]
 
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
-.text                        0x100                0x9e            0xed  (237)
-.text                        0x19e               0x1f2           0x2eb  (747)
-.init.delay32                0x390                0x1c            0x2a  (42)
-.dinit                       0x3ac                 0x2             0x3  (3)
+.text                        0x100                0xf4           0x16e  (366)
+.text                        0x1f4               0x51c           0x7aa  (1962)
+.init.delay32                0x710                0x1c            0x2a  (42)
+.dinit                       0x72c                 0x2             0x3  (3)
 
-                     Total program memory used (bytes):          0x405  (1029) 8%
+                     Total program memory used (bytes):          0x945  (2373) 19%
 
 
 Data Memory  [Origin = 0x800, Length = 0x200]
@@ -101,24 +117,48 @@ External Symbols in Program Memory (by address):
                   0x00013c                  __data_init_standard
                   0x00013c                  __data_init
                   0x00019a                  __DefaultInterrupt
-                  0x00019e                  _SendCommand
-                  0x000228                  _WriteCharacter
-                  0x0002b2                  _InitializeLCD
-                  0x000384                  _main
-                  0x000390                  ___delay32
+                  0x00019e                  _CloseSPI1
+                  0x0001a6                  _ConfigIntSPI1
+                  0x0001c8                  _DataRdySPI1
+                  0x0001ce                  _OpenSPI1
+                  0x0001d4                  _ReadSPI1
+                  0x0001ea                  _WriteSPI1
+                  0x0001f4                  _SendCommand
+                  0x00027e                  _WriteCharacter
+                  0x00031c                  _ClearLCD
+                  0x000336                  _InitializeLCD
+                  0x0003c8                  _VerifyMessage
+                  0x000406                  _EncodeParity
+                  0x000454                  _ReadSPI
+                  0x00048a                  _InitializeSPI
+                  0x0004ba                  __SPI1Interrupt
+                  0x0004d0                  _main
+                  0x000710                  ___delay32
 
 External Symbols in Program Memory (by name):
 
-                  0x0002b2                  _InitializeLCD
-                  0x00019e                  _SendCommand
-                  0x000228                  _WriteCharacter
+                  0x00031c                  _ClearLCD
+                  0x00019e                  _CloseSPI1
+                  0x0001a6                  _ConfigIntSPI1
+                  0x0001c8                  _DataRdySPI1
+                  0x000406                  _EncodeParity
+                  0x000336                  _InitializeLCD
+                  0x00048a                  _InitializeSPI
+                  0x0001ce                  _OpenSPI1
+                  0x000454                  _ReadSPI
+                  0x0001d4                  _ReadSPI1
+                  0x0001f4                  _SendCommand
+                  0x0003c8                  _VerifyMessage
+                  0x00027e                  _WriteCharacter
+                  0x0001ea                  _WriteSPI1
                   0x00019a                  __DefaultInterrupt
-                  0x000390                  ___delay32
+                  0x0004ba                  __SPI1Interrupt
+                  0x000710                  ___delay32
                   0x00013c                  __data_init
                   0x00013c                  __data_init_standard
                   0x00012c                  __psv_init
                   0x000100                  __resetPRI
-                  0x000384                  _main
+                  0x0004d0                  _main
 
 Memory Configuration
 
@@ -170,7 +210,7 @@ reserve_data_0x824
                     0x0001                  __MPLAB_DEBUG = 0x1
                     0x0001                  __DEBUG = 0x1
                     0x0001                  __MPLAB_DEBUGGER_PK3 = 0x1
-LOAD p30F2010
+LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a
 LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libfx-elf.a
                     0x8005c0                  __FUID0 = 0x8005c0
                     0x8005c2                  __FUID1 = 0x8005c2
@@ -198,7 +238,7 @@ LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libfx-elf.a
                   0x000002          0x2 SHORT 0x0 ((ABSOLUTE (__reset) >> 0x10) & 0x7f)
                   0x000003          0x2 SHORT 0x0
 
-.text             0x000100         0x9e
+.text             0x000100         0xf4
  *(.init)
  .init            0x000100         0x3c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
                   0x000100                  __resetPRI
@@ -216,6 +256,18 @@ LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libfx-elf.a
  *(.libm)
  *(.libdsp)
  *(.lib*)
+ .libperi         0x00019e          0x8 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(CloseSPI1.o)
+                  0x00019e                  _CloseSPI1
+ .libperi         0x0001a6         0x22 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ConfigIntSPI1.o)
+                  0x0001a6                  _ConfigIntSPI1
+ .libperi         0x0001c8          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(DataRdySPI1.o)
+                  0x0001c8                  _DataRdySPI1
+ .libperi         0x0001ce          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(OpenSPI1.o)
+                  0x0001ce                  _OpenSPI1
+ .libperi         0x0001d4         0x16 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ReadSPI1.o)
+                  0x0001d4                  _ReadSPI1
+ .libperi         0x0001ea          0xa c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(WriteSPI1.o)
+                  0x0001ea                  _WriteSPI1
 
 usercode
  *(usercode)
@@ -262,26 +314,26 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000        0x5ca
+.debug_info       0x000000        0xb0d
  *(.debug_info)
- .debug_info      0x000000        0x5ca build/default/debug/_ext/351475380/Main.o
+ .debug_info      0x000000        0xb0d build/default/debug/_ext/351475380/Main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000         0xf9
+.debug_abbrev     0x000000        0x123
  *(.debug_abbrev)
- .debug_abbrev    0x000000         0xf9 build/default/debug/_ext/351475380/Main.o
+ .debug_abbrev    0x000000        0x123 build/default/debug/_ext/351475380/Main.o
 
-.debug_line       0x000000        0x45c
+.debug_line       0x000000        0x873
  *(.debug_line)
- .debug_line      0x000000        0x45c build/default/debug/_ext/351475380/Main.o
+ .debug_line      0x000000        0x873 build/default/debug/_ext/351475380/Main.o
 
-.debug_frame      0x000000         0x54
+.debug_frame      0x000000         0xb4
  *(.debug_frame)
- .debug_frame     0x000000         0x54 build/default/debug/_ext/351475380/Main.o
+ .debug_frame     0x000000         0xb4 build/default/debug/_ext/351475380/Main.o
 
-.debug_str        0x000000         0x26
+.debug_str        0x000000         0x59
  *(.debug_str)
- .debug_str       0x000000         0x26 build/default/debug/_ext/351475380/Main.o
+ .debug_str       0x000000         0x59 build/default/debug/_ext/351475380/Main.o
 
 .debug_loc
  *(.debug_loc)
@@ -290,10 +342,10 @@ userdata
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000         0x50
+                  0x000000         0xb1
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0x50 build/default/debug/_ext/351475380/Main.o
+                  0x000000         0xb1 build/default/debug/_ext/351475380/Main.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -320,7 +372,7 @@ userdata
                   0x00001e          0x4 LONG 0x19a DEFINED (__OC2Interrupt)?ABSOLUTE (__OC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000020          0x4 LONG 0x19a DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000022          0x4 LONG 0x19a DEFINED (__T3Interrupt)?ABSOLUTE (__T3Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x000024          0x4 LONG 0x19a DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x000024          0x4 LONG 0x4ba DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000026          0x4 LONG 0x19a DEFINED (__U1RXInterrupt)?ABSOLUTE (__U1RXInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000028          0x4 LONG 0x19a DEFINED (__U1TXInterrupt)?ABSOLUTE (__U1TXInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00002a          0x4 LONG 0x19a DEFINED (__ADCInterrupt)?ABSOLUTE (__ADCInterrupt):ABSOLUTE (__DefaultInterrupt)
@@ -384,7 +436,7 @@ userdata
                   0x00009e          0x4 LONG 0x19a DEFINED (__AltOC2Interrupt)?ABSOLUTE (__AltOC2Interrupt):DEFINED (__OC2Interrupt)?ABSOLUTE (__OC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a0          0x4 LONG 0x19a DEFINED (__AltT2Interrupt)?ABSOLUTE (__AltT2Interrupt):DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a2          0x4 LONG 0x19a DEFINED (__AltT3Interrupt)?ABSOLUTE (__AltT3Interrupt):DEFINED (__T3Interrupt)?ABSOLUTE (__T3Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x0000a4          0x4 LONG 0x19a DEFINED (__AltSPI1Interrupt)?ABSOLUTE (__AltSPI1Interrupt):DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x0000a4          0x4 LONG 0x4ba DEFINED (__AltSPI1Interrupt)?ABSOLUTE (__AltSPI1Interrupt):DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a6          0x4 LONG 0x19a DEFINED (__AltU1RXInterrupt)?ABSOLUTE (__AltU1RXInterrupt):DEFINED (__U1RXInterrupt)?ABSOLUTE (__U1RXInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a8          0x4 LONG 0x19a DEFINED (__AltU1TXInterrupt)?ABSOLUTE (__AltU1TXInterrupt):DEFINED (__U1TXInterrupt)?ABSOLUTE (__U1TXInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000aa          0x4 LONG 0x19a DEFINED (__AltADCInterrupt)?ABSOLUTE (__AltADCInterrupt):DEFINED (__ADCInterrupt)?ABSOLUTE (__ADCInterrupt):ABSOLUTE (__DefaultInterrupt)
@@ -874,31 +926,49 @@ LOAD default_isr
 LOAD data_init
 
 .debug_pubtypes
-                  0x000018         0x8a
+                  0x000018         0xeb
  .debug_pubtypes
-                  0x000018         0x8a build/default/debug/_ext/351475380/Main.o
+                  0x000018         0xeb build/default/debug/_ext/351475380/Main.o
 
 __c30_signature
-                  0x0000a2         0x18
+                  0x000103         0x3c
  __c30_signature
-                  0x0000a2          0x6 build/default/debug/_ext/351475380/Main.o
+                  0x000103          0x6 build/default/debug/_ext/351475380/Main.o
  __c30_signature
-                  0x0000a8          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
+                  0x000109          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(CloseSPI1.o)
  __c30_signature
-                  0x0000ae          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
+                  0x00010f          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ConfigIntSPI1.o)
  __c30_signature
-                  0x0000b4          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x000115          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(DataRdySPI1.o)
+ __c30_signature
+                  0x00011b          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(OpenSPI1.o)
+ __c30_signature
+                  0x000121          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ReadSPI1.o)
+ __c30_signature
+                  0x000127          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(WriteSPI1.o)
+ __c30_signature
+                  0x00012d          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
+ __c30_signature
+                  0x000133          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
+ __c30_signature
+                  0x000139          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
 
-.text             0x00019e        0x1f2
- .text            0x00019e        0x1f2 build/default/debug/_ext/351475380/Main.o
-                  0x00019e                  _SendCommand
-                  0x000228                  _WriteCharacter
-                  0x0002b2                  _InitializeLCD
-                  0x000384                  _main
+.text             0x0001f4        0x51c
+ .text            0x0001f4        0x51c build/default/debug/_ext/351475380/Main.o
+                  0x0001f4                  _SendCommand
+                  0x00027e                  _WriteCharacter
+                  0x00031c                  _ClearLCD
+                  0x000336                  _InitializeLCD
+                  0x0003c8                  _VerifyMessage
+                  0x000406                  _EncodeParity
+                  0x000454                  _ReadSPI
+                  0x00048a                  _InitializeSPI
+                  0x0004ba                  __SPI1Interrupt
+                  0x0004d0                  _main
 
-.init.delay32     0x000390         0x1c
- .init.delay32    0x000390         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
-                  0x000390                  ___delay32
+.init.delay32     0x000710         0x1c
+ .init.delay32    0x000710         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x000710                  ___delay32
 
-.dinit            0x0003ac          0x2
- .dinit           0x0003ac          0x2 data_init
+.dinit            0x00072c          0x2
+ .dinit           0x00072c          0x2 data_init
