@@ -12,6 +12,8 @@
 #define _DISABLE_OPENADC10_CONFIGPORT_WARNING
 #include <plib.h>
 
+#define LOOP_INFINITELY while(1)
+
 typedef unsigned int UnsignedInteger32;
 typedef signed int SignedInteger32;
 typedef unsigned short int UnsignedInteger16;

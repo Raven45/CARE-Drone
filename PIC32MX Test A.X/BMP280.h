@@ -29,7 +29,7 @@
 typedef unsigned int BMP280_U32_t;
 typedef signed int BMP280_S32_t;
 
-class BMP280: Device {
+class BMP280: public Device {
     
     public:
         

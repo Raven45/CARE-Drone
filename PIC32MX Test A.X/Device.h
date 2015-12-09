@@ -53,7 +53,9 @@ class Device: Object {
         void SetParity(unsigned short int Parity);
         
         void SetSlave(unsigned int Slave);
-    private:
+        
+    protected:
+        
         unsigned int SPICONValue;
         unsigned int SPISTATValue;
         unsigned short int Parity;
