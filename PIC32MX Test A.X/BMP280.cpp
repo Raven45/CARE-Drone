@@ -5,7 +5,34 @@ BMP280::BMP280():Device() {
     //Sensor does not use a parity.
     SetParity(ParityTypes::NoParity);
     
+    dig_T1 = SendAndReceive32S(DIGT1_ADDRESS, Device::TransmitMode::Address);
+    dig_T2 = SendAndReceive32(DIGT2_ADDRESS, Device::TransmitMode::Address);
+    dig_T3 = SendAndReceive32(DIGT3_ADDRESS, Device::TransmitMode::Address);
     
+    dig_P1 = SendAndReceive32S(DIGP1_ADDRESS, Device::TransmitMode::Address);
+    dig_P2 = SendAndReceive32(DIGP2_ADDRESS, Device::TransmitMode::Address);
+    dig_P3 = SendAndReceive32(DIGP3_ADDRESS, Device::TransmitMode::Address);
+    dig_P4 = SendAndReceive32(DIGP4_ADDRESS, Device::TransmitMode::Address);
+    dig_P5 = SendAndReceive32(DIGP5_ADDRESS, Device::TransmitMode::Address);
+    dig_P6 = SendAndReceive32(DIGP6_ADDRESS, Device::TransmitMode::Address);
+    dig_P7 = SendAndReceive32(DIGP7_ADDRESS, Device::TransmitMode::Address);
+    dig_P8 = SendAndReceive32(DIGP8_ADDRESS, Device::TransmitMode::Address);
+    dig_P9 = SendAndReceive32(DIGP9_ADDRESS, Device::TransmitMode::Address);
+}
+
+SignedInteger32 BMP280::RetrievePressure() {
+    
+    SignedInteger32 IncomingTemp = 0;
+    SignedInteger32 IncomingPressure = 0;
+    SignedInteger32 Pressure = 0;
+    
+    IncomingTemp = SendAndReceive32S(TEMP_ADDRESS, Device::TransmitMode::Address);
+    IncomingPressure = SendAndReceive32S(PRES_ADDRESS, Device::TransmitMode::Address);
+ 
+    bmp280_compensate_T_int32(IncomingTemp);
+    Pressure = bmp280_compensate_P_int32(IncomingPressure);
+    
+    return Pressure;
 }
 
 BMP280_S32_t BMP280::bmp280_compensate_T_int32(BMP280_S32_t adc_T)

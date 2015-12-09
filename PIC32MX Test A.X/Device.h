@@ -35,10 +35,19 @@ class Device: Object {
     };
     
     public:
+        
+        enum TransmitMode {
+            Address,
+            Command
+        };
+    
         Device();
         ~Device();
         
         unsigned int SendAndReceive(unsigned int DataToSend);
+        SignedInteger16 SendAndReceiveS(UnsignedInteger16 DataToSend);
+        UnsignedInteger32 SendAndReceive32(UnsignedInteger16 DataToSend, short int Mode);
+        SignedInteger32 SendAndReceive32S(UnsignedInteger16 DataToSend, short int Mode);
         bool InitializeBus();
         
         void SetParity(unsigned short int Parity);
