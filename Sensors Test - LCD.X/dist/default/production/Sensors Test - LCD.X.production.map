@@ -21,7 +21,7 @@ Command:
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/dsPIC33E/gld \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC33F \
   -Lc:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../support/dsPIC33F/gld \
-  build/default/production/_ext/351475380/Main.o \
+  build/default/production/Main.o \
   --defsym=__MPLAB_BUILD=1 \
   -Tp30F2010.gld.00 \
   --stack=16 \
@@ -40,31 +40,31 @@ Command:
   --memorysummary \
   dist/default/production/memoryfile.xml \
   -start-group \
-  --library=lega-pic30-elf \
+  --library=pic30-elf \
   --library=m-elf \
-  --library=lega-c-elf \
+  --library=c-elf \
   -end-group \
 
 Archive member included because of file (symbol)
 
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(CloseSPI1.o)
-                              build/default/production/_ext/351475380/Main.o (_CloseSPI1)
+                              build/default/production/Main.o (_CloseSPI1)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ConfigIntSPI1.o)
-                              build/default/production/_ext/351475380/Main.o (_ConfigIntSPI1)
+                              build/default/production/Main.o (_ConfigIntSPI1)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(DataRdySPI1.o)
-                              build/default/production/_ext/351475380/Main.o (_DataRdySPI1)
+                              build/default/production/Main.o (_DataRdySPI1)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(OpenSPI1.o)
-                              build/default/production/_ext/351475380/Main.o (_OpenSPI1)
+                              build/default/production/Main.o (_OpenSPI1)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(ReadSPI1.o)
-                              build/default/production/_ext/351475380/Main.o (_ReadSPI1)
+                              build/default/production/Main.o (_ReadSPI1)
 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(WriteSPI1.o)
-                              build/default/production/_ext/351475380/Main.o (_WriteSPI1)
-c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
+                              build/default/production/Main.o (_WriteSPI1)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(crt0_standard.o)
                               (__resetPRI)
-c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
-                              c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o) (__data_init_standard)
-c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
-                              build/default/production/_ext/351475380/Main.o (___delay32)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(data_init_standard.o)
+                              c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(crt0_standard.o) (__data_init_standard)
+c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(delay32.eo)
+                              build/default/production/Main.o (___delay32)
 
 
 xc16-ld 1.25 (A)
@@ -174,7 +174,7 @@ FICD             0xf8000c           0x000002
 
 Linker script and memory map
 
-LOAD build/default/production/_ext/351475380/Main.o
+LOAD build/default/production/Main.o
                     0x0001                  __MPLAB_BUILD = 0x1
 LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a
 LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libfx-elf.a
@@ -206,11 +206,11 @@ LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libfx-elf.a
 
 .text             0x000100         0xf4
  *(.init)
- .init            0x000100         0x3c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
+ .init            0x000100         0x3c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(crt0_standard.o)
                   0x000100                  __resetPRI
                   0x000100                  __reset
                   0x00012c                  __psv_init
- .init            0x00013c         0x5e c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
+ .init            0x00013c         0x5e c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(data_init_standard.o)
                   0x00013c                  __data_init_standard
                   0x00013c                  __data_init
  *(.user_init)
@@ -280,26 +280,26 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000        0xb0d
+.debug_info       0x000000        0xb01
  *(.debug_info)
- .debug_info      0x000000        0xb0d build/default/production/_ext/351475380/Main.o
+ .debug_info      0x000000        0xb01 build/default/production/Main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x123
+.debug_abbrev     0x000000        0x125
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x123 build/default/production/_ext/351475380/Main.o
+ .debug_abbrev    0x000000        0x125 build/default/production/Main.o
 
-.debug_line       0x000000        0x860
+.debug_line       0x000000        0x820
  *(.debug_line)
- .debug_line      0x000000        0x860 build/default/production/_ext/351475380/Main.o
+ .debug_line      0x000000        0x820 build/default/production/Main.o
 
 .debug_frame      0x000000         0xb4
  *(.debug_frame)
- .debug_frame     0x000000         0xb4 build/default/production/_ext/351475380/Main.o
+ .debug_frame     0x000000         0xb4 build/default/production/Main.o
 
 .debug_str        0x000000         0x59
  *(.debug_str)
- .debug_str       0x000000         0x59 build/default/production/_ext/351475380/Main.o
+ .debug_str       0x000000         0x59 build/default/production/Main.o
 
 .debug_loc
  *(.debug_loc)
@@ -311,7 +311,7 @@ userdata
                   0x000000         0xb1
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0xb1 build/default/production/_ext/351475380/Main.o
+                  0x000000         0xb1 build/default/production/Main.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -319,7 +319,7 @@ userdata
 .debug_aranges    0x000000         0x18
  *(.debug_aranges)
  .debug_aranges
-                  0x000000         0x18 build/default/production/_ext/351475380/Main.o
+                  0x000000         0x18 build/default/production/Main.o
 
 .ivt              0x000004         0x7c
                   0x000004          0x4 LONG 0x19a DEFINED (__ReservedTrap0)?ABSOLUTE (__ReservedTrap0):ABSOLUTE (__DefaultInterrupt)
@@ -883,9 +883,9 @@ userdata
                     0x020c                  UART1 = 0x20c
                     0x020c                  _UART1 = 0x20c
 START GROUP
-LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a
+LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a
 LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libm-elf.a
-LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-c-elf.a
+LOAD c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libc-elf.a
 END GROUP
 OUTPUT(dist/default/production/Sensors_Test_-_LCD.X.production.elf elf32-pic30)
 LOAD default_isr
@@ -894,12 +894,12 @@ LOAD data_init
 .debug_pubtypes
                   0x000018         0xeb
  .debug_pubtypes
-                  0x000018         0xeb build/default/production/_ext/351475380/Main.o
+                  0x000018         0xeb build/default/production/Main.o
 
 __c30_signature
                   0x000103         0x3c
  __c30_signature
-                  0x000103          0x6 build/default/production/_ext/351475380/Main.o
+                  0x000103          0x6 build/default/production/Main.o
  __c30_signature
                   0x000109          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(CloseSPI1.o)
  __c30_signature
@@ -913,14 +913,14 @@ __c30_signature
  __c30_signature
                   0x000127          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib/dsPIC30F\libp30F2010-elf.a(WriteSPI1.o)
  __c30_signature
-                  0x00012d          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
+                  0x00012d          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(crt0_standard.o)
  __c30_signature
-                  0x000133          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(data_init_standard.o)
+                  0x000133          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(data_init_standard.o)
  __c30_signature
-                  0x000139          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x000139          0x6 c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(delay32.eo)
 
 .text             0x0001f4        0x514
- .text            0x0001f4        0x514 build/default/production/_ext/351475380/Main.o
+ .text            0x0001f4        0x514 build/default/production/Main.o
                   0x0001f4                  _SendCommand
                   0x00027e                  _WriteCharacter
                   0x00031c                  _ClearLCD
@@ -933,7 +933,7 @@ __c30_signature
                   0x0004d0                  _main
 
 .init.delay32     0x000708         0x1c
- .init.delay32    0x000708         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+ .init.delay32    0x000708         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\libpic30-elf.a(delay32.eo)
                   0x000708                  ___delay32
 
 .dinit            0x000724          0x2

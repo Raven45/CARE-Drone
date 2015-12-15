@@ -26,7 +26,6 @@ int main(int argc, char** argv) {
         //Get message from master
         Incoming = ReadSPI(0);
         //Incoming = 0x0F0F;
-        
         //If message has no single bit errors.
         //if (Incoming != 0) {
       

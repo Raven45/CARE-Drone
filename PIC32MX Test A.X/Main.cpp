@@ -13,8 +13,8 @@ int main() {
     BMP280 PressureSensor;
     LCDScreen.SetParity(ParityTypes::NoParity);
     LCDScreen.SetSlave(1);
-    PressureSensor.SetParity(ParityTypes::NoParity);
-    PressureSensor.SetSlave(2);
+    //PressureSensor.SetParity(ParityTypes::NoParity);
+    //PressureSensor.SetSlave(2);
     int Pressure = 0; 
     
     LOOP_INFINITELY {

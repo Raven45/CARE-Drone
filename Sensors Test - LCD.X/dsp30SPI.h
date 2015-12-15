@@ -109,12 +109,12 @@ void InitializeSPI() {
     
     SPICONValue  =  FRAME_ENABLE_OFF &      //Disable SPI framed mode
                     FRAME_SYNC_OUTPUT &     //Enable synchronized output
-                    ENABLE_SDO_PIN  &       //Enable 4-wire SPI
+                    DISABLE_SDO_PIN  &      //Enable 4-wire SPI
                     SPI_MODE16_ON &         //Use 16 bit words.
                     SPI_SMP_OFF &           //Set edge detect mode
-                    SPI_CKE_ON &            //Set clock polarity
+                    SPI_CKE_OFF &           //Set clock polarity
                     SLAVE_ENABLE_ON &       //Enable slave mode.
-                    CLK_POL_ACTIVE_LOW &    //Set lock to ide high-active low
+                    CLK_POL_ACTIVE_HIGH &   
                     MASTER_ENABLE_OFF;      //Disable master mode.
     
     SPISTATValue =  SPI_ENABLE &            //Turn the SPI port on

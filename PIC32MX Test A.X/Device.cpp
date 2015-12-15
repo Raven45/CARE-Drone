@@ -9,8 +9,8 @@ Device::Device() {
     
     //Configure the SPI port.
     unsigned int config=SPI_OPEN_MODE16 |       //Use 16 bit words.
-                        SPI_OPEN_CKP_HIGH |     //Clock polarity high.
-                        SPI_OPEN_CKE_REV |      //Clock edge detect.
+                        //SPI_OPEN_CKP_HIGH |     //Clock polarity high.
+                        //SPI_OPEN_CKE_REV |      //Clock edge detect.
                         SPI_OPEN_ON |           //We should turn it on.
                         SPI_OPEN_MSTEN;         //Enable master mode.
 
@@ -27,6 +27,7 @@ Device::Device() {
     
     //Configure pin B1 as an output for SPI.
     PPSOutput(2, RPB1, SDO1);
+    PPSInput(2, SDI1, RPB5);
     
     CurrentSlave = 1;
 }

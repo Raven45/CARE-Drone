@@ -4,6 +4,7 @@ BMP280::BMP280():Device() {
     
     //Sensor does not use a parity.
     SetParity(ParityTypes::NoParity);
+    SetSlave(2);
     
     dig_T1 = SendAndReceive32S(DIGT1_ADDRESS, Device::TransmitMode::Address);
     dig_T2 = SendAndReceive32(DIGT2_ADDRESS, Device::TransmitMode::Address);

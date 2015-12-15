@@ -6,7 +6,7 @@
                    projectFiles="true">
       <itemPath>Object.h</itemPath>
       <itemPath>Device.h</itemPath>
-      <itemPath>C:/Users/Aaron/Documents/GitHub/CARE-Drone/PIC32MX Test A.X/BMP280.h</itemPath>
+      <itemPath>BMP280.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -18,7 +18,7 @@
       <itemPath>Object.cpp</itemPath>
       <itemPath>Main.cpp</itemPath>
       <itemPath>Device.cpp</itemPath>
-      <itemPath>C:/Users/Aaron/Documents/GitHub/CARE-Drone/PIC32MX Test A.X/BMP280.cpp</itemPath>
+      <itemPath>BMP280.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -26,6 +26,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
@@ -188,6 +191,7 @@
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="UART1" value="true"/>
         <property key="UART2" value="true"/>
+        <property key="USB" value="true"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
