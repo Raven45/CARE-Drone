@@ -19,23 +19,20 @@
 
 #include "System.h"
 
-/*
- * 
- */
+
 int main(int argc, char** argv) {
 
     
     //Create system object and attempt to initialize system.
-    System CAREDrone;
-    while ( CAREDrone.InitializeSystem() == false ) {
+    while ( System::GetInstance()->InitializeSystem() == false ) {
         //error condition.
     }
     
     //While system is running.
-    while (CAREDrone.ClearToProceed()) {
+    while (System::GetInstance()->ClearToProceed()) {
         
         //Call the real main function.
-        CAREDrone.Main();
+        System::GetInstance()->Main();
     }
     
     return 0;

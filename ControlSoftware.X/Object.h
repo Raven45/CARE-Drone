@@ -20,7 +20,8 @@
 #ifndef OBJECT_H
 #define	OBJECT_H
 
-#include <map>
+//#include <map>
+#include <string>
 #include <exception>
 
 /*******************************************************************************
@@ -39,6 +40,8 @@
 #define SignedInteger32 signed int
 #define UnsignedInteger16 unsigned short int
 #define SignedInteger16 signed short int
+#define UnsignedInteger8 unsigned char
+#define SignedInteger8 signed char
 
 /*******************************************************************************
  * Object class

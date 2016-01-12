@@ -35,13 +35,16 @@ namespace HAL {
  * with a public read function and a private write function.
 *******************************************************************************/
 class Register: public Object {
-private:
+
     
     friend class System;
-    
+    friend class Map;
+
+public:    
     Register(UnsignedInteger32 RegisterAddress);
     ~Register();
-    
+
+private:
     bool Initialize();
     bool Update();
     

@@ -27,16 +27,16 @@
 
 #define ADDRESS unsigned char
 
-#define ADDRESS_GYRO        0x01
-#define ADDRESS_ACCEL       0x02
-#define ADDRESS_MAG         0x03
-#define ADDRESS_BAROMETER   0x04
-#define ADDRESS_MOTOR_1     0x05
-#define ADDRESS_MOTOR_2     0x06
-#define ADDRESS_MOTOR_3     0x07
-#define ADDRESS_MOTOR_4     0x08
-#define ADDRESS_MOTOR_5     0x09
-#define ADDRESS_MOTOR_6     0x0A
+#define ADDRESS_GYRO        0x00
+#define ADDRESS_ACCEL       0x01
+#define ADDRESS_MAG         0x02
+#define ADDRESS_BAROMETER   0x03
+#define ADDRESS_MOTOR_1     0x04
+#define ADDRESS_MOTOR_2     0x05
+#define ADDRESS_MOTOR_3     0x06
+#define ADDRESS_MOTOR_4     0x07
+#define ADDRESS_MOTOR_5     0x08
+#define ADDRESS_MOTOR_6     0x09
 
 namespace HAL {
 

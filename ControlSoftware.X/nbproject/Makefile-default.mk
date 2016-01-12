@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Object.cpp Main.cpp System.cpp Register.cpp SPIDevice.cpp SPIBus.cpp
+SOURCEFILES_QUOTED_IF_SPACED=Register.cpp SPIDevice.cpp SPIBus.cpp Object.cpp Main.cpp System.cpp
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d ${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d ${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o
+OBJECTFILES=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o
 
 # Source Files
-SOURCEFILES=Object.cpp Main.cpp System.cpp Register.cpp SPIDevice.cpp SPIBus.cpp
+SOURCEFILES=Register.cpp SPIDevice.cpp SPIBus.cpp Object.cpp Main.cpp System.cpp
 
 
 CFLAGS=
@@ -100,24 +100,6 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compileCPP
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/Object.o: Object.cpp  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Object.o.d 
-	@${RM} ${OBJECTDIR}/Object.o 
-	@${FIXDEPS} "${OBJECTDIR}/Object.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Object.o.d" -o ${OBJECTDIR}/Object.o Object.cpp    
-	
-${OBJECTDIR}/Main.o: Main.cpp  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Main.o.d 
-	@${RM} ${OBJECTDIR}/Main.o 
-	@${FIXDEPS} "${OBJECTDIR}/Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Main.o.d" -o ${OBJECTDIR}/Main.o Main.cpp    
-	
-${OBJECTDIR}/System.o: System.cpp  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/System.o.d 
-	@${RM} ${OBJECTDIR}/System.o 
-	@${FIXDEPS} "${OBJECTDIR}/System.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/System.o.d" -o ${OBJECTDIR}/System.o System.cpp    
-	
 ${OBJECTDIR}/Register.o: Register.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/Register.o.d 
@@ -136,25 +118,25 @@ ${OBJECTDIR}/SPIBus.o: SPIBus.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/SPIBus.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPIBus.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/SPIBus.o.d" -o ${OBJECTDIR}/SPIBus.o SPIBus.cpp    
 	
-else
 ${OBJECTDIR}/Object.o: Object.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/Object.o.d 
 	@${RM} ${OBJECTDIR}/Object.o 
-	@${FIXDEPS} "${OBJECTDIR}/Object.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Object.o.d" -o ${OBJECTDIR}/Object.o Object.cpp    
+	@${FIXDEPS} "${OBJECTDIR}/Object.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Object.o.d" -o ${OBJECTDIR}/Object.o Object.cpp    
 	
 ${OBJECTDIR}/Main.o: Main.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/Main.o.d 
 	@${RM} ${OBJECTDIR}/Main.o 
-	@${FIXDEPS} "${OBJECTDIR}/Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Main.o.d" -o ${OBJECTDIR}/Main.o Main.cpp    
+	@${FIXDEPS} "${OBJECTDIR}/Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Main.o.d" -o ${OBJECTDIR}/Main.o Main.cpp    
 	
 ${OBJECTDIR}/System.o: System.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/System.o.d 
 	@${RM} ${OBJECTDIR}/System.o 
-	@${FIXDEPS} "${OBJECTDIR}/System.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/System.o.d" -o ${OBJECTDIR}/System.o System.cpp    
+	@${FIXDEPS} "${OBJECTDIR}/System.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/System.o.d" -o ${OBJECTDIR}/System.o System.cpp    
 	
+else
 ${OBJECTDIR}/Register.o: Register.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/Register.o.d 
@@ -172,6 +154,24 @@ ${OBJECTDIR}/SPIBus.o: SPIBus.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/SPIBus.o.d 
 	@${RM} ${OBJECTDIR}/SPIBus.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPIBus.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/SPIBus.o.d" -o ${OBJECTDIR}/SPIBus.o SPIBus.cpp    
+	
+${OBJECTDIR}/Object.o: Object.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Object.o.d 
+	@${RM} ${OBJECTDIR}/Object.o 
+	@${FIXDEPS} "${OBJECTDIR}/Object.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Object.o.d" -o ${OBJECTDIR}/Object.o Object.cpp    
+	
+${OBJECTDIR}/Main.o: Main.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Main.o.d 
+	@${RM} ${OBJECTDIR}/Main.o 
+	@${FIXDEPS} "${OBJECTDIR}/Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/Main.o.d" -o ${OBJECTDIR}/Main.o Main.cpp    
+	
+${OBJECTDIR}/System.o: System.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/System.o.d 
+	@${RM} ${OBJECTDIR}/System.o 
+	@${FIXDEPS} "${OBJECTDIR}/System.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -MMD -MF "${OBJECTDIR}/System.o.d" -o ${OBJECTDIR}/System.o System.cpp    
 	
 endif
 

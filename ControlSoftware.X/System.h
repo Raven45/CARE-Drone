@@ -19,7 +19,9 @@
 #ifndef SYSTEM_H
 #define	SYSTEM_H
 
-#include "Object.h"
+#include "SPIDevice.h"
+#include "Register.h"
+#include "Map.h"
 
 #define foreach(var, array, size) for (unsigned int i = 0; i < size; i++)
 #define Address unsigned char
@@ -42,7 +44,6 @@ class System {
     };
     
 public:
-    System();
     ~System();
     
     bool InitializeSystem();
@@ -51,14 +52,54 @@ public:
     bool ClearToProceed();
     bool IsUSBAttached();
     
-private:
-    std::map<Address, int> Devices;
-    std::map<Address, int> Inputs;
-    UnsignedInteger16 State;
+    static System* GetInstance();
     
+private:
+    //Default constructor
+    System();
+    
+    
+    /***************************************************************************
+     * Private Properties.
+    ***************************************************************************/
+    //Reference to the singleton object
+    static System* Instance;
+    
+    //Array to all Devices.
+    HAL::SPIDevice * Devices;
+    UnsignedInteger8 NumDevices;
+    
+    //Array to all inputs
+    //HAL::Input * Inputs;
+    UnsignedInteger8 NumInputs;
+    
+    //Map to all registered registers.
+    Map<std::string, HAL::Register> RegisterList;
+    
+    //Integer showing the state of the system.
+    UnsignedInteger8 State;
+    
+    //Motor engagement safety
+    bool Safety;
+    
+    //Flag for enabling debugging. This is not the same
+    //as the DebugMode state.
+    bool SystemDebugging;
+    
+    
+    /***************************************************************************
+     * Private methods
+    ***************************************************************************/
     void StandbyMain();
     void RunMain();
     void DebugMain();
+    
+    void GoToState(UnsignedInteger16 State);
+    
+    bool CreateDevice(ADDRESS, short int Type);
+    
+    UnsignedInteger16 ReceiveCommand();
+    bool ExecuteCommand(UnsignedInteger16 Command);
 };
 
 #endif	/* SYSTEM_H */

@@ -11,6 +11,7 @@
       </logicalFolder>
       <itemPath>Object.h</itemPath>
       <itemPath>System.h</itemPath>
+      <itemPath>Map.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

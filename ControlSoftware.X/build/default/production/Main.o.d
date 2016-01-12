@@ -1,4 +1,8 @@
 build/default/production/Main.o:  \
 Main.cpp  \
 System.h  \
-Object.h 
+SPIDevice.h  \
+SPIBus.h  \
+ Object.h  \
+Register.h  \
+Map.h 

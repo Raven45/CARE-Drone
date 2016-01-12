@@ -33,7 +33,7 @@ UnsignedInteger16 HAL::SPIDevice::SendAndReceive(UnsignedInteger16 Outgoing) {
         }
     }
     
-    catch (std::bad_alloc) {
+    catch (...) {
         return 0;
     }
 }
