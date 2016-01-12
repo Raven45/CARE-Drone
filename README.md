@@ -15,6 +15,8 @@ Copyright 2015 Department of Engineering, Harding University
    See the License for the specific language governing permissions and
    limitations under the License.
    
+   
+   
 BMP280.h, BME280.h, and BMX055.h are not licensed under the Apache license.
 They are licensed by a third party of which wishes to protect their patents.
 Those wishing to re-use code from the CARE-Drone project and maintian an
