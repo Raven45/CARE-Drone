@@ -78,3 +78,11 @@ UnsignedInteger16 HAL::SPIDevice::EncodeParity(UnsignedInteger16 Message) {
 bool HAL::SPIDevice::VerifyParity(UnsignedInteger16 Message) {
     return true;
 }
+
+std::string HAL::SPIDevice::GetName() {
+    return this->Name;
+}
+
+void HAL::SPIDevice::SetName(std::string Name) {
+    this->Name = Name;
+}

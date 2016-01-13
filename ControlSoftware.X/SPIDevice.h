@@ -49,11 +49,14 @@ public:
     UnsignedInteger16 SendAndReceive(UnsignedInteger16 Outgoing);
     UnsignedInteger16 EncodeParity(UnsignedInteger16 Message);
     bool VerifyParity(UnsignedInteger16 Message);
+    std::string GetName();
+    void SetName(std::string Name);
     
 protected:
     ADDRESS Address;
     UnsignedInteger16 Parity;
     SPIBus* DeviceManager;
+    std::string Name;
 };
 
 }

@@ -19,6 +19,35 @@
 #ifndef SYSTEM_H
 #define	SYSTEM_H
 
+//Define 48 MHz clock frequency
+#define SYS_CLOCK                   48000000 
+ 
+#define CLOCK_FREQ                  SYS_CLOCK 
+#define GetSystemClock()            SYS_CLOCK 
+#define GetPeripheralClock()        SYS_CLOCK 
+#define GetUSBClock()               SYS_CLOCK
+
+/*
+#pragma config UPLLEN   = ON            // USB PLL Enabled
+#pragma config FPLLMUL  = MUL_20        // PLL Multiplier
+#pragma config UPLLIDIV = DIV_1         // USB PLL Input Divider
+#pragma config FPLLIDIV = DIV_2         // PLL Input Divider
+#pragma config FPLLODIV = DIV_1         // PLL Output Divider
+#pragma config FPBDIV   = DIV_1         // Peripheral Clock divisor
+#pragma config FWDTEN   = OFF           // Watchdog Timer
+#pragma config WDTPS    = PS1           // Watchdog Timer Postscale
+#pragma config FCKSM    = CSDCMD        // Clock Switching & Fail Safe Clock Monitor
+#pragma config OSCIOFNC = OFF           // CLKO Enable
+#pragma config POSCMOD  = HS            // Primary Oscillator
+#pragma config IESO     = OFF           // Internal/External Switch-over
+#pragma config FSOSCEN  = OFF           // Secondary Oscillator Enable (KLO was off)
+#pragma config FNOSC    = PRIPLL        // Oscillator Selection
+#pragma config CP       = OFF           // Code Protect
+#pragma config BWP      = OFF           // Boot Flash Write Protect
+#pragma config PWP      = OFF           // Program Flash Write Protect
+#pragma config ICESEL   = ICS_PGx2      // ICE/ICD Comm Channel Select
+#pragma config DEBUG    = ON            // Debugger Disabled for Starter Kit
+*/
 #include <stdint.h>
 #include "SPIDevice.h"
 #include "Register.h"
@@ -107,12 +136,29 @@ private:
     void RunMain();
     void DebugMain();
     
+    void InitializeSystemClock();
+    
     void GoToState(UnsignedInteger16 State);
     
     bool CreateDevice(ADDRESS, short int Type);
     
     const unsigned char * ReceiveCommand();
-    bool ExecuteCommand(UnsignedInteger16 Command);
+    bool ExecuteCommand(const unsigned char * Command);
+    bool SendUSBData(const char * Message);
+    
+    bool Command_ReadGyroscope(std::string Command);
+    bool Command_ReadAccelerometer(std::string Command);
+    bool Command_GetGravity();
+    bool Command_GetPressure();
+    bool Command_GetTemperature();
+    bool Command_GetAltitude();
+    bool Command_SetThrottle(std::string Command);
+    bool Command_GetThrottle(std::string Command);
+    bool Command_StopAllMotors();
+    bool Command_SetAllMotors(std::string Command);
+    bool Command_ReleaseCargo();
+    bool Command_HoldCargo();
+    bool Command_ReturnToStandby();
 };
 
 #endif	/* SYSTEM_H */
