@@ -6,7 +6,7 @@
             <name>ControlSoftware</name>
             <creation-uuid>b300c4f1-24a4-4ca2-878a-2206170e7d7c</creation-uuid>
             <make-project-type>0</make-project-type>
-            <c-extensions/>
+            <c-extensions>c</c-extensions>
             <cpp-extensions>cpp</cpp-extensions>
             <header-extensions>h</header-extensions>
             <asminc-extensions/>

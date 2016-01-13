@@ -19,11 +19,22 @@
 #ifndef SYSTEM_H
 #define	SYSTEM_H
 
+#include <stdint.h>
 #include "SPIDevice.h"
 #include "Register.h"
 #include "Map.h"
-#include "usb/include/usb.h"
-#include "usb/include/usb_cdc.h"
+
+//#include "usb_callbacks.h"  
+
+
+//#include "usb/include/usb_ch9.h"
+//#include "usb/include/usb.h"
+//#include "usb/include/usb_cdc.h"
+
+
+  
+#include "usb_callbacks.h"
+
 
 #define foreach(var, array, size) for (unsigned int i = 0; i < size; i++)
 #define Address unsigned char
@@ -100,7 +111,7 @@ private:
     
     bool CreateDevice(ADDRESS, short int Type);
     
-    UnsignedInteger16 ReceiveCommand();
+    const unsigned char * ReceiveCommand();
     bool ExecuteCommand(UnsignedInteger16 Command);
 };
 

@@ -78,6 +78,7 @@
 /* Optional callbacks from usb.c. Leave them commented if you don't want to
    use them. For the prototypes and documentation for each one, see usb.h. */
 
+
 #define SET_CONFIGURATION_CALLBACK app_set_configuration_callback
 #define GET_DEVICE_STATUS_CALLBACK app_get_device_status_callback
 #define ENDPOINT_HALT_CALLBACK     app_endpoint_halt_callback
@@ -100,5 +101,20 @@
 #define CDC_GET_LINE_CODING_CALLBACK app_get_line_coding_callback
 #define CDC_SET_CONTROL_LINE_STATE_CALLBACK app_set_control_line_state_callback
 #define CDC_SEND_BREAK_CALLBACK app_send_break_callback
+
+
+/* Configuration from the MSC Class (usb_msc.h) */
+#define MSC_MAX_LUNS_PER_INTERFACE 1
+//#define MSC_SUPPORT_MULTIPLE_MSC_INTERFACES
+#define MSC_WRITE_SUPPORT
+
+/* Callbacks from the MSC class (usb_msc.h) */
+#define MSC_GET_MAX_LUN_CALLBACK app_get_max_lun
+#define MSC_BULK_ONLY_MASS_STORAGE_RESET_CALLBACK app_msc_reset
+#define MSC_GET_STORAGE_INFORMATION app_get_storage_info
+#define MSC_UNIT_READY app_get_unit_ready
+#define MSC_START_STOP_UNIT app_start_stop_unit
+#define MSC_START_READ app_msc_start_read
+#define MSC_START_WRITE app_msc_start_write
 
 #endif /* USB_CONFIG_H__ */

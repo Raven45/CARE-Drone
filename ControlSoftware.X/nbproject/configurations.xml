@@ -9,6 +9,18 @@
         <itemPath>Register.h</itemPath>
         <itemPath>SPIBus.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="include" displayName="usb" projectFiles="true">
+        <itemPath>usb/include/usb.h</itemPath>
+        <itemPath>usb/include/usb_cdc.h</itemPath>
+        <itemPath>usb/include/usb_ch9.h</itemPath>
+        <itemPath>usb/include/usb_hal.h</itemPath>
+        <itemPath>usb/include/usb_hid.h</itemPath>
+        <itemPath>usb/include/usb_microsoft.h</itemPath>
+        <itemPath>usb/include/usb_msc.h</itemPath>
+        <itemPath>usb/include/usb_priv.h</itemPath>
+        <itemPath>usb/include/usb_winusb.h</itemPath>
+        <itemPath>usb_callbacks.h</itemPath>
+      </logicalFolder>
       <itemPath>Object.h</itemPath>
       <itemPath>System.h</itemPath>
       <itemPath>Map.h</itemPath>
@@ -25,9 +37,17 @@
         <itemPath>SPIDevice.cpp</itemPath>
         <itemPath>SPIBus.cpp</itemPath>
       </logicalFolder>
+      <logicalFolder name="src" displayName="usb" projectFiles="true">
+        <itemPath>usb/src/usb.c</itemPath>
+        <itemPath>usb/src/usb_cdc.c</itemPath>
+        <itemPath>usb/src/usb_winusb.c</itemPath>
+        <itemPath>usb_callbacks.c</itemPath>
+      </logicalFolder>
       <itemPath>Object.cpp</itemPath>
       <itemPath>Main.cpp</itemPath>
       <itemPath>System.cpp</itemPath>
+      <itemPath>usb_config.h</itemPath>
+      <itemPath>usb_descriptors.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -80,7 +100,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
-        <property key="extra-include-directories" value=".;..\usb\include"/>
+        <property key="extra-include-directories" value=".;usb\include;usb\src"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -158,7 +178,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exceptions" value="true"/>
         <property key="exclude-floating-point" value="false"/>
-        <property key="extra-include-directories" value=".;usb\include"/>
+        <property key="extra-include-directories" value=".;usb\include;usb\src"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>

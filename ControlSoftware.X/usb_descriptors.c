@@ -19,9 +19,9 @@
  */
 
 #include "usb_config.h"
-#include "usb.h"
-#include "usb_ch9.h"
-#include "usb_cdc.h"
+#include "usb/include/usb.h"
+#include "usb/include/usb_ch9.h"
+#include "usb/include/usb_cdc.h"
 
 #ifdef __C18
 #define ROMPTR rom

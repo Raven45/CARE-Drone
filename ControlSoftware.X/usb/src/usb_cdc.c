@@ -31,6 +31,7 @@
 #include <usb_cdc.h>
 
 #define MIN(x,y) (((x)<(y))?(x):(y))
+#define min(x,y) (((x)<(y))?(x):(y))
 
 STATIC_SIZE_CHECK_EQUAL(sizeof(struct cdc_functional_descriptor_header), 5);
 STATIC_SIZE_CHECK_EQUAL(sizeof(struct cdc_acm_functional_descriptor), 4);
