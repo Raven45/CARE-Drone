@@ -87,6 +87,6 @@ void System::DebugMain() {
     
     UpdateSystem();
     UnsignedInteger16 Command = 0;
-    Command = ReceiveCommand();
-    ExecuteCommand(Command);
+    //Command = ReceiveCommand();
+    //ExecuteCommand(Command);
 }
