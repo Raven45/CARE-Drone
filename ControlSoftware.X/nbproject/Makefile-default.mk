@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Register.cpp SPIDevice.cpp SPIBus.cpp Object.cpp Main.cpp System.cpp usb_descriptors.c usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c
+SOURCEFILES_QUOTED_IF_SPACED=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d ${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d ${OBJECTDIR}/usb_descriptors.o.d ${OBJECTDIR}/usb/src/usb.o.d ${OBJECTDIR}/usb/src/usb_cdc.o.d ${OBJECTDIR}/usb/src/usb_winusb.o.d ${OBJECTDIR}/usb_callbacks.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d ${OBJECTDIR}/Altimeter.o.d ${OBJECTDIR}/usb/src/usb.o.d ${OBJECTDIR}/usb/src/usb_cdc.o.d ${OBJECTDIR}/usb/src/usb_winusb.o.d ${OBJECTDIR}/usb_callbacks.o.d ${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d ${OBJECTDIR}/usb_descriptors.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o
+OBJECTFILES=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o
 
 # Source Files
-SOURCEFILES=Register.cpp SPIDevice.cpp SPIBus.cpp Object.cpp Main.cpp System.cpp usb_descriptors.c usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c
+SOURCEFILES=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c
 
 
 CFLAGS=
@@ -94,12 +94,6 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/usb_descriptors.o: usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/usb_descriptors.o.d 
-	@${RM} ${OBJECTDIR}/usb_descriptors.o 
-	@${FIXDEPS} "${OBJECTDIR}/usb_descriptors.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/usb_descriptors.o.d" -o ${OBJECTDIR}/usb_descriptors.o usb_descriptors.c     
-	
 ${OBJECTDIR}/usb/src/usb.o: usb/src/usb.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/usb/src" 
 	@${RM} ${OBJECTDIR}/usb/src/usb.o.d 
@@ -124,13 +118,13 @@ ${OBJECTDIR}/usb_callbacks.o: usb_callbacks.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/usb_callbacks.o 
 	@${FIXDEPS} "${OBJECTDIR}/usb_callbacks.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/usb_callbacks.o.d" -o ${OBJECTDIR}/usb_callbacks.o usb_callbacks.c     
 	
-else
 ${OBJECTDIR}/usb_descriptors.o: usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/usb_descriptors.o.d 
 	@${RM} ${OBJECTDIR}/usb_descriptors.o 
-	@${FIXDEPS} "${OBJECTDIR}/usb_descriptors.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/usb_descriptors.o.d" -o ${OBJECTDIR}/usb_descriptors.o usb_descriptors.c     
+	@${FIXDEPS} "${OBJECTDIR}/usb_descriptors.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/usb_descriptors.o.d" -o ${OBJECTDIR}/usb_descriptors.o usb_descriptors.c     
 	
+else
 ${OBJECTDIR}/usb/src/usb.o: usb/src/usb.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/usb/src" 
 	@${RM} ${OBJECTDIR}/usb/src/usb.o.d 
@@ -155,6 +149,12 @@ ${OBJECTDIR}/usb_callbacks.o: usb_callbacks.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/usb_callbacks.o 
 	@${FIXDEPS} "${OBJECTDIR}/usb_callbacks.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/usb_callbacks.o.d" -o ${OBJECTDIR}/usb_callbacks.o usb_callbacks.c     
 	
+${OBJECTDIR}/usb_descriptors.o: usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/usb_descriptors.o.d 
+	@${RM} ${OBJECTDIR}/usb_descriptors.o 
+	@${FIXDEPS} "${OBJECTDIR}/usb_descriptors.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/usb_descriptors.o.d" -o ${OBJECTDIR}/usb_descriptors.o usb_descriptors.c     
+	
 endif
 
 # ------------------------------------------------------------------------------------
@@ -177,6 +177,12 @@ ${OBJECTDIR}/SPIBus.o: SPIBus.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/SPIBus.o.d 
 	@${RM} ${OBJECTDIR}/SPIBus.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPIBus.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/SPIBus.o.d" -o ${OBJECTDIR}/SPIBus.o SPIBus.cpp    
+	
+${OBJECTDIR}/Altimeter.o: Altimeter.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Altimeter.o.d 
+	@${RM} ${OBJECTDIR}/Altimeter.o 
+	@${FIXDEPS} "${OBJECTDIR}/Altimeter.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Altimeter.o.d" -o ${OBJECTDIR}/Altimeter.o Altimeter.cpp    
 	
 ${OBJECTDIR}/Object.o: Object.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -215,6 +221,12 @@ ${OBJECTDIR}/SPIBus.o: SPIBus.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/SPIBus.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPIBus.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/SPIBus.o.d" -o ${OBJECTDIR}/SPIBus.o SPIBus.cpp    
 	
+${OBJECTDIR}/Altimeter.o: Altimeter.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Altimeter.o.d 
+	@${RM} ${OBJECTDIR}/Altimeter.o 
+	@${FIXDEPS} "${OBJECTDIR}/Altimeter.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Altimeter.o.d" -o ${OBJECTDIR}/Altimeter.o Altimeter.cpp    
+	
 ${OBJECTDIR}/Object.o: Object.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/Object.o.d 
@@ -240,12 +252,12 @@ endif
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 dist/${CND_CONF}/${IMAGE_TYPE}/ControlSoftware.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk    
 	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_CPPC} $(MP_EXTRA_LD_PRE)  -mdebugger -D__MPLAB_DEBUGGER_SIMULATOR=1 -mprocessor=$(MP_PROCESSOR_OPTION)  -o dist/${CND_CONF}/${IMAGE_TYPE}/ControlSoftware.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} ${OBJECTFILES_QUOTED_IF_SPACED}                -Wl,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_LD_POST)$(MP_LINKER_FILE_OPTION),--defsym=__MPLAB_DEBUG=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_SIMULATOR=1,--defsym=_min_heap_size=1024,-Map="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map",--memorysummary,dist/${CND_CONF}/${IMAGE_TYPE}/memoryfile.xml
+	${MP_CPPC} $(MP_EXTRA_LD_PRE)  -mdebugger -D__MPLAB_DEBUGGER_SIMULATOR=1 -mprocessor=$(MP_PROCESSOR_OPTION)  -o dist/${CND_CONF}/${IMAGE_TYPE}/ControlSoftware.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} ${OBJECTFILES_QUOTED_IF_SPACED}                -Wl,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_LD_POST)$(MP_LINKER_FILE_OPTION),--defsym=__MPLAB_DEBUG=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_SIMULATOR=1,--defsym=_min_heap_size=4096,-Map="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map",--memorysummary,dist/${CND_CONF}/${IMAGE_TYPE}/memoryfile.xml
 	
 else
 dist/${CND_CONF}/${IMAGE_TYPE}/ControlSoftware.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk   
 	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_CPPC} $(MP_EXTRA_LD_PRE)  -mprocessor=$(MP_PROCESSOR_OPTION)  -o dist/${CND_CONF}/${IMAGE_TYPE}/ControlSoftware.X.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX} ${OBJECTFILES_QUOTED_IF_SPACED}            -Wl,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_LD_POST)$(MP_LINKER_FILE_OPTION),--defsym=_min_heap_size=1024,-Map="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map",--memorysummary,dist/${CND_CONF}/${IMAGE_TYPE}/memoryfile.xml
+	${MP_CPPC} $(MP_EXTRA_LD_PRE)  -mprocessor=$(MP_PROCESSOR_OPTION)  -o dist/${CND_CONF}/${IMAGE_TYPE}/ControlSoftware.X.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX} ${OBJECTFILES_QUOTED_IF_SPACED}            -Wl,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_LD_POST)$(MP_LINKER_FILE_OPTION),--defsym=_min_heap_size=4096,-Map="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map",--memorysummary,dist/${CND_CONF}/${IMAGE_TYPE}/memoryfile.xml
 	${MP_CC_DIR}\\xc32-bin2hex dist/${CND_CONF}/${IMAGE_TYPE}/ControlSoftware.X.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX} 
 endif
 

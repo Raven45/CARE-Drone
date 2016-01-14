@@ -8,6 +8,7 @@
         <itemPath>SPIDevice.h</itemPath>
         <itemPath>Register.h</itemPath>
         <itemPath>SPIBus.h</itemPath>
+        <itemPath>Altimeter.h</itemPath>
       </logicalFolder>
       <logicalFolder name="include" displayName="usb" projectFiles="true">
         <itemPath>usb/include/usb.h</itemPath>
@@ -36,6 +37,7 @@
         <itemPath>Register.cpp</itemPath>
         <itemPath>SPIDevice.cpp</itemPath>
         <itemPath>SPIBus.cpp</itemPath>
+        <itemPath>Altimeter.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="src" displayName="usb" projectFiles="true">
         <itemPath>usb/src/usb.c</itemPath>
@@ -153,7 +155,7 @@
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
-        <property key="heap-size" value="1024"/>
+        <property key="heap-size" value="4096"/>
         <property key="input-libraries" value=""/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>

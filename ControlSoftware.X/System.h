@@ -19,6 +19,8 @@
 #ifndef SYSTEM_H
 #define	SYSTEM_H
 
+#define SYSTEM_IS_SINGLETON
+
 //Define 48 MHz clock frequency
 #define SYS_CLOCK                   48000000 
  
@@ -86,6 +88,8 @@ class System {
     };
     
 public:
+    //Default constructor
+    System();
     ~System();
     
     bool InitializeSystem();
@@ -94,18 +98,21 @@ public:
     bool ClearToProceed();
     bool IsUSBAttached();
     
+#ifdef SYSTEM_IS_SINGLETON
     static System* GetInstance();
+#endif
     
 private:
-    //Default constructor
-    System();
+    
     
     
     /***************************************************************************
      * Private Properties.
     ***************************************************************************/
+#ifdef SYSTEM_IS_SINGLETON
     //Reference to the singleton object
     static System* Instance;
+#endif
     
     //Array to all Devices.
     HAL::SPIDevice * Devices;
@@ -144,7 +151,7 @@ private:
     
     const unsigned char * ReceiveCommand();
     bool ExecuteCommand(const unsigned char * Command);
-    bool SendUSBData(const char * Message);
+    bool SendUSBData(std::string Message);
     
     bool Command_ReadGyroscope(std::string Command);
     bool Command_ReadAccelerometer(std::string Command);

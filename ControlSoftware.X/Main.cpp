@@ -17,11 +17,11 @@
  * Created on January 11, 2016, 10:27 AM
 *******************************************************************************/
 
+
 #include "System.h"
 
 
 int main(int argc, char** argv) {
-
     
     //Create system object and attempt to initialize system.
     while ( System::GetInstance()->InitializeSystem() == false ) {

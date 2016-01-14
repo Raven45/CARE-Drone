@@ -1,6 +1,8 @@
 #include "System.h"
 
+#ifdef SYSTEM_IS_SINGLETON
 System* System::Instance = 0;
+#endif
 
 System::System() {
     
@@ -23,6 +25,7 @@ bool System::InitializeSystem() {
     }
     
     //usb_init();
+    return true;
 }
 
 bool System::UpdateSystem() {
@@ -58,13 +61,21 @@ bool System::IsUSBAttached() {
     return false;
 }
 
+#ifdef SYSTEM_IS_SINGLETON
 System* System::GetInstance() {
     
     if (!Instance) {
-        Instance = new System;
+        
+        try{
+            Instance = new System();
+        }
+        catch (std::bad_alloc) {
+            return 0;
+        }
     }
     return Instance;
 }
+#endif
 
 void System::StandbyMain() {
     
@@ -118,13 +129,14 @@ void System::InitializeSystemClock() {
     //Wait for oscillator to kick in.
     while (OSCCONbits.OSWEN == 1) { }
     
+    /*
     //Enable the USB PLL, set USB Clock to 48 MHz
     DEVCFG2bits.UPLLEN = 0;
     DEVCFG2bits.UPLLIDIV = 1; //divide by 2
     DEVCFG2bits.FPLLMUL = 7; //multiply by 24
     DEVCFG2bits.FPLLODIV = 1; //divide by 2
     while (OSCCONbits.ULOCK == 1) {}
-    
+    */
     //Lock the system
     mSYSTEMLock(int_status, dma_status);
     
@@ -214,8 +226,21 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     }
 }
 
-bool System::SendUSBData(const char * Message) {
+bool System::SendUSBData(std::string Message) {
     
+    if (usb_is_configured() &&
+        !usb_in_endpoint_halted(2) &&
+        !usb_in_endpoint_busy(2)) {
+        
+        unsigned char * cMessage = (unsigned char *)Message.c_str();
+        cMessage = usb_get_in_buffer(2);
+        
+        usb_send_in_buffer(2, Message.length());
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 bool System::Command_ReadGyroscope(std::string Command) {

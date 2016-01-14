@@ -20,6 +20,7 @@
 #define	SPIDEVICE_H
 
 #include "SPIBus.h"
+#include <math.h>
 
 namespace HAL {
 
@@ -47,8 +48,15 @@ public:
     virtual bool Update() = 0;
     
     UnsignedInteger16 SendAndReceive(UnsignedInteger16 Outgoing);
+    UnsignedInteger16 * SendAndReceiveBurst(UnsignedInteger16 * Outgoing, UnsignedInteger16 Length);
+    /*
+    SignedInteger16 SendAndReceiveS(SignedInteger16 Outgoing);
+    SignedInteger16 * SendAndRecieveBurstS(SignedInteger16 * Outgoing, UnsignedInteger16 Length);
+     * */
+    
     UnsignedInteger16 EncodeParity(UnsignedInteger16 Message);
     bool VerifyParity(UnsignedInteger16 Message);
+    
     std::string GetName();
     void SetName(std::string Name);
     
