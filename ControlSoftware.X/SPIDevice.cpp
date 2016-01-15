@@ -153,3 +153,7 @@ std::string HAL::SPIDevice::GetName() {
 void HAL::SPIDevice::SetName(std::string Name) {
     this->Name = Name;
 }
+
+void HAL::SPIDevice::ChangeAddress(unsigned char Address){
+    this->Address = Address;
+}

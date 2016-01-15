@@ -60,6 +60,8 @@ public:
     std::string GetName();
     void SetName(std::string Name);
     
+    void ChangeAddress(ADDRESS Address);
+    
 protected:
     ADDRESS Address;
     UnsignedInteger16 Parity;

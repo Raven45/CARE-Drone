@@ -19,9 +19,17 @@
 
 
 #include "System.h"
+#include "Quaternion.h"
 
 
 int main(int argc, char** argv) {
+    
+    Math::Quaternion Test(0.75f, 0.01, 0.33f);
+    Math::Quaternion A(1, 0, 0, 0);
+    Test = Test * A;
+    float Roll = Test.GetRoll();
+    float Pitch = Test.GetPitch();
+    float Yaw = Test.GetYaw();
     
     //Create system object and attempt to initialize system.
     while ( System::GetInstance()->InitializeSystem() == false ) {
