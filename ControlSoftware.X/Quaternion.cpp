@@ -66,15 +66,15 @@ Math::Quaternion Math::Quaternion::GetComplexConjugate() {
     return *(new Math::Quaternion(q0, -q1, -q2, -q3));
 }
     
-float Math::Quaternion::GetPitch() {
+float Math::Quaternion::GetYaw() {
     return atan2(2*q1*q2 - 2*q0*q3, (2*q0*q0 + 2*q1*q1) - 1);
 }
 
-float Math::Quaternion::GetRoll() {
+float Math::Quaternion::GetPitch() {
     return -1.0f * (asin(2*q1*q3 + 2*q0*q2));
 }
 
-float Math::Quaternion::GetYaw() {
+float Math::Quaternion::GetRoll() {
     return atan2(2*q2*q3 - 2*q0*q1, (2*q0*q0 + 2*q3*q3) -1);
 }
 
