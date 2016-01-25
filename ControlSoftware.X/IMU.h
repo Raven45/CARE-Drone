@@ -17,10 +17,6 @@
 #define ACC_ACCD_Z      0x06
 #define ACC_ACCD_TEMP   0x08
 
-#define GYRO_CHIPID     0x00
-#define GYRO_RATE_X     0x02
-#define GYRO_RATE_Y     0x04
-#define GYRO_RATE_Z     0x06
 
 
 

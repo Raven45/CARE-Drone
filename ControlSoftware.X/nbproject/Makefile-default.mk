@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c PWMC.cpp
+SOURCEFILES_QUOTED_IF_SPACED=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c PWMC.cpp Gyroscope.cpp
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/PWMC.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d ${OBJECTDIR}/Altimeter.o.d ${OBJECTDIR}/LCD.o.d ${OBJECTDIR}/IMU.o.d ${OBJECTDIR}/Quaternion.o.d ${OBJECTDIR}/usb/src/usb.o.d ${OBJECTDIR}/usb/src/usb_cdc.o.d ${OBJECTDIR}/usb/src/usb_winusb.o.d ${OBJECTDIR}/usb_callbacks.o.d ${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d ${OBJECTDIR}/usb_descriptors.o.d ${OBJECTDIR}/PWMC.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/PWMC.o ${OBJECTDIR}/Gyroscope.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d ${OBJECTDIR}/Altimeter.o.d ${OBJECTDIR}/LCD.o.d ${OBJECTDIR}/IMU.o.d ${OBJECTDIR}/Quaternion.o.d ${OBJECTDIR}/usb/src/usb.o.d ${OBJECTDIR}/usb/src/usb_cdc.o.d ${OBJECTDIR}/usb/src/usb_winusb.o.d ${OBJECTDIR}/usb_callbacks.o.d ${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d ${OBJECTDIR}/usb_descriptors.o.d ${OBJECTDIR}/PWMC.o.d ${OBJECTDIR}/Gyroscope.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/PWMC.o
+OBJECTFILES=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/PWMC.o ${OBJECTDIR}/Gyroscope.o
 
 # Source Files
-SOURCEFILES=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c PWMC.cpp
+SOURCEFILES=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c PWMC.cpp Gyroscope.cpp
 
 
 CFLAGS=
@@ -226,6 +226,12 @@ ${OBJECTDIR}/PWMC.o: PWMC.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/PWMC.o 
 	@${FIXDEPS} "${OBJECTDIR}/PWMC.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/PWMC.o.d" -o ${OBJECTDIR}/PWMC.o PWMC.cpp    
 	
+${OBJECTDIR}/Gyroscope.o: Gyroscope.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Gyroscope.o.d 
+	@${RM} ${OBJECTDIR}/Gyroscope.o 
+	@${FIXDEPS} "${OBJECTDIR}/Gyroscope.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Gyroscope.o.d" -o ${OBJECTDIR}/Gyroscope.o Gyroscope.cpp    
+	
 else
 ${OBJECTDIR}/Register.o: Register.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -292,6 +298,12 @@ ${OBJECTDIR}/PWMC.o: PWMC.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/PWMC.o.d 
 	@${RM} ${OBJECTDIR}/PWMC.o 
 	@${FIXDEPS} "${OBJECTDIR}/PWMC.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/PWMC.o.d" -o ${OBJECTDIR}/PWMC.o PWMC.cpp    
+	
+${OBJECTDIR}/Gyroscope.o: Gyroscope.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Gyroscope.o.d 
+	@${RM} ${OBJECTDIR}/Gyroscope.o 
+	@${FIXDEPS} "${OBJECTDIR}/Gyroscope.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fno-check-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Gyroscope.o.d" -o ${OBJECTDIR}/Gyroscope.o Gyroscope.cpp    
 	
 endif
 

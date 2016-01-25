@@ -33,7 +33,7 @@
 #define GET_KI          0x08
 #define SET_KD          0x09
 #define GET_KD          0x0A
-#define GET_STATUS      0x0B
+//#define GET_STATUS      0x0B
 
 #define STATUS_MOTOR_DEAD    0x00
 #define STATUS_MOTOR_STOPPED 0x01

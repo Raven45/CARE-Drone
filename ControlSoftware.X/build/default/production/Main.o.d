@@ -1,15 +1,21 @@
 build/default/production/Main.o:  \
 Main.cpp  \
 System.h  \
-SPIDevice.h  \
+HAL.h  \
+Altimeter.h  \
+ SPIDevice.h  \
 SPIBus.h  \
- Object.h  \
+Object.h  \
+LCD.h  \
+IMU.h  \
+Quaternion.h  \
 Register.h  \
-Map.h  \
+ Gyroscope.h  \
+PWMC.h  \
 usb_callbacks.h  \
 usb/include/usb.h  \
 usb_config.h  \
  usb_config.h  \
 usb/include/usb_ch9.h  \
 usb/include/usb_cdc.h  \
-Quaternion.h 
+Map.h 

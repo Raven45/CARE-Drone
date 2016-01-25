@@ -18,13 +18,14 @@ bool System::InitializeSystem() {
     //InitializeSystemClock();
     
     //Create device objects
-    Devices.push_back(new HAL::Altimeter(ADDRESS_BAROMETER, &DeviceManager));
-    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager));
-    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_2, &DeviceManager));
-    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_3, &DeviceManager));
-    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_4, &DeviceManager));
-    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_5, &DeviceManager));
-    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_6, &DeviceManager));
+    Devices.push_back(new HAL::Gyroscope    (ADDRESS_GYRO, &DeviceManager));
+    Devices.push_back(new HAL::Altimeter    (ADDRESS_BAROMETER, &DeviceManager));
+    Devices.push_back(new HAL::PWMC         (ADDRESS_MOTOR_1, &DeviceManager));
+    Devices.push_back(new HAL::PWMC         (ADDRESS_MOTOR_2, &DeviceManager));
+    Devices.push_back(new HAL::PWMC         (ADDRESS_MOTOR_3, &DeviceManager));
+    Devices.push_back(new HAL::PWMC         (ADDRESS_MOTOR_4, &DeviceManager));
+    Devices.push_back(new HAL::PWMC         (ADDRESS_MOTOR_5, &DeviceManager));
+    Devices.push_back(new HAL::PWMC         (ADDRESS_MOTOR_6, &DeviceManager));
     
     //Initialize the usb bus.
     usb_init();
@@ -43,9 +44,7 @@ bool System::UpdateSystem() {
     //Update devices
     for (unsigned int i = 0; i < NumDevices; i++) {
         Devices[i]->Update();
-    }
-    
-    
+    }    
 }
 
 void System::Main() {

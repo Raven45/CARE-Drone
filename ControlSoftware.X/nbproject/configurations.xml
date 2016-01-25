@@ -12,6 +12,8 @@
         <itemPath>IMU.h</itemPath>
         <itemPath>LCD.h</itemPath>
         <itemPath>PWMC.h</itemPath>
+        <itemPath>HAL.h</itemPath>
+        <itemPath>Gyroscope.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Math" projectFiles="true">
         <itemPath>Quaternion.h</itemPath>
@@ -47,6 +49,7 @@
         <itemPath>LCD.cpp</itemPath>
         <itemPath>IMU.cpp</itemPath>
         <itemPath>PWMC.cpp</itemPath>
+        <itemPath>Gyroscope.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Math" projectFiles="true">
         <itemPath>Quaternion.cpp</itemPath>

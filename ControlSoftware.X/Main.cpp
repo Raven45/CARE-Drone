@@ -17,6 +17,38 @@
  * Created on January 11, 2016, 10:27 AM
 *******************************************************************************/
 
+/*******************************************************************************
+ * PIC32MX Configuration bits
+ * Target Platform: PIC32MX270F256D
+ * Target clock speed: 48 Mhz with 8 Mhz external crystal and 48 MHz USB clock
+ * 
+ * Note: Unless you've spent the last two weeks pouring over the datasheet
+ * for the target AND and have poured over the detailed design documentation
+ * for the CARE-Drone flight computer, you should not mess with the following
+ * configurations bits, or anything in this file for that matter. In fact, shoo, 
+ * go away before we smite you with a dangling pointer!
+ * 
+ * Required reading:
+ * http://ww1.microchip.com/downloads/en/DeviceDoc/60001168F.pdf
+ * http://ww1.microchip.com/downloads/en/DeviceDoc/PIC32MX_FRM_Sect32_Config_61124C.pdf
+*******************************************************************************/
+#pragma config UPLLEN   = ON            // USB PLL Enabled
+#pragma config FPLLMUL  = MUL_24        // PLL Multiplier
+#pragma config UPLLIDIV = DIV_2         // USB PLL Input Divider
+#pragma config FPLLIDIV = DIV_2         // PLL Input Divider
+#pragma config FPLLODIV = DIV_2         // PLL Output Divider
+#pragma config FPBDIV   = DIV_1         // Peripheral Clock divisor
+#pragma config FWDTEN   = OFF           // Watchdog Timer
+#pragma config WDTPS    = PS1           // Watchdog Timer Postscale
+#pragma config FCKSM    = CSDCMD        // Clock Switching & Fail Safe Clock Monitor
+#pragma config OSCIOFNC = OFF           // CLKO Enable
+#pragma config POSCMOD  = HS            // Primary Oscillator
+#pragma config IESO     = OFF           // Internal/External Switch-over
+#pragma config FSOSCEN  = OFF           // Secondary Oscillator Enable (KLO was off)
+#pragma config FNOSC    = PRIPLL        // Oscillator Selection
+#pragma config CP       = OFF           // Code Protect
+#pragma config BWP      = OFF           // Boot Flash Write Protect
+#pragma config PWP      = OFF           // Program Flash Write Protect
 
 #include "System.h"
 #include "Quaternion.h"
@@ -24,16 +56,10 @@
 
 int main(int argc, char** argv) {
     
-    Math::Quaternion Test(0.75f, 0.01, 0.33f);
-    Math::Quaternion A(1, 0, 0, 0);
-    Test = Test * A;
-    float Roll = Test.GetRoll();
-    float Pitch = Test.GetPitch();
-    float Yaw = Test.GetYaw();
-    
     //Create system object and attempt to initialize system.
     while ( System::GetInstance()->InitializeSystem() == false ) {
         //error condition.
+        //Do something, anything.
     }
     
     //While system is running.
