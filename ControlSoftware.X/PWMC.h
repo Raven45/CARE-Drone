@@ -65,7 +65,7 @@ public:
     void SetKd(UnsignedInteger8 Kd);
     
 private:
-    bool StartMotor;
+    //bool StartMotor;
     UnsignedInteger8 Throttle;
     UnsignedInteger8 Kp;
     UnsignedInteger8 Ki;

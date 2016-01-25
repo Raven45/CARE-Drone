@@ -54,7 +54,10 @@
 #include "SPIDevice.h"
 #include "Register.h"
 #include "Map.h"
+#include "Altimeter.h"
+#include "PWMC.h"
 
+#include <vector>
 //#include "usb_callbacks.h"  
 
 
@@ -68,7 +71,7 @@
 
 
 #define foreach(var, array, size) for (unsigned int i = 0; i < size; i++)
-#define Address unsigned char
+//#define Address unsigned char
 
 
 
@@ -115,7 +118,9 @@ private:
 #endif
     
     //Array to all Devices.
-    HAL::SPIDevice * Devices;
+    //HAL::SPIDevice * Devices;
+    std::vector<HAL::SPIDevice*> Devices;
+    //Map<std::string, HAL::SPIDevice> Devices;
     UnsignedInteger8 NumDevices;
     
     //Array to all inputs
@@ -135,6 +140,8 @@ private:
     //as the DebugMode state.
     bool SystemDebugging;
     
+    HAL::SPIBus DeviceManager;
+    
     
     /***************************************************************************
      * Private methods
@@ -142,8 +149,6 @@ private:
     void StandbyMain();
     void RunMain();
     void DebugMain();
-    
-    void InitializeSystemClock();
     
     void GoToState(UnsignedInteger16 State);
     

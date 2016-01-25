@@ -76,6 +76,17 @@ public:
             return R;
         }
     }
+    
+    DataType& operator[](unsigned int index) {
+        
+        try {
+            return TopOfList[index];
+        }
+        catch (...) {
+            return 0;
+        }
+    }
+    
 private:
     Node* TopOfList;  
     

@@ -1,4 +1,5 @@
 #include "System.h"
+#include "Altimeter.h"
 
 #ifdef SYSTEM_IS_SINGLETON
 System* System::Instance = 0;
@@ -14,14 +15,23 @@ System::~System() {
 
 bool System::InitializeSystem() {
     
-    InitializeSystemClock();
+    //InitializeSystemClock();
+    
+    //Create device objects
+    Devices.push_back(new HAL::Altimeter(ADDRESS_BAROMETER, &DeviceManager));
+    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager));
+    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_2, &DeviceManager));
+    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_3, &DeviceManager));
+    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_4, &DeviceManager));
+    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_5, &DeviceManager));
+    Devices.push_back(new HAL::PWMC(ADDRESS_MOTOR_6, &DeviceManager));
     
     //Initialize the usb bus.
     usb_init();
     
     //Initialize devices
     for (unsigned int i = 0; i < NumDevices; i++) {
-        Devices[i].Initialize();
+        Devices[i]->Initialize();
     }
     
     //usb_init();
@@ -32,7 +42,7 @@ bool System::UpdateSystem() {
     
     //Update devices
     for (unsigned int i = 0; i < NumDevices; i++) {
-        Devices[i].Update();
+        Devices[i]->Update();
     }
     
     
@@ -105,46 +115,6 @@ void System::DebugMain() {
     UpdateSystem();
     const unsigned char * Command = ReceiveCommand();
     ExecuteCommand(Command);
-}
-
-
-void System::InitializeSystemClock() {
-    
-    //Assume 8 MHz external crystal.
-    unsigned int dma_status;
-    unsigned int int_status;
-    
-    //Unlock the system
-    mSYSTEMUnlock(int_status, dma_status);
-    
-    //Set SPI Clock to PBCLOCK / (2 *(RODIV + (ROTRIM/512)) = 8 MHz
-    REFOCONbits.ROSEL = 1;
-    REFOCONbits.RODIV = 0b11;
-    REFOTRIM = 0;
-    
-    //Set SYSCLOCK to 96 MHz, PBCLOCK to 48 MHz
-    OSCCON = 0x000F0300;
-    OSCCONbits.OSWEN = 1;
-    
-    //Wait for oscillator to kick in.
-    while (OSCCONbits.OSWEN == 1) { }
-    
-    /*
-    //Enable the USB PLL, set USB Clock to 48 MHz
-    DEVCFG2bits.UPLLEN = 0;
-    DEVCFG2bits.UPLLIDIV = 1; //divide by 2
-    DEVCFG2bits.FPLLMUL = 7; //multiply by 24
-    DEVCFG2bits.FPLLODIV = 1; //divide by 2
-    while (OSCCONbits.ULOCK == 1) {}
-    */
-    //Lock the system
-    mSYSTEMLock(int_status, dma_status);
-    
-    //Enable the cache for the best performance
-    CheKseg0CacheOn();
-    
-    //Enable interrupts
-    INTEnableSystemMultiVectoredInt();
 }
 
 
