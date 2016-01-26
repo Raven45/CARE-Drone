@@ -1,9 +1,9 @@
 #include "Gyroscope.h"
 
 HAL::Gyroscope::Gyroscope(ADDRESS Address, SPIBus* DeviceManager): 
-                HAL::SPIDevice::SPIDevice(Address, DeviceManager) 
-{
+                HAL::SPIDevice::SPIDevice(Address, DeviceManager) {
     
+    this->Parity = ParityTypes::OddParity;
 }
 
 HAL::Gyroscope::~Gyroscope(){
