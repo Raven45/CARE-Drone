@@ -14,7 +14,7 @@
    limitations under the License.
 
 
- * Created on January 25, 2016, 1:34 PM
+ * Created on January 27, 2016, 10:38 AM
 *******************************************************************************/
 
 /*******************************************************************************
@@ -22,38 +22,41 @@
  * Required reading:
  * https://ae-bst.resource.bosch.com/media/products/dokumente/bmx055/BST-BMX055-DS000-02.pdf
 *******************************************************************************/
-#ifndef GYROSCOPE_H
-#define	GYROSCOPE_H
+
+#ifndef ACCELEROMETER_H
+#define	ACCELEROMETER_H
+
 #include "SPIDevice.h"
 
-#define GYRO_CHIPID     0x80
-#define GYRO_RATE_X     0x82
-#define GYRO_RATE_Y     0x84
-#define GYRO_RATE_Z     0x86
+#define ACCD_X_LSB 0x82
+#define ACCD_X_MSB 0x83
+#define ACCD_Y_LSB 0x84
+#define ACCD_Y_MSB 0x85
+#define ACCD_Z_LSB 0x86
+#define ACCD_Z_MSB 0x87
 
 namespace HAL {
 
-class Gyroscope: public SPIDevice {
+class Accelerometer: public SPIDevice {
     
 public:
     
-    Gyroscope(ADDRESS Address, SPIBus* DeviceManager);
-    ~Gyroscope();
+    Accelerometer(ADDRESS Address, SPIBus* DeviceManager);
+    ~Accelerometer();
     
     bool Initialize();
     bool Update();
     
-    UnsignedInteger16 GetRateX();
-    UnsignedInteger16 GetRateY();
-    UnsignedInteger16 GetRateZ();
+    SignedInteger16 GetAccelX();
+    SignedInteger16 GetAccelY();
+    SignedInteger16 GetAccelZ();
     
 private:
-    UnsignedInteger16 RateX;
-    UnsignedInteger16 RateY;
-    UnsignedInteger16 RateZ;
+    SignedInteger16 AccelX;
+    SignedInteger16 AccelY;
+    SignedInteger16 AccelZ;
 };
 }
 
-
-#endif	/* GYROSCOPE_H */
+#endif	/* ACCELEROMETER_H */
 
