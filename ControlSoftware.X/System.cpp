@@ -35,7 +35,6 @@ bool System::InitializeSystem() {
         Devices[i]->Initialize();
     }
     
-    //usb_init();
     return true;
 }
 

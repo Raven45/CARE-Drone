@@ -1,5 +1,8 @@
 /*******************************************************************************
- * Copyright 2016 Department of Engineering, Harding University
+ * Copyright 2016   Aaron Burns,
+ *                  Joshua Donaway,
+ *                  Matthew Love,
+ *                  Department of Engineering, Harding University
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -26,10 +29,12 @@
 #define	GYROSCOPE_H
 #include "SPIDevice.h"
 
-#define GYRO_CHIPID     0x80
-#define GYRO_RATE_X     0x82
-#define GYRO_RATE_Y     0x84
-#define GYRO_RATE_Z     0x86
+#define GYRO_CHIPID     0x8000
+#define GYRO_RATE_X     0x8200
+#define GYRO_RATE_Y     0x8400
+#define GYRO_RATE_Z     0x8600
+#define GYRO_RANGE      0x0F04
+#define GYRO_BW         0x1004
 
 namespace HAL {
 
@@ -43,14 +48,15 @@ public:
     bool Initialize();
     bool Update();
     
-    UnsignedInteger16 GetRateX();
-    UnsignedInteger16 GetRateY();
-    UnsignedInteger16 GetRateZ();
+    float GetRateX();
+    float GetRateY();
+    float GetRateZ();
     
 private:
-    UnsignedInteger16 RateX;
-    UnsignedInteger16 RateY;
-    UnsignedInteger16 RateZ;
+    float RateX;
+    float RateY;
+    float RateZ;
+    float RateResolution;
 };
 }
 

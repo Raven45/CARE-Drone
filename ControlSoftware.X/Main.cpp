@@ -1,5 +1,8 @@
 /*******************************************************************************
- * Copyright 2016 Department of Engineering, Harding University
+ * Copyright 2016   Aaron Burns,
+ *                  Joshua Donaway,
+ *                  Matthew Love,
+ *                  Department of Engineering, Harding University
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

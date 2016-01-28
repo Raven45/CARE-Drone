@@ -1,5 +1,8 @@
 /*******************************************************************************
- * Copyright 2016 Department of Engineering, Harding University
+ * Copyright 2016   Aaron Burns,
+ *                  Joshua Donaway,
+ *                  Matthew Love,
+ *                  Department of Engineering, Harding University
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -28,12 +31,15 @@
 
 #include "SPIDevice.h"
 
-#define ACCD_X_LSB 0x82
-#define ACCD_X_MSB 0x83
-#define ACCD_Y_LSB 0x84
-#define ACCD_Y_MSB 0x85
-#define ACCD_Z_LSB 0x86
-#define ACCD_Z_MSB 0x87
+#define ACCD_X_LSB 0x8200
+#define ACCD_X_MSB 0x8300
+#define ACCD_Y_LSB 0x8400
+#define ACCD_Y_MSB 0x8500
+#define ACCD_Z_LSB 0x8600
+#define ACCD_Z_MSB 0x8700
+#define ACCD_RANGE 0x0F03
+#define ACCD_BW    0x1009
+#define ACCD_HBW   0x1300
 
 namespace HAL {
 
@@ -47,14 +53,15 @@ public:
     bool Initialize();
     bool Update();
     
-    SignedInteger16 GetAccelX();
-    SignedInteger16 GetAccelY();
-    SignedInteger16 GetAccelZ();
+    float GetAccelX();
+    float GetAccelY();
+    float GetAccelZ();
     
 private:
-    SignedInteger16 AccelX;
-    SignedInteger16 AccelY;
-    SignedInteger16 AccelZ;
+    float AccelX;
+    float AccelY;
+    float AccelZ;
+    float AccelResolution;
 };
 }
 

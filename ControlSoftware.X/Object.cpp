@@ -31,3 +31,8 @@ bool Object::IsUpdatable() {
 bool Object::IsInitialized() {
     return Initialized;
 }
+
+void Object::Delay(UnsignedInteger32 Time) {
+    
+    for (UnsignedInteger32 i = Time; i > 0; i--) { }
+}

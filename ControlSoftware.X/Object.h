@@ -24,6 +24,8 @@
 #include <string>
 #include <exception>
 
+#define CLOCK_SPEED 48000000UL
+
 /*******************************************************************************
  * Fundamental bitwise operations.
  * The following macros define behavior that allows for basic, rudimentary 
@@ -73,7 +75,10 @@ public:
 protected:
     bool Updatable;
     bool Initialized;
+    UnsignedInteger32 MsElapsed;
     
+    
+    void Delay(UnsignedInteger32 Time);
 };
 
 #endif	/* OBJECT_H */
