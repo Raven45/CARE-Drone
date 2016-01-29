@@ -67,6 +67,7 @@ bool HAL::Magnetometer::Update() {
      * 12 bit signed integer. bmm050 
      **************************************************************************/
     if (Incoming[6] & 0x01) {
+        
         MagX = (Incoming[1] << 8) | Incoming[0] >> 3;
         MagY = (Incoming[3] << 8) | Incoming[2] >> 3;
         MagZ = (Incoming[5] << 8) | Incoming[4] >> 1;

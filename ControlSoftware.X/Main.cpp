@@ -75,3 +75,18 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+extern "C" {
+
+#ifdef TIMER_H    
+    
+    void __ISR (_TIMER_1_VECTOR, IPL1AUTO) _Timer1Handler(void) {
+
+        INTClearFlag(INT_T1);
+        
+        UnsignedInteger8 i = 0;
+        while (i < HAL::Timer::GetInstance()->TimerList.size()) {
+            HAL::Timer::GetInstance()->TimerList[i].Tick();
+        }
+    }
+#endif
+}

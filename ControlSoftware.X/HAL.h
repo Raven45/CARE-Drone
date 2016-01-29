@@ -1,5 +1,8 @@
 /*******************************************************************************
- * Copyright 2016 Department of Engineering, Harding University
+ * Copyright 2016   Aaron Burns,
+ *                  Joshua Donaway,
+ *                  Matthew Love,
+ *                  Department of Engineering, Harding University
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -21,10 +24,11 @@
 
 #include "Altimeter.h"
 #include "LCD.h"
-//#include "IMU.h"
-#include "Register.h"
+#include "Altimeter.h"
 #include "Gyroscope.h"
+#include "Magnetometer.h"
 #include "PWMC.h"
+#include "Timer.h"
 #include "usb_callbacks.h"
 
 

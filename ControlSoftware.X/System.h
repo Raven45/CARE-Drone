@@ -1,5 +1,8 @@
 /*******************************************************************************
- * Copyright 2016 Department of Engineering, Harding University
+  * Copyright 2016   Aaron Burns,
+ *                  Joshua Donaway,
+ *                  Matthew Love,
+ *                  Department of Engineering, Harding University
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -22,19 +25,21 @@
 #define SYSTEM_IS_SINGLETON
 
 //Define 48 MHz clock frequency
-#define SYS_CLOCK                   48000000 
- 
-#define CLOCK_FREQ                  SYS_CLOCK 
-#define GetSystemClock()            SYS_CLOCK 
-#define GetPeripheralClock()        SYS_CLOCK 
+//#define SYS_CLOCK                   48000000 
+// 
+//#define CLOCK_FREQ                  SYS_CLOCK 
+//#define GetSystemClock()            SYS_CLOCK 
+//#define GetPeripheralClock()        SYS_CLOCK 
 #define GetUSBClock()               SYS_CLOCK
 
 
 #include <stdint.h>
 #include "HAL.h"
 #include "Map.h"
+#include "Quaternion.h"
+#include "Accelerometer.h"
 
-#include <vector> 
+//#include <vector> 
 
 #define foreach(var, array, size) for (unsigned int i = 0; i < size; i++)
 //#define Address unsigned char
@@ -84,20 +89,30 @@ private:
 #endif
     
     //Array to all Devices.
-    //HAL::SPIDevice * Devices;
     std::vector<HAL::SPIDevice*> Devices;
-    //Map<std::string, HAL::SPIDevice> Devices;
-    UnsignedInteger8 NumDevices;
-    
-    //Array to all inputs
-    //HAL::Input * Inputs;
-    UnsignedInteger8 NumInputs;
-    
-    //Map to all registered registers.
-    Map<std::string, HAL::Register> RegisterList;
+    HAL::Gyroscope* _Gyroscope;
+    HAL::Accelerometer* _Accelerometer;
+    HAL::Magnetometer* _Magnetometer;
     
     //Integer showing the state of the system.
     UnsignedInteger8 State;
+    
+    //Quaternion containing the desired orientation as indicated by
+    //the ground controller.
+    Math::Quaternion SetPoint;
+    
+    //Quaternion containing the current orientation as indicated by
+    //the attached IMU and the sensor fusion algorithm. 
+    Math::Quaternion CurrentOrientation;
+    
+    //The magical delta-time variable. 
+    UnsignedInteger32 DeltaTime;
+    
+    //Gain for the Madgwick filters.
+    float Beta;
+    float Kp;
+    float Ki;
+    float Kd;
     
     //Motor engagement safety
     bool Safety;
@@ -106,6 +121,7 @@ private:
     //as the DebugMode state.
     bool SystemDebugging;
     
+    //This object manages the SPI bus.
     HAL::SPIBus DeviceManager;
     
     
@@ -123,6 +139,14 @@ private:
     const unsigned char * ReceiveCommand();
     bool ExecuteCommand(const unsigned char * Command);
     bool SendUSBData(std::string Message);
+    
+    //Attitude and Heading Reference System
+    Math::Quaternion AHRS_Update( );
+    
+    //Inertial Measurement Unit
+    Math::Quaternion IMU_Update( );
+    
+    Math::Quaternion CalculatePID(Math::Quaternion Error);
     
     bool Command_ReadGyroscope(std::string Command);
     bool Command_ReadAccelerometer(std::string Command);

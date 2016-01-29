@@ -21,10 +21,17 @@
 #define	OBJECT_H
 
 //#include <map>
+#define _DISABLE_OPENADC10_CONFIGPORT_WARNING
+#define _SUPPRESS_PLIB_WARNING
+#include <plib.h>
 #include <string>
 #include <exception>
+//#include "p32mx270f256d.h"
 
-#define CLOCK_SPEED 48000000UL
+#define SYS_CLOCK             (48000000ul)
+#define GetSystemClock()      (SYS_CLOCK)
+#define GetPeripheralClock()  (SYS_CLOCK/2)
+#define GetInstructionClock() (SYS_CLOCK)
 
 /*******************************************************************************
  * Fundamental bitwise operations.

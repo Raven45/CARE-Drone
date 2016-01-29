@@ -40,6 +40,7 @@ public:
     //operator overloads
     Quaternion& operator=(const Quaternion& C);
     Quaternion& operator+=(const Quaternion& C);
+    Quaternion& operator-=(const Quaternion& C);
     Quaternion operator-() const;
     Quaternion operator+(const float t) const;
     Quaternion operator-(const float t) const;

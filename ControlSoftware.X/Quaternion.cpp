@@ -56,6 +56,15 @@ Math::Quaternion& Math::Quaternion::operator+=(const Quaternion& C){
     return *this;
 }
 
+Math::Quaternion& Math::Quaternion::operator-=(const Quaternion& C){
+    
+    this->q0 -= C.q0;
+    this->q1 -= C.q1;
+    this->q2 -= C.q2;    
+    this->q3 -= C.q3;    
+    return *this;
+}
+
 Math::Quaternion Math::Quaternion::operator-() const {
 
     Quaternion N(-q0, -q1, -q2, -q3);
@@ -239,13 +248,17 @@ Math::Quaternion Math::Quaternion::Normalize() const {
 
 float Math::Quaternion::FastInverseSquareRoot(float x) const{
     
-	float halfx = 0.5f * x;
-	float y = x;
-	long i = *(long*)&y;
-	i = 0x5f3759df - (i>>1);
-	y = *(float*)&i;
-	y = y * (1.5f - (halfx * y * y));
-	return y;
+//	float halfx = 0.5f * x;
+//	float y = x;
+//	long i = *(long*)&y;
+//	i = 0x5f3759df - (i>>1);
+//	y = *(float*)&i;
+//	y = y * (1.5f - (halfx * y * y));
+//	return y;
+    
+    UnsignedInteger32 i = 0x5F1F1412 - (*(UnsignedInteger32*)&x >>1);
+    float tmp = *(float*)&i;
+    return tmp * (1.69000231f - 0.714158169f * x * tmp * tmp);
 }
 
 

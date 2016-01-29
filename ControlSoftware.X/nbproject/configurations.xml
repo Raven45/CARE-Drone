@@ -16,6 +16,7 @@
         <itemPath>Gyroscope.h</itemPath>
         <itemPath>Accelerometer.h</itemPath>
         <itemPath>Magnetometer.h</itemPath>
+        <itemPath>Timer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Math" projectFiles="true">
         <itemPath>Quaternion.h</itemPath>
@@ -35,6 +36,7 @@
       <itemPath>Object.h</itemPath>
       <itemPath>System.h</itemPath>
       <itemPath>Map.h</itemPath>
+      <itemPath>_Time.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -54,6 +56,7 @@
         <itemPath>Gyroscope.cpp</itemPath>
         <itemPath>Accelerometer.cpp</itemPath>
         <itemPath>Magnetometer.cpp</itemPath>
+        <itemPath>Timer.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Math" projectFiles="true">
         <itemPath>Quaternion.cpp</itemPath>
@@ -69,6 +72,7 @@
       <itemPath>System.cpp</itemPath>
       <itemPath>usb_config.h</itemPath>
       <itemPath>usb_descriptors.c</itemPath>
+      <itemPath>_Time.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
