@@ -86,6 +86,7 @@ extern "C" {
         UnsignedInteger8 i = 0;
         while (i < HAL::Timer::GetInstance()->TimerList.size()) {
             HAL::Timer::GetInstance()->TimerList[i].Tick();
+            i++;
         }
     }
 #endif

@@ -123,6 +123,14 @@ SignedInteger32 HAL::Altimeter::GetAltitude() {
     return ((8314*CurrentTemperature)/(9.81f * 28.97f)) * log(InitialPressure/CurrentPressure);
 }
 
+UnsignedInteger32 HAL::Altimeter::GetPressure() {
+    return CurrentPressure;
+}
+
+UnsignedInteger32 HAL::Altimeter::GetTemperature() {
+    return CurrentTemperature;
+}
+
 UnsignedInteger32 HAL::Altimeter::CompensatePressure(UnsignedInteger32 Raw) {
     
 /*******************************************************************************

@@ -9,7 +9,6 @@
         <itemPath>Register.h</itemPath>
         <itemPath>SPIBus.h</itemPath>
         <itemPath>Altimeter.h</itemPath>
-        <itemPath>IMU.h</itemPath>
         <itemPath>LCD.h</itemPath>
         <itemPath>PWMC.h</itemPath>
         <itemPath>HAL.h</itemPath>

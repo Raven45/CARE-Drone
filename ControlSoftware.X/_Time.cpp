@@ -67,3 +67,90 @@ UnsignedInteger32 Time::GetTime_US() {
     return Seconds*1000*1000 + MilliSeconds*1000 + MicroSeconds;
 }
 
+
+UnsignedInteger32 Time::operator[](const UnsignedInteger8 i) const {
+    
+    switch (i) {
+        case 0: return Seconds; break;
+        case 1: return MilliSeconds; break;
+        case 2: return MicroSeconds; break;
+        default: throw "Out of bounds error!";
+    }
+}
+
+UnsignedInteger32& Time::operator[](const UnsignedInteger8 i) {
+    
+    switch (i) {
+        case 0: return Seconds; break;
+        case 1: return MilliSeconds; break;
+        case 2: return MicroSeconds; break;
+        default: throw "Out of bounds error!";
+    }
+}
+
+
+bool Time::operator !=(const Time& B) const {
+    
+    if (this->Seconds != B.Seconds) { return true; }
+    else if (this->MilliSeconds != B.MilliSeconds) { return true; }
+    else if (this->MicroSeconds != B.MicroSeconds) { return true; }
+    else { return false; }
+}
+
+bool Time::operator ==(const Time& B) const {
+    return !(*this != B);
+}
+
+bool Time::operator >(const Time& B) const {
+    
+    if (*this != B) {
+        
+        if (this->Seconds == B.Seconds) {
+            
+            if (this->MilliSeconds == B.MilliSeconds) {
+                return this->MicroSeconds > B.MicroSeconds;
+            }
+            else {
+                return this->MilliSeconds > B.MilliSeconds;
+            }
+        }
+        else {
+            return this->Seconds > B.Seconds;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+bool Time::operator >=(const Time& B) const {
+    
+    return (*this > B) || (*this == B);
+}
+
+bool Time::operator <(const Time& B) const {
+    
+    if (*this != B) {
+        
+        if (this->Seconds == B.Seconds) {
+            
+            if (this->MilliSeconds == B.MilliSeconds) {
+                return this->MicroSeconds < B.MicroSeconds;
+            }
+            else {
+                return this->MilliSeconds < B.MilliSeconds;
+            }
+        }
+        else {
+            return this->Seconds < B.Seconds;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+bool Time::operator <=(const Time& B) const {
+    
+    return (*this < B) || (*this == B);
+}

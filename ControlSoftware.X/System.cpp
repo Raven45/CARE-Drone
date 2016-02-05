@@ -1,3 +1,22 @@
+/*******************************************************************************
+  * Copyright 2016  Aaron Burns,
+ *                  Joshua Donaway,
+ *                  Matthew Love,
+ *                  Department of Engineering, Harding University
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*******************************************************************************/
+
 #include "System.h"
 #include "Altimeter.h"
 #include "Accelerometer.h"
@@ -18,27 +37,46 @@ bool System::InitializeSystem() {
     
     //InitializeSystemClock();
     
-    //Create device objects
-    Devices.push_back(new HAL::Gyroscope        (ADDRESS_GYRO, &DeviceManager));
-    Devices.push_back(new HAL::Accelerometer    (ADDRESS_GYRO, &DeviceManager));
-    Devices.push_back(new HAL::Magnetometer     (ADDRESS_GYRO, &DeviceManager));
-    Devices.push_back(new HAL::Altimeter        (ADDRESS_BAROMETER, &DeviceManager));
-    Devices.push_back(new HAL::PWMC             (ADDRESS_MOTOR_1, &DeviceManager));
-    Devices.push_back(new HAL::PWMC             (ADDRESS_MOTOR_2, &DeviceManager));
-    Devices.push_back(new HAL::PWMC             (ADDRESS_MOTOR_3, &DeviceManager));
-    Devices.push_back(new HAL::PWMC             (ADDRESS_MOTOR_4, &DeviceManager));
-    Devices.push_back(new HAL::PWMC             (ADDRESS_MOTOR_5, &DeviceManager));
-    Devices.push_back(new HAL::PWMC             (ADDRESS_MOTOR_6, &DeviceManager));
+    try {
+        //Create the devices
+        _Gyroscope = new HAL::Gyroscope(ADDRESS_GYRO, &DeviceManager);
+        _Accelerometer = new HAL::Accelerometer(ADDRESS_ACCEL, &DeviceManager);
+        _Magnetometer = new HAL::Magnetometer(ADDRESS_MAG, &DeviceManager);
+        _Altimeter = new HAL::Altimeter(ADDRESS_BAROMETER, &DeviceManager);
+        Motor_1 = new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager);
+        Motor_2 = new HAL::PWMC(ADDRESS_MOTOR_2, &DeviceManager);
+        Motor_3 = new HAL::PWMC(ADDRESS_MOTOR_3, &DeviceManager);
+        Motor_4 = new HAL::PWMC(ADDRESS_MOTOR_4, &DeviceManager);
+        Motor_5 = new HAL::PWMC(ADDRESS_MOTOR_5, &DeviceManager);
+        Motor_6 = new HAL::PWMC(ADDRESS_MOTOR_6, &DeviceManager);
     
-    //Initialize the usb bus.
-    usb_init();
-    
-    //Initialize devices
-    for (unsigned int i = 0; i < Devices.size(); i++) {
-        Devices[i]->Initialize();
+        //Build the device list.
+        Devices.push_back(_Gyroscope);
+        Devices.push_back(_Accelerometer);
+        Devices.push_back(_Magnetometer);
+        Devices.push_back(_Altimeter);
+        Devices.push_back(Motor_1);
+        Devices.push_back(Motor_2);
+        Devices.push_back(Motor_3);
+        Devices.push_back(Motor_4);
+        Devices.push_back(Motor_5);
+        Devices.push_back(Motor_6);
+
+        //Initialize the usb bus.
+        usb_init();
+
+        //Initialize devices
+        for (unsigned int i = 0; i < Devices.size(); i++) {
+            Devices[i]->Initialize();
+        }
+
+        return true;
     }
-    
-    return true;
+    catch (...) {
+        //return false if we fail to initialize, more than likely due to
+        //failure to allocate memory. 
+        return false;
+    }
 }
 
 bool System::UpdateSystem() {
@@ -51,14 +89,17 @@ bool System::UpdateSystem() {
 
 void System::Main() {
     
+    //Run the debug main function if we're in debug mode.
     if (State == States::Debug) {
         DebugMain();
     }
     
+    //Run the main function for when the motors are running.
     else if (State == States::Run) {
         RunMain();
     }
     
+    //Go to standby.
     else if (State == States::Standby) {
         StandbyMain();
     }
@@ -69,31 +110,41 @@ bool System::ClearToProceed() {
 }
 
 bool System::IsUSBAttached() {
-    return false;
+    
+    return (usb_is_configured() && !usb_out_endpoint_halted(2));
 }
 
 #ifdef SYSTEM_IS_SINGLETON
 System* System::GetInstance() {
     
+    //If singleton object is not initialized.
     if (!Instance) {
         
+        //Attempt to create System object.
         try{
             Instance = new System();
         }
+        
+        //Return zero if the system object failed to initialize.
         catch (std::bad_alloc) {
             return 0;
         }
     }
+    
+    //Return the pointer to the System object.
     return Instance;
 }
 #endif
 
 void System::StandbyMain() {
     
+    //Update all SPI devices. Mostly, this will read sensors in
+    //Standby mode.
     UpdateSystem();
     
+    //Go to debug mode if USB cable is attached.
     if (IsUSBAttached()) {
-        //GoToState(States::Debug);
+        GoToState(States::Debug);
     }
     else {
         
@@ -117,26 +168,40 @@ void System::RunMain() {
     float Input_Throttle;
     float Input_Cargo;
     
+    //Perform system wide update
     UpdateSystem();
     
-    if (HAL::Timer::GetInstance()->TimerList[0].GetTime_US() > 1100) {
+    //Get the roll input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses (-15 degrees) to 2ms pulses (15 degrees).
+    if (HAL::Timer::GetInstance()->TimerList[0].GetTime_US() > INPUT_FLOOR &&
+        HAL::Timer::GetInstance()->TimerList[0].GetTime_US() <= INPUT_CEILING) {
+        
         Input_Roll = (((HAL::Timer::GetInstance()->TimerList[0].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
     }
     
-    if (HAL::Timer::GetInstance()->TimerList[1].GetTime_US() > 1100) {
+    //Get the pitch input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses (-15 degrees) to 2ms pulses (15 degrees).
+    if (HAL::Timer::GetInstance()->TimerList[1].GetTime_US() > INPUT_FLOOR &&
+        HAL::Timer::GetInstance()->TimerList[1].GetTime_US() <= INPUT_CEILING) {
+        
         Input_Pitch = (((HAL::Timer::GetInstance()->TimerList[1].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
     }
     
-    if (HAL::Timer::GetInstance()->TimerList[2].GetTime_US() > 1100) {
-        Input_Yaw = (((HAL::Timer::GetInstance()->TimerList[2].GetTime_US() - 1000)/1000)*360.0f);
+    //Get the yaw input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses to 2ms pulses. Input controls the rate of yaw.
+    if (HAL::Timer::GetInstance()->TimerList[2].GetTime_US() > INPUT_FLOOR &&
+        HAL::Timer::GetInstance()->TimerList[2].GetTime_US() <= INPUT_CEILING) {
+        
+        Input_Yaw += (((HAL::Timer::GetInstance()->TimerList[2].GetTime_US() - 1000)/1000)*10.0f) * DeltaTime;
     }
     
-    if (HAL::Timer::GetInstance()->TimerList[3].GetTime_US() > 1100) {
+    //Get the throttle input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses (0%) to 2ms pulses (100%).
+    if (HAL::Timer::GetInstance()->TimerList[3].GetTime_US() > INPUT_FLOOR &&
+        HAL::Timer::GetInstance()->TimerList[3].GetTime_US() <= INPUT_CEILING) {
+        
         Input_Throttle = (((HAL::Timer::GetInstance()->TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
     }
-    
-    //This is probably where we want to set the output compare channel for the 
-    //radio output. Still need to figure out how we're going to achieve this.
     
     //Get the set point for our PID controller.
     Math::Quaternion SetPoint(Input_Roll, Input_Pitch, Input_Yaw);
@@ -145,32 +210,43 @@ void System::RunMain() {
     DeltaTime = HAL::Timer::GetInstance()->TimerList[4].GetTime_US();
     HAL::Timer::GetInstance()->TimerList[4].SetClock(0,0,0);
     
-    //Get the current orientation.
-    //CurrentOrientation = AHRS_Update(  );
+    //Get the current orientation using Madgwick's sensor fusion algorithm.
+    AHRS_Update();
     
     //Calculate the error
     Math::Quaternion Error = SetPoint*CurrentOrientation;
     
     //Calculate our output
     Math::Quaternion Output = CalculatePID(Error);
+    
+    //Convert to euler angles.
     //Output_Roll = Output.GetRoll();
     //Output_Pitch = Output.GetPitch();
     //Output_Yaw = Output.GetYaw();
     
     //Calculate what throttles we need. This is where Matt's control
     //algorithm is utilized. 
-    //Motor1.SetThrottle();
-    //Motor2.SetThrottle();
-    //Motor3.SetThrottle();
-    //Motor4.SetThrottle();
-    //Motor5.SetThrottle();
-    //Motor6.SetThrottle();
+    //Motor_1.SetThrottle();
+    //Motor_2.SetThrottle();
+    //Motor_3.SetThrottle();
+    //Motor_4.SetThrottle();
+    //Motor_5.SetThrottle();
+    //Motor_6.SetThrottle();
 }
 
 void System::DebugMain() {
     
+    //Run system wide update.
     UpdateSystem();
+    
+    //Get the amount of time since last frame.
+    DeltaTime = HAL::Timer::GetInstance()->TimerList[4].GetTime_US();
+    HAL::Timer::GetInstance()->TimerList[4].SetClock(0,0,0);
+    
+    //Retrieve commands received through USB bus.
     const unsigned char * Command = ReceiveCommand();
+    
+    //Execute received commands.
     ExecuteCommand(Command);
 }
 
@@ -179,9 +255,6 @@ void System::GoToState(UnsignedInteger16 State) {
     this->State = State;
 }
     
-bool System::CreateDevice(ADDRESS, short int Type) {
-    
-}
     
 const unsigned char * System::ReceiveCommand() {
     
@@ -218,8 +291,8 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     else if (strCommand.rfind("ReadAccelerometer") != std::string::npos) { 
         Command_ReadAccelerometer(strCommand);
     }
-    else if (strCommand.rfind("GetGravity") != std::string::npos) { 
-        Command_GetGravity();
+    else if (strCommand.rfind("GetOrientation") != std::string::npos) { 
+        Command_GetOrientation();
     }
     else if (strCommand.rfind("GetPressure") != std::string::npos) { 
         Command_GetPressure();
@@ -420,74 +493,339 @@ Math::Quaternion System::CalculatePID(Math::Quaternion Error) {
 
 bool System::Command_ReadGyroscope(std::string Command) {
     
-    if (Command.rfind("/X") != std::string::npos) {
-            //Send X axis gyro reading
+    if (!IsUSBAttached()) {
+        return false;
     }
-    if (Command.rfind("/Y") != std::string::npos) {
-            //Send X axis gyro reading
+    
+    //Parse string for commands
+    int X_pos = Command.rfind("/X");
+    int Y_pos = Command.rfind("/Y");
+    int Z_pos = Command.rfind("/Z");
+    
+    //Get pointer to the USB send buffer.
+    unsigned char *buf = usb_get_in_buffer(2);
+    
+    if (X_pos == std::string::npos &&
+        Y_pos == std::string::npos &&
+        Z_pos == std::string::npos ) {
+        
+        return false;
     }
-    if (Command.rfind("/Z") != std::string::npos) {
-            //Send X axis gyro reading
+    
+    //If get_x command was found
+    if (X_pos != std::string::npos) {
+        
+        //Retrieve X axis gyro reading
+        FloatBuffer fbuf;
+        fbuf.a = _Gyroscope->GetRateX();
+        buf = fbuf.b;
+        
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+        
+        //Send X axis gyro reading.
+        usb_send_in_buffer(2, 4);
     }
+    
+    //If get_y command was found
+    if (Y_pos != std::string::npos) {
+        
+        //Retrieve Y axis gyro reading
+        FloatBuffer fbuf;
+        fbuf.a = _Gyroscope->GetRateY();
+        buf = fbuf.b;
+        
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+        
+        //Send Y axis gyro reading.
+        usb_send_in_buffer(2, 4);
+    }
+    
+    //If get_z command was found
+    if (Z_pos != std::string::npos) {
+        
+        //Retrieve Z axis gyro reading
+        FloatBuffer fbuf;
+        fbuf.a = _Gyroscope->GetRateZ();
+        buf = fbuf.b;
+        
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+        
+        //Send Z axis gyro reading.
+        usb_send_in_buffer(2, 4);
+    }
+    
+    return true;
 }
 
 bool System::Command_ReadAccelerometer(std::string Command) {
     
-    if (Command.rfind("/X") != std::string::npos) {
-            //Send X axis gyro reading
+    if (!IsUSBAttached()) {
+        return false;
     }
-    if (Command.rfind("/Y") != std::string::npos) {
-            //Send X axis gyro reading
+    
+    //Parse string for commands
+    int X_pos = Command.rfind("/X");
+    int Y_pos = Command.rfind("/Y");
+    int Z_pos = Command.rfind("/Z");
+    
+    //Get pointer to the USB send buffer.
+    unsigned char *buf = usb_get_in_buffer(2);
+    
+    if (X_pos == std::string::npos &&
+        Y_pos == std::string::npos &&
+        Z_pos == std::string::npos ) {
+        
+        return false;
     }
-    if (Command.rfind("/Z") != std::string::npos) {
-            //Send X axis gyro reading
+    
+    //If get_x command was found
+    if (X_pos != std::string::npos) {
+        
+        //Retrieve X axis gyro reading
+        FloatBuffer fbuf;
+        fbuf.a = _Accelerometer->GetAccelX();
+        buf = fbuf.b;
+        
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+        
+        //Send X axis gyro reading.
+        usb_send_in_buffer(2, 4);
     }
+    
+    //If get_y command was found
+    if (Y_pos != std::string::npos) {
+        
+        //Retrieve Y axis gyro reading
+        FloatBuffer fbuf;
+        fbuf.a = _Accelerometer->GetAccelY();
+        buf = fbuf.b;
+        
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+        
+        //Send Y axis gyro reading.
+        usb_send_in_buffer(2, 4);
+    }
+    
+    //If get_z command was found
+    if (Z_pos != std::string::npos) {
+        
+        //Retrieve Z axis gyro reading
+        FloatBuffer fbuf;
+        fbuf.a = _Accelerometer->GetAccelZ();
+        buf = fbuf.b;
+        
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+        
+        //Send Z axis gyro reading.
+        usb_send_in_buffer(2, 4);
+    }
+    
+    return true;
 }
 
-bool System::Command_GetGravity() {
+bool System::Command_GetOrientation() {
     
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    FloatBuffer fbuf;
+    unsigned char *buf = usb_get_in_buffer(2);
+    
+    AHRS_Update();
+    
+    for (int i = 0; i < 4; i++) {
+       
+        fbuf.a = CurrentOrientation[i];
+        buf = fbuf.b;
+
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+
+        //Send the orientation data.
+        usb_send_in_buffer(2, 4);
+    }
+    
+    return true;
 }
 
 bool System::Command_GetPressure() {
     
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    FloatBuffer fbuf;
+    unsigned char *buf = usb_get_in_buffer(2);
+    fbuf.a = _Altimeter->GetPressure();
+    buf = fbuf.b;
+
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, 4);
+    
+    return true;
 }
 
 bool System::Command_GetTemperature() {
     
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    FloatBuffer fbuf;
+    unsigned char *buf = usb_get_in_buffer(2);
+    fbuf.a = _Altimeter->GetTemperature();
+    buf = fbuf.b;
+
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, 4);
+    
+    return true;
 }
 
 bool System::Command_GetAltitude() {
     
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    FloatBuffer fbuf;
+    unsigned char *buf = usb_get_in_buffer(2);
+    fbuf.a = _Altimeter->GetAltitude();
+    buf = fbuf.b;
+
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, 4);
+    
+    return true;
 }
 
 bool System::Command_SetThrottle(std::string Command) {
     
-    if (Command.rfind("/C:") != std::string::npos) {
-            //Get channel.
+    int Channel = Command.rfind("/C:");
+    int Throttle = Command.rfind("/D:");
+    
+    if (Channel != std::string::npos) {
+        
+        //Get channel from string using saved location of argument.
+        Channel = Command[Channel+3] - 30;
     }
-    if (Command.rfind("/D:") != std::string::npos) {
-            //Get throttle and then set the throttle.
+    else {
+        return false;
     }
+  
+    if (Throttle != std::string::npos) {
+        
+        //Get throttle and then set the throttle.
+        Throttle = atoi(Command.substr(Throttle+3).c_str());
+        
+        //Bounds check the Throttle input.
+        if (Throttle < 0 || Throttle > 100) {
+            return false;
+        }
+        else {
+            
+            switch (Channel) {
+                case 1: Motor_1->SetThrottle(Throttle); break;
+                case 2: Motor_2->SetThrottle(Throttle); break;
+                case 3: Motor_3->SetThrottle(Throttle); break;
+                case 4: Motor_4->SetThrottle(Throttle); break;
+                case 5: Motor_5->SetThrottle(Throttle); break;
+                case 6: Motor_6->SetThrottle(Throttle); break;
+                default: return false;
+            }
+        }
+    }
+    else {
+        return false;
+    }
+
+    return true;
 }
 
 bool System::Command_GetThrottle(std::string Command) {
     
-    if (Command.rfind("/C:") != std::string::npos) {
-            //Get channel.
+    if (!IsUSBAttached()) {
+        return false;
     }
-    if (Command.rfind("/D:") != std::string::npos) {
-            //Get throttle and then set the throttle.
+    
+    int Channel = Command.rfind("/C:");
+    unsigned char *buf = usb_get_in_buffer(2);
+    
+    if (Channel != std::string::npos) {
+        
+        //Get channel from string using saved location of argument.
+        Channel = Command[Channel+3] - 30;
+        
+        switch (Channel) {
+            case 1: buf[0] = Motor_1->GetThrottle(); break;
+            case 2: buf[0] = Motor_2->GetThrottle(); break;
+            case 3: buf[0] = Motor_3->GetThrottle(); break;
+            case 4: buf[0] = Motor_4->GetThrottle(); break;
+            case 5: buf[0] = Motor_5->GetThrottle(); break;
+            case 6: buf[0] = Motor_6->GetThrottle(); break;
+            default: return false;
+        }
+        
+        //Wait until the PC can accept data.
+        while (usb_in_endpoint_busy(2));
+
+        //Send pressure reading.
+        usb_send_in_buffer(2, 4);
+    }
+    else {
+        return false;
     }
 }
 
 bool System::Command_StopAllMotors() {
     
+    Motor_1->StopMotor();
+    Motor_2->StopMotor();
+    Motor_3->StopMotor();
+    Motor_4->StopMotor();
+    Motor_5->StopMotor();
+    Motor_6->StopMotor();
+    
+    return true;
 }
 
 bool System::Command_SetAllMotors(std::string Command) {
     
+    int Throttle = Command.rfind("/D:");
+    
     if (Command.rfind("/D:") != std::string::npos) {
-            //Get throttle and then set the throttle.
+        
+        //Get throttle and then set the throttle.
+        Throttle = atoi(Command.substr(Throttle+3).c_str());
+        
+        //Bounds check the Throttle input.
+        if (Throttle < 0 || Throttle > 100) {
+            return false;
+        }
+        else {
+            Motor_1->SetThrottle(Throttle); 
+            Motor_2->SetThrottle(Throttle); 
+            Motor_3->SetThrottle(Throttle); 
+            Motor_4->SetThrottle(Throttle); 
+            Motor_5->SetThrottle(Throttle); 
+            Motor_6->SetThrottle(Throttle);
+        }
     }
 }
 
@@ -496,10 +834,6 @@ bool System::Command_ReleaseCargo() {
     PORTSetBits(IOPORT_C, BIT_4);
     PORTClearBits(IOPORT_C, BIT_5);
     
-    //delay()
-    
-    PORTClearBits(IOPORT_C, BIT_4);
-    PORTClearBits(IOPORT_C, BIT_5);
 }
 
 bool System::Command_HoldCargo() {
@@ -507,7 +841,9 @@ bool System::Command_HoldCargo() {
     PORTClearBits(IOPORT_C, BIT_4);
     PORTSetBits(IOPORT_C, BIT_5);
     
-    //delay()
+    Time Delaytimer;
+    Delaytimer.SetClock(2, 0, 0);
+    HAL::Timer::GetInstance()->Delay(Delaytimer);
     
     PORTClearBits(IOPORT_C, BIT_4);
     PORTClearBits(IOPORT_C, BIT_5);
@@ -515,4 +851,5 @@ bool System::Command_HoldCargo() {
 
 bool System::Command_ReturnToStandby() {
     GoToState(States::Standby);
+    return true;
 }

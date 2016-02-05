@@ -11,6 +11,8 @@
 #include "_Time.h"
 #include <vector>
 
+//Output compare period.
+#define OUTPUT_COMPARE_PERIOD 20
 
 
 namespace HAL {
