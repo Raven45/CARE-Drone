@@ -3,12 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/System.h</file>
-            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/Main.cpp</file>
-            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/PWMC.h</file>
-            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/Timer.h</file>
-            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/Timer.cpp</file>
-            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/System.cpp</file>
+            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/usb_config.h</file>
+            <file>file:/M:/Documents/GitHub/CARE-Drone/ControlSoftware.X/Object.cpp</file>
         </group>
     </open-files>
 </project-private>

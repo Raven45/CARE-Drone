@@ -138,9 +138,19 @@ System* System::GetInstance() {
 
 void System::StandbyMain() {
     
+    float Input_Throttle;
+    
     //Update all SPI devices. Mostly, this will read sensors in
     //Standby mode.
     UpdateSystem();
+    
+    //Get the throttle input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses (0%) to 2ms pulses (100%).
+    if (HAL::Timer::GetInstance()->TimerList[3].GetTime_US() > INPUT_FLOOR &&
+        HAL::Timer::GetInstance()->TimerList[3].GetTime_US() <= INPUT_CEILING) {
+        
+        Input_Throttle = (((HAL::Timer::GetInstance()->TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
+    }
     
     //Go to debug mode if USB cable is attached.
     if (IsUSBAttached()) {
@@ -148,11 +158,11 @@ void System::StandbyMain() {
     }
     else {
         
-        if (Safety /*&& Throttle == 0*/) {
+        if (Safety && Input_Throttle == 0) {
             Safety = false;
         }
-        else if (!Safety /*&& Throttle > 0*/) {
-            //GoToState(States::Standby);
+        else if (!Safety && Input_Throttle > 15) {
+            GoToState(States::Standby);
         }
     }
 }
@@ -202,6 +212,22 @@ void System::RunMain() {
         
         Input_Throttle = (((HAL::Timer::GetInstance()->TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
     }
+
+    //Handle RC output
+    if (HAL::Timer::GetInstance()->TimerList[5].GetTime_MS()  > RC_Output) {
+        
+        //Turn output off.
+        LATCbits.LATC7 = 0;
+    }
+    if (HAL::Timer::GetInstance()->TimerList[5].GetTime_MS()  > 20) {
+        
+        //Turn output on.
+        LATCbits.LATC7 = 1;
+        
+        //Reset timer.
+        HAL::Timer::GetInstance()->TimerList[5].SetClock(0, 0, 0);
+    }
+    
     
     //Get the set point for our PID controller.
     Math::Quaternion SetPoint(Input_Roll, Input_Pitch, Input_Yaw);
@@ -852,4 +878,21 @@ bool System::Command_HoldCargo() {
 bool System::Command_ReturnToStandby() {
     GoToState(States::Standby);
     return true;
+}
+
+bool System::Command_USBTest() {
+    
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    unsigned char *buf = usb_get_in_buffer(2);
+    
+    buf = "There shall be wings!";
+    
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, sizeof(buf));
 }

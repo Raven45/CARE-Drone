@@ -22,7 +22,7 @@
 #ifndef SYSTEM_H
 #define	SYSTEM_H
 
-#define INPUT_FLOOR 1100
+#define INPUT_FLOOR 1000
 #define INPUT_CEILING 2000
 
 #define SYSTEM_IS_SINGLETON
@@ -157,6 +157,9 @@ private:
     //The magical delta-time variable. Used for integration.
     UnsignedInteger32 DeltaTime;
     
+    //The output for the RC output channel
+    unsigned int RC_Output;
+    
     //Gain for the Madgwick filters.
     float Beta;
     
@@ -274,6 +277,7 @@ private:
     bool Command_ReleaseCargo();
     bool Command_HoldCargo();
     bool Command_ReturnToStandby();
+    bool Command_USBTest();
 };
 
 #endif	/* SYSTEM_H */
