@@ -42,6 +42,9 @@ _FOSC(PRI & XT_PLL8)
 _FWDT(WDT_OFF)
 
 //Macros
+//#define ENABLE_SPI        
+#define ENABLE_THROTTLE_TEST
+
 #define bool short int        
 #define false 0x00
 #define true 0xFF
@@ -73,12 +76,15 @@ int CurrentSector = 5;
 struct Global {
     bool MotorIsStarted;
     bool Direction; //true for clockwise, false for counter-clockwise.
+    bool ComplimentaryPWM; 
+    bool BipolarSwitching;
     unsigned short int NumPoles;
     unsigned int CurrentSpeed;
     unsigned short int FilterDelay;
     unsigned short int ADCProc;
     unsigned short int PhaseAdvance;
     unsigned int ZeroCrossPoint;
+    unsigned int CurrentThrottle;
 } Globals;
 
 void InitializeGlobals();
@@ -105,6 +111,10 @@ void InitializeGlobals () {
     
     Globals.MotorIsStarted = false;
     Globals.Direction = false; //Clockwise rotation.
+    
+    //Modes of switching operation.
+    Globals.ComplimentaryPWM = false; 
+    Globals.BipolarSwitching = false;
     
     //Set up for our 580 KV motor
     Globals.NumPoles = 22;
@@ -141,7 +151,8 @@ void InitializePWM() {
     PTPER = FCY/PWM_FREQ -1;
     
     //Calculate the PWM resolution.
-    PWM_Resolution = log(((2*FCY)/PWM_FREQ))/log(2) +1;
+    //PWM_Resolution = log(((2*FCY)/PWM_FREQ))/log(2) +1;
+    PWM_Resolution = 11;
     
     //Set the maximum duty cycle.
     short unsigned int i = 1;
@@ -153,7 +164,7 @@ void InitializePWM() {
     PTCON = 0x0010;             //Set the PTCON register.
     PWMCON1 = 0x00FF;           //Set the PWMCON1 register.
     PTMR = 0;                   //Initialize the PWM timer.
-    DTCON1 = 0xF;               //Set dead time.
+    DTCON1 = 0x6F;               //Set dead time.
     _PTEN = 1;                  //Fire up the PWM subsystem.
 }
 
@@ -165,11 +176,6 @@ void InitializePWM() {
  *              that are input to analog inputs AN3-5. AN3 is DC channel 1, 
  *              AN4 is DC channel 2, and AN5 is DC channel 3. The ADC should be 
  *              setup to sample at 2.5 times the PWM frequency. 
- * 
- *              This function will also initialize a 4th-order Butterworth filter
- *              that is configured as a low-pass filter with a pass-band of
- *              4 KHz and a stopband of 20 KHz. The filter time delay is 108 
- *              milliseconds.
  
  * Prerequisites:   A low-pass filter, either hardware or digital.
  *                  The PWM subsystem should be initialized.
@@ -181,6 +187,8 @@ void InitializePWM() {
 
  * Change-log:
  * 02-02-2016       Original code for CARE-Drone ESC.
+ * 02-06-2016       Removed references to Butterworth filter. System is now
+ *                  reliant on external filtering.
 *******************************************************************************/ 
 void InitializeADC() {
 
@@ -188,19 +196,22 @@ void InitializeADC() {
     TRISBbits.TRISB0 = 1;       //Set B3 as an input.
     TRISBbits.TRISB1 = 1;       //Set B4 as an input.
     TRISBbits.TRISB2 = 1;       //Set B5 as an input.
-    ADPCFGbits.PCFG0 = 0;       //Enable B3 as an analog input.
-    ADPCFGbits.PCFG1 = 0;       //Enable B4 as an analog input.
-    ADPCFGbits.PCFG2 = 0;       //Enable B5 as an analog input.
-    TRISB = 0xFFFF;             //Set Port B to all inputs.
-    ADPCFG = 0x0000;            
-    ADCON1 = 0x006C;
-    ADCHS = 0x0022;
-    ADCSSL = 0x0000;
-    ADCON3 = 0x0004;
-    ADCON2 = 0x0300;
+    ADPCFGbits.PCFG3 = 0;       //Enable B3 as an analog input.
+    ADPCFGbits.PCFG4 = 0;       //Enable B4 as an analog input.
+    ADPCFGbits.PCFG5 = 0;       //Enable B5 as an analog input.          
+    ADCON1 = 0x006C;            //Enable auto sample.
+                                //Enable simultaneous sampling.
+                                //PWM ends sampling and starts conversion.
+    ADCHS = 0x0022;             //Ch 1-3 inputs are AN3-5.
+                                //Ch 0 inputs is AN2 - Needs to be changed.
+    ADCSSL = 0x0000;            //Disable scanning.
+    ADCON3 = 0x0002;            //TAD = 5*Tcy/2.
+                                //ADC clock derived from system clock.
+                                //Auto-sample time set to zero TAD
+    ADCON2 = 0x0300;            //Convert channels 0-3.
     
-    IPC2bits.ADIP = 5;
-    IFS0bits.ADIF = 0;
+    IPC2bits.ADIP = 5;          //Set interrupt priority.
+    IFS0bits.ADIF = 0;          //Clear interrupt flag.
     //IEC0bits.ADIE = 1;
     ADCON1bits.ADON = 1;        //Enable the ADC
     
@@ -416,10 +427,10 @@ void CloseSPI() {
 void SetThrottle(unsigned int Throttle) {
     
     if (Throttle >=0 || Throttle < 100) {
-        
-        PDC1 = (Throttle * (2*PDC_MAX))/100;
-        PDC2 = (Throttle * (2*PDC_MAX))/100;
-        PDC3 = (Throttle * (2*PDC_MAX))/100;
+        PDC1 = (Throttle*(PTPER+1))/40;
+        PDC2 = PDC1;
+        PDC3 = PDC1;
+        Globals.CurrentThrottle = PDC1;
     }
 }
 
@@ -463,24 +474,41 @@ void SectorChange() {
         }
     }
 
-    if (CurrentSector == 0) { 
-        OVDCON = PWM1H_ON | PWM2L_FORCE;
+    //Unipolar, independent PWM switching method. Verified working for 
+    //10 - 50% duty cycles with a 470 Kv motor and a 580 Kv motor. 
+    if (Globals.ComplimentaryPWM == false && Globals.BipolarSwitching == false) {
+        if (CurrentSector == 0) { 
+            OVDCON = PWM1H_ON | PWM2L_FORCE;
+        }
+        else if (CurrentSector == 1) {
+            OVDCON = PWM1H_ON | PWM3L_FORCE;
+        }
+        else if (CurrentSector == 2) {
+            OVDCON = PWM2H_ON | PWM3L_FORCE;
+        }
+        else if (CurrentSector == 3) {
+            OVDCON = PWM2H_ON | PWM1L_FORCE;
+        }
+        else if (CurrentSector == 4) {
+            OVDCON = PWM3H_ON | PWM1L_FORCE;
+        }
+        else if (CurrentSector == 5) {
+            OVDCON = PWM3H_ON | PWM2L_FORCE;
+        }
     }
-    else if (CurrentSector == 1) {
-        OVDCON = PWM1H_ON | PWM3L_FORCE;
+    
+    //Unipolar, complementary PWM switching method.
+    else if (Globals.ComplimentaryPWM == true && Globals.BipolarSwitching == false) {
+        switch (CurrentSector) {
+            case 0: OVDCON = PWM1H_ON | PWM1L_ON | PWM2L_FORCE; break;
+            case 1: OVDCON = PWM1H_ON | PWM1L_ON | PWM3L_FORCE; break;
+            case 2: OVDCON = PWM2H_ON | PWM2L_ON | PWM3L_FORCE; break;
+            case 3: OVDCON = PWM2H_ON | PWM2L_ON | PWM1L_FORCE; break;
+            case 4: OVDCON = PWM3H_ON | PWM3L_ON | PWM1L_FORCE; break;
+            case 5: OVDCON = PWM3H_ON | PWM3L_ON | PWM2L_FORCE; break;
+        }
     }
-    else if (CurrentSector == 2) {
-        OVDCON = PWM2H_ON | PWM3L_FORCE;
-    }
-    else if (CurrentSector == 3) {
-        OVDCON = PWM2H_ON | PWM1L_FORCE;
-    }
-    else if (CurrentSector == 4) {
-        OVDCON = PWM3H_ON | PWM1L_FORCE;
-    }
-    else if (CurrentSector == 5) {
-        OVDCON = PWM3H_ON | PWM2L_FORCE;
-    }
+
 }
 
 /*******************************************************************************
@@ -590,19 +618,18 @@ void StartupMotor() {
         __delay_us(Time);
         
         SectorChange();
-        __delay_us(Time);
-        
         T1CONbits.TON = 0; 
         TMR1 = 0; 
         T1CONbits.TON = 1;
+        __delay_us(Time);
         
         i--;
-        if (i % 5 == 0 && Time > 2000) {
+        if (i % 2 == 0 && Time > 1000) {
             Time -= 500;
         }
-        else if (Time <= 2000) {
+        else if (Time <= 1000) {
             IEC0bits.ADIE = 1;
-            return;
+            //return;
         }
     }
 }
@@ -755,15 +782,31 @@ int main(int argc, char** argv) {
     
     InitializeGlobals();        //Initialize global variables.
     InitializePWM();            //Startup the PWM system at 20 KHz
-    //SetThrottle(45);            //Set initial duty cycle to 45%
-    PDC1 = 0x33F;
-    PDC2 = 0x33F;
-    PDC3 = 0x33F;
+    SetThrottle(60);            //Set initial duty cycle to 45%
+    Globals.ComplimentaryPWM = true;
     InitializeADC();            //Start the ADC for back-EMF detection.
     StartupMotor();             //Dry start motor in open-loop mode.
     
     while (1) {
+       
+    #ifdef ENABLE_THROTTLE_TEST   /*
+        SetThrottle(20);
+        __delay_ms(10000);
         
+        SetThrottle(40);
+        __delay_ms(10000);*/
+        
+        SetThrottle(60);
+        __delay_ms(10000);
+        
+        PDC1 = 0x8FF;
+        PDC2 = 0x8FF;
+        PDC3 = 0x8FF;
+        __delay_ms(10000);
+    #endif
+        
+        
+    #ifdef ENABLE_SPI
         //Manage SPI communications
         unsigned int Incoming = ReadSPI(0);
         
@@ -781,6 +824,7 @@ int main(int argc, char** argv) {
                 case 4: Command_GetThrottle(); break;
             }  
         }
+    #endif
     }
 
     return (0);
@@ -869,7 +913,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
         Globals.MotorIsStarted = true;
         
         //Arm commutation timer.
-        PR2 = TMR1/2 /*- 0xDF*//*- Globals.FilterDelay - Globals.ADCProc - Globals.PhaseAdvance*/;
+        PR2 = TMR1/2 - 0x3F/*- Globals.FilterDelay - Globals.ADCProc - Globals.PhaseAdvance*/;
         T2CONbits.TON = 1;
         
         //Reset Timer 1

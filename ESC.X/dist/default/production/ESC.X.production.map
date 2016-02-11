@@ -82,11 +82,11 @@ Program Memory  [Origin = 0x100, Length = 0x1f00]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x100               0x38e           0x555  (1365)
-.text                        0x48e               0x5ba           0x897  (2199)
-.dinit                       0xa48                0x38            0x54  (84)
-.init.delay32                0xa80                0x1c            0x2a  (42)
+.text                        0x48e               0x5c0           0x8a0  (2208)
+.dinit                       0xa4e                0x38            0x54  (84)
+.init.delay32                0xa86                0x1c            0x2a  (42)
 
-                     Total program memory used (bytes):          0xe6a  (3690) 30%
+                     Total program memory used (bytes):          0xe73  (3699) 31%
 
 
 Data Memory  [Origin = 0x800, Length = 0x200]
@@ -94,12 +94,12 @@ Data Memory  [Origin = 0x800, Length = 0x200]
 section                    address      alignment gaps    total length  (dec)
 -------                    -------      --------------    -------------------
 .xdata                       0x800                   0            0x14  (20)
-.nbss                        0x814                   0            0x14  (20)
-.ndata                       0x828                   0             0x2  (2)
-.data                        0x82a                   0             0xc  (12)
+.nbss                        0x814                   0            0x1a  (26)
+.ndata                       0x82e                   0             0x2  (2)
+.data                        0x830                   0             0xc  (12)
 .ybss                        0x9f8                   0             0x8  (8)
 
-                        Total data memory used (bytes):           0x3e  (62) 12%
+                        Total data memory used (bytes):           0x44  (68) 13%
 
 
 Dynamic Memory Usage
@@ -107,9 +107,9 @@ Dynamic Memory Usage
 region                     address                      maximum length  (dec)
 ------                     -------                      ---------------------
 heap                             0                                   0  (0)
-stack                        0x836                               0x1c2  (450)
+stack                        0x83c                               0x1bc  (444)
 
-                        Maximum dynamic memory (bytes):          0x1c2  (450)
+                        Maximum dynamic memory (bytes):          0x1bc  (444)
 
 
 External Symbols in Data Memory (by address):
@@ -117,13 +117,13 @@ External Symbols in Data Memory (by address):
                     0x0814                  _PWM_Resolution
                     0x0816                  _PDC_MAX
                     0x0818                  _Globals
-                    0x0828                  _CurrentSector
-                    0x082a                  _ButterworthFilter
+                    0x082e                  _CurrentSector
+                    0x0830                  _ButterworthFilter
 
 External Symbols in Data Memory (by name):
 
-                    0x082a                  _ButterworthFilter
-                    0x0828                  _CurrentSector
+                    0x0830                  _ButterworthFilter
+                    0x082e                  _CurrentSector
                     0x0818                  _Globals
                     0x0816                  _PDC_MAX
                     0x0814                  _PWM_Resolution
@@ -149,62 +149,62 @@ External Symbols in Program Memory (by address):
                   0x0003f8                  ___muldi3
                   0x00044a                  ___umuldi3
                   0x00048e                  _InitializeGlobals
-                  0x0004a6                  _InitializePWM
-                  0x0004e4                  _InitializeADC
-                  0x000522                  _InitializeSPI
-                  0x000552                  _VerifyMessage
-                  0x000590                  _EncodeParity
-                  0x0005de                  _ReadSPI
-                  0x000614                  _CloseSPI
-                  0x00061a                  _SetThrottle
-                  0x000664                  _SectorChange
-                  0x0006ec                  _AlignMotor
-                  0x0006fe                  _ReleaseMotor
-                  0x00070c                  _StartupMotor
-                  0x000800                  _StopMotor
-                  0x00080c                  _Command_Start
-                  0x000814                  _Command_Stop
-                  0x000824                  _Command_SetThrottle
-                  0x000838                  _Command_GetThrottle
-                  0x000842                  _main
-                  0x0008bc                  __ADCInterrupt
-                  0x000a14                  __T1Interrupt
-                  0x000a1c                  __T2Interrupt
-                  0x000a3e                  __SPI1Interrupt
-                  0x000a80                  ___delay32
+                  0x0004aa                  _InitializePWM
+                  0x0004e8                  _InitializeADC
+                  0x000520                  _InitializeSPI
+                  0x000550                  _VerifyMessage
+                  0x00058e                  _EncodeParity
+                  0x0005dc                  _ReadSPI
+                  0x000612                  _CloseSPI
+                  0x000618                  _SetThrottle
+                  0x000640                  _SectorChange
+                  0x00072e                  _AlignMotor
+                  0x000740                  _ReleaseMotor
+                  0x00074e                  _StartupMotor
+                  0x000838                  _StopMotor
+                  0x000844                  _Command_Start
+                  0x00084c                  _Command_Stop
+                  0x00085c                  _Command_SetThrottle
+                  0x000870                  _Command_GetThrottle
+                  0x00087a                  _main
+                  0x0008c0                  __ADCInterrupt
+                  0x000a1a                  __T1Interrupt
+                  0x000a22                  __T2Interrupt
+                  0x000a44                  __SPI1Interrupt
+                  0x000a86                  ___delay32
 
 External Symbols in Program Memory (by name):
 
-                  0x0006ec                  _AlignMotor
-                  0x000614                  _CloseSPI
+                  0x00072e                  _AlignMotor
+                  0x000612                  _CloseSPI
                   0x00019e                  _CloseSPI1
-                  0x000838                  _Command_GetThrottle
-                  0x000824                  _Command_SetThrottle
-                  0x00080c                  _Command_Start
-                  0x000814                  _Command_Stop
+                  0x000870                  _Command_GetThrottle
+                  0x00085c                  _Command_SetThrottle
+                  0x000844                  _Command_Start
+                  0x00084c                  _Command_Stop
                   0x0001a6                  _ConfigIntSPI1
                   0x0001c8                  _DataRdySPI1
-                  0x000590                  _EncodeParity
-                  0x0004e4                  _InitializeADC
+                  0x00058e                  _EncodeParity
+                  0x0004e8                  _InitializeADC
                   0x00048e                  _InitializeGlobals
-                  0x0004a6                  _InitializePWM
-                  0x000522                  _InitializeSPI
+                  0x0004aa                  _InitializePWM
+                  0x000520                  _InitializeSPI
                   0x0001ce                  _OpenSPI1
-                  0x0005de                  _ReadSPI
+                  0x0005dc                  _ReadSPI
                   0x0001d4                  _ReadSPI1
-                  0x0006fe                  _ReleaseMotor
-                  0x000664                  _SectorChange
-                  0x00061a                  _SetThrottle
-                  0x00070c                  _StartupMotor
-                  0x000800                  _StopMotor
-                  0x000552                  _VerifyMessage
+                  0x000740                  _ReleaseMotor
+                  0x000640                  _SectorChange
+                  0x000618                  _SetThrottle
+                  0x00074e                  _StartupMotor
+                  0x000838                  _StopMotor
+                  0x000550                  _VerifyMessage
                   0x0001ea                  _WriteSPI1
-                  0x0008bc                  __ADCInterrupt
+                  0x0008c0                  __ADCInterrupt
                   0x00019a                  __DefaultInterrupt
-                  0x000a3e                  __SPI1Interrupt
-                  0x000a14                  __T1Interrupt
-                  0x000a1c                  __T2Interrupt
-                  0x000a80                  ___delay32
+                  0x000a44                  __SPI1Interrupt
+                  0x000a1a                  __T1Interrupt
+                  0x000a22                  __T2Interrupt
+                  0x000a86                  ___delay32
                   0x00033c                  ___divdi3
                   0x00039c                  ___moddi3
                   0x0003f8                  ___muldi3
@@ -216,7 +216,7 @@ External Symbols in Program Memory (by name):
                   0x00013c                  __data_init_standard
                   0x00012c                  __psv_init
                   0x000100                  __resetPRI
-                  0x000842                  _main
+                  0x00087a                  _main
 
 Memory Configuration
 
@@ -377,27 +377,27 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000       0x1a20
+.debug_info       0x000000       0x19a6
  *(.debug_info)
- .debug_info      0x000000       0x1a20 build/default/production/_ext/535750862/Main.o
+ .debug_info      0x000000       0x19a6 build/default/production/_ext/535750862/Main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x236
+.debug_abbrev     0x000000        0x20f
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x236 build/default/production/_ext/535750862/Main.o
+ .debug_abbrev    0x000000        0x20f build/default/production/_ext/535750862/Main.o
 
-.debug_line       0x000000        0x9e9
+.debug_line       0x000000        0xa22
  *(.debug_line)
- .debug_line      0x000000        0x9cf build/default/production/_ext/535750862/Main.o
- .debug_line      0x0009cf         0x1a build/default/production/_ext/535750862/Butterworth.o
+ .debug_line      0x000000        0xa08 build/default/production/_ext/535750862/Main.o
+ .debug_line      0x000a08         0x1a build/default/production/_ext/535750862/Butterworth.o
 
 .debug_frame      0x000000        0x184
  *(.debug_frame)
  .debug_frame     0x000000        0x184 build/default/production/_ext/535750862/Main.o
 
-.debug_str        0x000000         0xbe
+.debug_str        0x000000         0xb5
  *(.debug_str)
- .debug_str       0x000000         0xbe build/default/production/_ext/535750862/Main.o
+ .debug_str       0x000000         0xb5 build/default/production/_ext/535750862/Main.o
 
 .debug_loc
  *(.debug_loc)
@@ -431,15 +431,15 @@ userdata
                   0x000014          0x4 LONG 0x19a DEFINED (__INT0Interrupt)?ABSOLUTE (__INT0Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000016          0x4 LONG 0x19a DEFINED (__IC1Interrupt)?ABSOLUTE (__IC1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000018          0x4 LONG 0x19a DEFINED (__OC1Interrupt)?ABSOLUTE (__OC1Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x00001a          0x4 LONG 0xa14 DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x00001a          0x4 LONG 0xa1a DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00001c          0x4 LONG 0x19a DEFINED (__IC2Interrupt)?ABSOLUTE (__IC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00001e          0x4 LONG 0x19a DEFINED (__OC2Interrupt)?ABSOLUTE (__OC2Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x000020          0x4 LONG 0xa1c DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x000020          0x4 LONG 0xa22 DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000022          0x4 LONG 0x19a DEFINED (__T3Interrupt)?ABSOLUTE (__T3Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x000024          0x4 LONG 0xa3e DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x000024          0x4 LONG 0xa44 DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000026          0x4 LONG 0x19a DEFINED (__U1RXInterrupt)?ABSOLUTE (__U1RXInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000028          0x4 LONG 0x19a DEFINED (__U1TXInterrupt)?ABSOLUTE (__U1TXInterrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x00002a          0x4 LONG 0x8bc DEFINED (__ADCInterrupt)?ABSOLUTE (__ADCInterrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x00002a          0x4 LONG 0x8c0 DEFINED (__ADCInterrupt)?ABSOLUTE (__ADCInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00002c          0x4 LONG 0x19a DEFINED (__NVMInterrupt)?ABSOLUTE (__NVMInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00002e          0x4 LONG 0x19a DEFINED (__SI2CInterrupt)?ABSOLUTE (__SI2CInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000030          0x4 LONG 0x19a DEFINED (__MI2CInterrupt)?ABSOLUTE (__MI2CInterrupt):ABSOLUTE (__DefaultInterrupt)
@@ -495,15 +495,15 @@ userdata
                   0x000094          0x4 LONG 0x19a DEFINED (__AltINT0Interrupt)?ABSOLUTE (__AltINT0Interrupt):DEFINED (__INT0Interrupt)?ABSOLUTE (__INT0Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000096          0x4 LONG 0x19a DEFINED (__AltIC1Interrupt)?ABSOLUTE (__AltIC1Interrupt):DEFINED (__IC1Interrupt)?ABSOLUTE (__IC1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x000098          0x4 LONG 0x19a DEFINED (__AltOC1Interrupt)?ABSOLUTE (__AltOC1Interrupt):DEFINED (__OC1Interrupt)?ABSOLUTE (__OC1Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x00009a          0x4 LONG 0xa14 DEFINED (__AltT1Interrupt)?ABSOLUTE (__AltT1Interrupt):DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x00009a          0x4 LONG 0xa1a DEFINED (__AltT1Interrupt)?ABSOLUTE (__AltT1Interrupt):DEFINED (__T1Interrupt)?ABSOLUTE (__T1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00009c          0x4 LONG 0x19a DEFINED (__AltIC2Interrupt)?ABSOLUTE (__AltIC2Interrupt):DEFINED (__IC2Interrupt)?ABSOLUTE (__IC2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x00009e          0x4 LONG 0x19a DEFINED (__AltOC2Interrupt)?ABSOLUTE (__AltOC2Interrupt):DEFINED (__OC2Interrupt)?ABSOLUTE (__OC2Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x0000a0          0x4 LONG 0xa1c DEFINED (__AltT2Interrupt)?ABSOLUTE (__AltT2Interrupt):DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x0000a0          0x4 LONG 0xa22 DEFINED (__AltT2Interrupt)?ABSOLUTE (__AltT2Interrupt):DEFINED (__T2Interrupt)?ABSOLUTE (__T2Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a2          0x4 LONG 0x19a DEFINED (__AltT3Interrupt)?ABSOLUTE (__AltT3Interrupt):DEFINED (__T3Interrupt)?ABSOLUTE (__T3Interrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x0000a4          0x4 LONG 0xa3e DEFINED (__AltSPI1Interrupt)?ABSOLUTE (__AltSPI1Interrupt):DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x0000a4          0x4 LONG 0xa44 DEFINED (__AltSPI1Interrupt)?ABSOLUTE (__AltSPI1Interrupt):DEFINED (__SPI1Interrupt)?ABSOLUTE (__SPI1Interrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a6          0x4 LONG 0x19a DEFINED (__AltU1RXInterrupt)?ABSOLUTE (__AltU1RXInterrupt):DEFINED (__U1RXInterrupt)?ABSOLUTE (__U1RXInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000a8          0x4 LONG 0x19a DEFINED (__AltU1TXInterrupt)?ABSOLUTE (__AltU1TXInterrupt):DEFINED (__U1TXInterrupt)?ABSOLUTE (__U1TXInterrupt):ABSOLUTE (__DefaultInterrupt)
-                  0x0000aa          0x4 LONG 0x8bc DEFINED (__AltADCInterrupt)?ABSOLUTE (__AltADCInterrupt):DEFINED (__ADCInterrupt)?ABSOLUTE (__ADCInterrupt):ABSOLUTE (__DefaultInterrupt)
+                  0x0000aa          0x4 LONG 0x8c0 DEFINED (__AltADCInterrupt)?ABSOLUTE (__AltADCInterrupt):DEFINED (__ADCInterrupt)?ABSOLUTE (__ADCInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000ac          0x4 LONG 0x19a DEFINED (__AltNVMInterrupt)?ABSOLUTE (__AltNVMInterrupt):DEFINED (__NVMInterrupt)?ABSOLUTE (__NVMInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000ae          0x4 LONG 0x19a DEFINED (__AltSI2CInterrupt)?ABSOLUTE (__AltSI2CInterrupt):DEFINED (__SI2CInterrupt)?ABSOLUTE (__SI2CInterrupt):ABSOLUTE (__DefaultInterrupt)
                   0x0000b0          0x4 LONG 0x19a DEFINED (__AltMI2CInterrupt)?ABSOLUTE (__AltMI2CInterrupt):DEFINED (__MI2CInterrupt)?ABSOLUTE (__MI2CInterrupt):ABSOLUTE (__DefaultInterrupt)
@@ -1029,49 +1029,49 @@ __c30_signature
 .ybss               0x09f8          0x8
  .ybss              0x09f8          0x8 build/default/production/_ext/535750862/Butterworth.o
 
-.nbss               0x0814         0x14
- .nbss              0x0814         0x14 build/default/production/_ext/535750862/Main.o
+.nbss               0x0814         0x1a
+ .nbss              0x0814         0x1a build/default/production/_ext/535750862/Main.o
                     0x0814                  _PWM_Resolution
                     0x0816                  _PDC_MAX
                     0x0818                  _Globals
 
-.ndata              0x0828          0x2
- .ndata             0x0828          0x2 build/default/production/_ext/535750862/Main.o
-                    0x0828                  _CurrentSector
+.ndata              0x082e          0x2
+ .ndata             0x082e          0x2 build/default/production/_ext/535750862/Main.o
+                    0x082e                  _CurrentSector
 
-.data               0x082a          0xc
- .data              0x082a          0xc build/default/production/_ext/535750862/Butterworth.o
-                    0x082a                  _ButterworthFilter
+.data               0x0830          0xc
+ .data              0x0830          0xc build/default/production/_ext/535750862/Butterworth.o
+                    0x0830                  _ButterworthFilter
 
-.text             0x00048e        0x5ba
- .text            0x00048e        0x5ba build/default/production/_ext/535750862/Main.o
+.text             0x00048e        0x5c0
+ .text            0x00048e        0x5c0 build/default/production/_ext/535750862/Main.o
                   0x00048e                  _InitializeGlobals
-                  0x0004a6                  _InitializePWM
-                  0x0004e4                  _InitializeADC
-                  0x000522                  _InitializeSPI
-                  0x000552                  _VerifyMessage
-                  0x000590                  _EncodeParity
-                  0x0005de                  _ReadSPI
-                  0x000614                  _CloseSPI
-                  0x00061a                  _SetThrottle
-                  0x000664                  _SectorChange
-                  0x0006ec                  _AlignMotor
-                  0x0006fe                  _ReleaseMotor
-                  0x00070c                  _StartupMotor
-                  0x000800                  _StopMotor
-                  0x00080c                  _Command_Start
-                  0x000814                  _Command_Stop
-                  0x000824                  _Command_SetThrottle
-                  0x000838                  _Command_GetThrottle
-                  0x000842                  _main
-                  0x0008bc                  __ADCInterrupt
-                  0x000a14                  __T1Interrupt
-                  0x000a1c                  __T2Interrupt
-                  0x000a3e                  __SPI1Interrupt
+                  0x0004aa                  _InitializePWM
+                  0x0004e8                  _InitializeADC
+                  0x000520                  _InitializeSPI
+                  0x000550                  _VerifyMessage
+                  0x00058e                  _EncodeParity
+                  0x0005dc                  _ReadSPI
+                  0x000612                  _CloseSPI
+                  0x000618                  _SetThrottle
+                  0x000640                  _SectorChange
+                  0x00072e                  _AlignMotor
+                  0x000740                  _ReleaseMotor
+                  0x00074e                  _StartupMotor
+                  0x000838                  _StopMotor
+                  0x000844                  _Command_Start
+                  0x00084c                  _Command_Stop
+                  0x00085c                  _Command_SetThrottle
+                  0x000870                  _Command_GetThrottle
+                  0x00087a                  _main
+                  0x0008c0                  __ADCInterrupt
+                  0x000a1a                  __T1Interrupt
+                  0x000a22                  __T2Interrupt
+                  0x000a44                  __SPI1Interrupt
 
-.dinit            0x000a48         0x38
- .dinit           0x000a48         0x38 data_init
+.dinit            0x000a4e         0x38
+ .dinit           0x000a4e         0x38 data_init
 
-.init.delay32     0x000a80         0x1c
- .init.delay32    0x000a80         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
-                  0x000a80                  ___delay32
+.init.delay32     0x000a86         0x1c
+ .init.delay32    0x000a86         0x1c c:/program files (x86)/microchip/xc16/v1.25/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x000a86                  ___delay32
