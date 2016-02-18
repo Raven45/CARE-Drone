@@ -265,6 +265,18 @@ Math::Quaternion Math::Quaternion::Normalize() const {
     return N;
 }
 
+float Math::Quaternion::GetRoll() const {
+    return atan2f(2.0f * (q0 *q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 180/PI;
+}
+
+float Math::Quaternion::GetPitch() const {
+    return -asinf(2.0f * (q1 * q3 - q0 * q2)) * 180/PI;
+}
+
+float Math::Quaternion::GetYaw() const {
+    return (atan2f(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 180/PI);
+}
+
 float Math::Quaternion::FastInverseSquareRoot(float x) const{
     
 //	float halfx = 0.5f * x;

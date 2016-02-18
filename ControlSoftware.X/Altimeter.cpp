@@ -146,6 +146,11 @@ UnsignedInteger32 HAL::Altimeter::GetPressure() {
     return CurrentPressure;
 }
 
+UnsignedInteger32 HAL::Altimeter::GetStartingPressure() {
+    return InitialPressure;
+}
+
+
 UnsignedInteger32 HAL::Altimeter::GetTemperature() {
     return CurrentTemperature;
 }

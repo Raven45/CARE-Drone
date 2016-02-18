@@ -89,19 +89,33 @@ bool System::UpdateSystem() {
 
 void System::Main() {
     
-    //Run the debug main function if we're in debug mode.
-    if (State == States::Debug) {
-        DebugMain();
+    if (ValidationTestMode == TEST_MODE_OFF) {
+        //Run the debug main function if we're in debug mode.
+        if (State == States::Debug) {
+            DebugMain();
+        }
+
+        //Run the main function for when the motors are running.
+        else if (State == States::Run) {
+            RunMain();
+        }
+
+        //Go to standby.
+        else if (State == States::Standby) {
+            StandbyMain();
+        }
     }
     
-    //Run the main function for when the motors are running.
-    else if (State == States::Run) {
-        RunMain();
+    else if (ValidationTestMode == TEST_PROPULSION) {
+        
     }
     
-    //Go to standby.
-    else if (State == States::Standby) {
-        StandbyMain();
+    else if (ValidationTestMode == TEST_CARGO) {
+        
+    }
+    
+    else if (ValidationTestMode == TEST_FLIGHT_DATA) {
+        
     }
 }
 
@@ -121,12 +135,12 @@ System* System::GetInstance() {
     if (!Instance) {
         
         //Attempt to create System object.
-        try{
+        try {
             Instance = new System();
         }
         
         //Return zero if the system object failed to initialize.
-        catch (std::bad_alloc) {
+        catch (...) {
             return 0;
         }
     }
@@ -146,10 +160,10 @@ void System::StandbyMain() {
     
     //Get the throttle input from user. Incoming signal is a RC Servo signal ranging from
     //1 ms pulses (0%) to 2ms pulses (100%).
-    if (HAL::Timer::GetInstance()->TimerList[3].GetTime_US() > INPUT_FLOOR &&
-        HAL::Timer::GetInstance()->TimerList[3].GetTime_US() <= INPUT_CEILING) {
+    if (CoreTimer.TimerList[3].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[3].GetTime_US() <= INPUT_CEILING) {
         
-        Input_Throttle = (((HAL::Timer::GetInstance()->TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
+        Input_Throttle = (((CoreTimer.TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
     }
     
     //Go to debug mode if USB cable is attached.
@@ -169,95 +183,110 @@ void System::StandbyMain() {
 
 void System::RunMain() {
     
-    float Input_Roll;
-    float Input_Pitch;
-    float Input_Yaw;
     float Output_Roll;
     float Output_Pitch;
     float Output_Yaw;
-    float Input_Throttle;
-    float Input_Cargo;
     
     //Perform system wide update
     UpdateSystem();
     
     //Get the roll input from user. Incoming signal is a RC Servo signal ranging from
     //1 ms pulses (-15 degrees) to 2ms pulses (15 degrees).
-    if (HAL::Timer::GetInstance()->TimerList[0].GetTime_US() > INPUT_FLOOR &&
-        HAL::Timer::GetInstance()->TimerList[0].GetTime_US() <= INPUT_CEILING) {
+    if (CoreTimer.TimerList[0].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[0].GetTime_US() <= INPUT_CEILING) {
         
-        Input_Roll = (((HAL::Timer::GetInstance()->TimerList[0].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
+        Input_Roll = (((CoreTimer.TimerList[0].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
     }
     
     //Get the pitch input from user. Incoming signal is a RC Servo signal ranging from
     //1 ms pulses (-15 degrees) to 2ms pulses (15 degrees).
-    if (HAL::Timer::GetInstance()->TimerList[1].GetTime_US() > INPUT_FLOOR &&
-        HAL::Timer::GetInstance()->TimerList[1].GetTime_US() <= INPUT_CEILING) {
+    if (CoreTimer.TimerList[1].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[1].GetTime_US() <= INPUT_CEILING) {
         
-        Input_Pitch = (((HAL::Timer::GetInstance()->TimerList[1].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
+        Input_Pitch = (((CoreTimer.TimerList[1].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
     }
     
     //Get the yaw input from user. Incoming signal is a RC Servo signal ranging from
     //1 ms pulses to 2ms pulses. Input controls the rate of yaw.
-    if (HAL::Timer::GetInstance()->TimerList[2].GetTime_US() > INPUT_FLOOR &&
-        HAL::Timer::GetInstance()->TimerList[2].GetTime_US() <= INPUT_CEILING) {
+    if (CoreTimer.TimerList[2].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[2].GetTime_US() <= INPUT_CEILING) {
         
-        Input_Yaw += (((HAL::Timer::GetInstance()->TimerList[2].GetTime_US() - 1000)/1000)*10.0f) * DeltaTime;
+        Input_Yaw += (((CoreTimer.TimerList[2].GetTime_US() - 1000)/1000)*10.0f) * DeltaTime;
     }
     
     //Get the throttle input from user. Incoming signal is a RC Servo signal ranging from
     //1 ms pulses (0%) to 2ms pulses (100%).
-    if (HAL::Timer::GetInstance()->TimerList[3].GetTime_US() > INPUT_FLOOR &&
-        HAL::Timer::GetInstance()->TimerList[3].GetTime_US() <= INPUT_CEILING) {
+    if (CoreTimer.TimerList[3].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[3].GetTime_US() <= INPUT_CEILING) {
         
-        Input_Throttle = (((HAL::Timer::GetInstance()->TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
+        Input_Throttle = (((CoreTimer.TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
     }
 
+    RC_Output = 1000 + _Altimeter->GetAltitude();
+    if (RC_Output > 2000 ) { RC_Output = 2000; }
+    
     //Handle RC output
-    if (HAL::Timer::GetInstance()->TimerList[5].GetTime_MS()  > RC_Output) {
+    if (CoreTimer.TimerList[5].GetTime_MS()  > RC_Output) {
         
         //Turn output off.
         LATCbits.LATC7 = 0;
     }
-    if (HAL::Timer::GetInstance()->TimerList[5].GetTime_MS()  > 20) {
+    if (CoreTimer.TimerList[5].GetTime_MS()  > 20) {
         
         //Turn output on.
         LATCbits.LATC7 = 1;
         
         //Reset timer.
-        HAL::Timer::GetInstance()->TimerList[5].SetClock(0, 0, 0);
+        CoreTimer.TimerList[5].SetClock(0, 0, 0);
     }
+
+    if (Input_Throttle == 0 && _Altimeter->GetAltitude() < 10) {
+        Command_StopAllMotors();
+        GoToState(States::Standby);
+        return;
+    }
+    else {
+        
+        //Get the amount of time since last frame.
+        DeltaTime = CoreTimer.TimerList[4].GetTime_US();
+        CoreTimer.TimerList[4].SetClock(0,0,0);
+        
+        //Get the current orientation using Madgwick's sensor fusion algorithm.
+        AHRS_Update();
+
+        //Calculate the error
+        Math::Quaternion Error = SetPoint*CurrentOrientation;
+        
+        //Get the set point for our PID controller.
+        Math::Quaternion SetPoint(Input_Roll, Input_Pitch, Input_Yaw);
+
+        //Calculate our output
+        Math::Quaternion Output = CalculatePID(Error);
+
+        //Convert to euler angles.
+        Output_Roll = Output.GetRoll();
+        Output_Pitch = Output.GetPitch();
+        Output_Yaw = Output.GetYaw();
     
-    
-    //Get the set point for our PID controller.
-    Math::Quaternion SetPoint(Input_Roll, Input_Pitch, Input_Yaw);
-    
-    //Get the amount of time since last frame.
-    DeltaTime = HAL::Timer::GetInstance()->TimerList[4].GetTime_US();
-    HAL::Timer::GetInstance()->TimerList[4].SetClock(0,0,0);
-    
-    //Get the current orientation using Madgwick's sensor fusion algorithm.
-    AHRS_Update();
-    
-    //Calculate the error
-    Math::Quaternion Error = SetPoint*CurrentOrientation;
-    
-    //Calculate our output
-    Math::Quaternion Output = CalculatePID(Error);
-    
-    //Convert to euler angles.
-    //Output_Roll = Output.GetRoll();
-    //Output_Pitch = Output.GetPitch();
-    //Output_Yaw = Output.GetYaw();
-    
-    //Calculate what throttles we need. This is where Matt's control
-    //algorithm is utilized. 
-    //Motor_1.SetThrottle();
-    //Motor_2.SetThrottle();
-    //Motor_3.SetThrottle();
-    //Motor_4.SetThrottle();
-    //Motor_5.SetThrottle();
-    //Motor_6.SetThrottle();
+        //Calculate what throttles we need. This is where Matt's control
+        //algorithm is utilized. 
+        if (CargoIsReleased) {
+            Motor_1->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_NO_CARGO + Output_Pitch * PITCH_COEF_NO_CARGO);
+            Motor_2->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_NO_CARGO + Output_Pitch * PITCH_COEF_NO_CARGO);
+            Motor_3->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_NO_CARGO + Output_Pitch * PITCH_COEF_NO_CARGO);
+            Motor_4->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_NO_CARGO + Output_Pitch * PITCH_COEF_NO_CARGO);
+            Motor_5->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_NO_CARGO + Output_Roll * ROLL_COEF_NO_CARGO);
+            Motor_6->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_NO_CARGO + Output_Roll * ROLL_COEF_NO_CARGO);
+        }
+        else {
+            Motor_1->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_CARGO + Output_Roll * ROLL_COEF_CARGO + Output_Pitch * PITCH_COEF_CARGO);
+            Motor_2->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_CARGO + Output_Roll * ROLL_COEF_CARGO + Output_Pitch * PITCH_COEF_CARGO);
+            Motor_3->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_CARGO + Output_Roll * ROLL_COEF_CARGO + Output_Pitch * PITCH_COEF_CARGO);
+            Motor_4->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_CARGO + Output_Roll * ROLL_COEF_CARGO + Output_Pitch * PITCH_COEF_CARGO);
+            Motor_5->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_CARGO + Output_Roll * ROLL_COEF_CARGO);
+            Motor_6->SetThrottle(Input_Throttle + Output_Yaw * YAW_COEF_CARGO + Output_Roll * ROLL_COEF_CARGO);
+        }
+    }
 }
 
 void System::DebugMain() {
@@ -265,22 +294,72 @@ void System::DebugMain() {
     //Run system wide update.
     UpdateSystem();
     
+    //Get the roll input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses (-15 degrees) to 2ms pulses (15 degrees).
+    if (CoreTimer.TimerList[0].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[0].GetTime_US() <= INPUT_CEILING) {
+        
+        Input_Roll = (((CoreTimer.TimerList[0].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
+    }
+    
+    //Get the pitch input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses (-15 degrees) to 2ms pulses (15 degrees).
+    if (CoreTimer.TimerList[1].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[1].GetTime_US() <= INPUT_CEILING) {
+        
+        Input_Pitch = (((CoreTimer.TimerList[1].GetTime_US() - 1000)/1000)*30.0f)-15.0f;
+    }
+    
+    //Get the yaw input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses to 2ms pulses. Input controls the rate of yaw.
+    if (CoreTimer.TimerList[2].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[2].GetTime_US() <= INPUT_CEILING) {
+        
+        Input_Yaw += (((CoreTimer.TimerList[2].GetTime_US() - 1000)/1000)*30.0f) * DeltaTime/1000/1000;
+    }
+    
+    //Get the throttle input from user. Incoming signal is a RC Servo signal ranging from
+    //1 ms pulses (0%) to 2ms pulses (100%).
+    if (CoreTimer.TimerList[3].GetTime_US() > INPUT_FLOOR &&
+        CoreTimer.TimerList[3].GetTime_US() <= INPUT_CEILING) {
+        
+        Input_Throttle = (((CoreTimer.TimerList[3].GetTime_US() - 1000)/1000)*100.0f);
+    }
+
+    RC_Output = 1000 + _Altimeter->GetAltitude();
+    if (RC_Output > 2000 ) { RC_Output = 2000; }
+    
+    //Handle RC output
+    if (CoreTimer.TimerList[5].GetTime_MS()  > RC_Output) {
+        
+        //Turn output off.
+        LATCbits.LATC7 = 0;
+    }
+    if (CoreTimer.TimerList[5].GetTime_MS()  > 20) {
+        
+        //Turn output on.
+        LATCbits.LATC7 = 1;
+        
+        //Reset timer.
+        CoreTimer.TimerList[5].SetClock(0, 0, 0);
+    }
+    
     //Get the amount of time since last frame.
-    DeltaTime = HAL::Timer::GetInstance()->TimerList[4].GetTime_US();
-    HAL::Timer::GetInstance()->TimerList[4].SetClock(0,0,0);
+    DeltaTime = CoreTimer.TimerList[4].GetTime_US();
+    CoreTimer.TimerList[4].SetClock(0,0,0);
     
     //Retrieve commands received through USB bus.
     const unsigned char * Command = ReceiveCommand();
     
-    //Execute received commands.
-    ExecuteCommand(Command);
+    if (Command != 0) {
+        //Execute received commands.
+        ExecuteCommand(Command);
+    }
 }
-
 
 void System::GoToState(UnsignedInteger16 State) {
     this->State = State;
 }
-    
     
 const unsigned char * System::ReceiveCommand() {
     
@@ -323,6 +402,9 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     else if (strCommand.rfind("GetPressure") != std::string::npos) { 
         Command_GetPressure();
     }
+    else if (strCommand.rfind("GetStartingPressure") != std::string::npos) { 
+        Command_GetStartingPressure();
+    }
     else if (strCommand.rfind("GetTemperature") != std::string::npos) { 
         Command_GetTemperature();
     }
@@ -350,6 +432,9 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     else if (strCommand.rfind("ReturnToStandby") != std::string::npos) { 
         Command_ReturnToStandby();
     }
+    else if (strCommand.rfind("SelfTest") != std::string::npos) { 
+        Command_USBTest();
+    }
 }
 
 bool System::SendUSBData(std::string Message) {
@@ -368,6 +453,8 @@ bool System::SendUSBData(std::string Message) {
         return false;
     }
 }
+
+//<editor-fold defaultstate="collapsed" desc="Control Algorithm">
 
 Math::Quaternion System::AHRS_Update() {
     
@@ -517,6 +604,9 @@ Math::Quaternion System::CalculatePID(Math::Quaternion Error) {
     return Kp*Error + Ki*IntegralComponent + Kd*DerivativeComponent;
 }
 
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="Console Commands">
 bool System::Command_ReadGyroscope(std::string Command) {
     
     if (!IsUSBAttached()) {
@@ -701,6 +791,26 @@ bool System::Command_GetPressure() {
     return true;
 }
 
+bool System::Command_GetStartingPressure() {
+    
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    FloatBuffer fbuf;
+    unsigned char *buf = usb_get_in_buffer(2);
+    fbuf.a = _Altimeter->GetStartingPressure();
+    buf = fbuf.b;
+
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, 4);
+    
+    return true;
+}
+
 bool System::Command_GetTemperature() {
     
     if (!IsUSBAttached()) {
@@ -860,6 +970,13 @@ bool System::Command_ReleaseCargo() {
     PORTSetBits(IOPORT_C, BIT_4);
     PORTClearBits(IOPORT_C, BIT_5);
     
+    OpenTimer2(     T2_ON | 
+                    T2_PS_1_1,
+                    0xBB80);                  //Set timer 2 period to 1 ms.
+    
+    CargoIsReleased = true;
+    
+    return true;
 }
 
 bool System::Command_HoldCargo() {
@@ -869,10 +986,14 @@ bool System::Command_HoldCargo() {
     
     Time Delaytimer;
     Delaytimer.SetClock(2, 0, 0);
-    HAL::Timer::GetInstance()->Delay(Delaytimer);
+    CoreTimer.Delay(Delaytimer);
     
     PORTClearBits(IOPORT_C, BIT_4);
     PORTClearBits(IOPORT_C, BIT_5);
+    
+    CargoIsReleased = false;
+    
+    return true;
 }
 
 bool System::Command_ReturnToStandby() {
@@ -888,11 +1009,79 @@ bool System::Command_USBTest() {
     
     unsigned char *buf = usb_get_in_buffer(2);
     
-    buf = "There shall be wings!";
+    buf = (unsigned char *)"There shall be wings!";
     
     //Wait until the PC can accept data.
     while (usb_in_endpoint_busy(2));
 
     //Send pressure reading.
     usb_send_in_buffer(2, sizeof(buf));
+    
+    return true;
 }
+
+bool System::Command_GetRCInput() {
+    
+}
+
+bool System::Command_GetRoll() {
+    
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    unsigned char *buf = usb_get_in_buffer(2);
+    char * convert_buf = (char *)buf;
+    
+    sprintf(convert_buf, "%f", CurrentOrientation.GetRoll());
+    
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, sizeof(buf));
+    
+    return true;
+}
+
+bool System::Command_GetPitch() {
+    
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    unsigned char *buf = usb_get_in_buffer(2);
+    char * convert_buf = (char *)buf;
+    
+    sprintf(convert_buf, "%f", CurrentOrientation.GetPitch());
+    
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, sizeof(buf));
+    
+    return true;
+}
+
+bool System::Command_GetYaw() {
+    
+    if (!IsUSBAttached()) {
+        return false;
+    }
+    
+    unsigned char *buf = usb_get_in_buffer(2);
+    char * convert_buf = (char *)buf;
+    
+    sprintf(convert_buf, "%f", CurrentOrientation.GetYaw());
+    
+    //Wait until the PC can accept data.
+    while (usb_in_endpoint_busy(2));
+
+    //Send pressure reading.
+    usb_send_in_buffer(2, sizeof(buf));
+    
+    return true;
+}
+
+//</editor-fold>

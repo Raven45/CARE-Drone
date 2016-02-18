@@ -25,6 +25,7 @@
 #include <math.h>
 
 #define Q_EPSILON 1.0e-14
+#define PI 3.14159265359f
 
 namespace Math {
 
@@ -66,6 +67,10 @@ public:
     Quaternion Inverse() const;
     Quaternion Conjugate() const;
     Quaternion Normalize() const;
+    
+    float GetRoll() const;
+    float GetPitch() const;
+    float GetYaw() const;
     
 private:
     float q0;

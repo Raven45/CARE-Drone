@@ -19,11 +19,37 @@
 
 #include "Timer.h"
 
-HAL::Timer* HAL::Timer::Instance = 0;
+//HAL::Timer* HAL::Timer::Instance = 0;
 
 HAL::Timer::Timer() {
     
-    //Insert timer1 initialization code here.
+    //Configure timer 1 interrupt
+    ConfigIntTimer1(T1_INT_ON  |            //Turn on timer 1 interrupt.
+                    T1_INT_PRIOR_7 |        //Set to highest priority.
+                    T1_INT_SUB_PRIOR_3);    //Set to highest sub-priority.
+    
+    //Configure Timer 1
+    OpenTimer1(     T1_ON |                 //Turn on timer 1.
+                    T1_IDLE_CON |           //Continue on idle.
+                    T1_PS_1_1,              //Set post scale to 1.
+                    0x300);                  //Set timer 1 period to 1 us.
+    
+    ConfigIntTimer2(T2_INT_ON |             //Turn on timer 2 interrupt.
+                    T2_INT_PRIOR_6);        //Set interrupt priority
+    
+    Time * RollTimer = new Time();
+    Time * PitchTimer = new Time();
+    Time * YawTimer = new Time();
+    Time * ThrottleTimer = new Time();
+    Time * DeltaTimer = new Time();
+    Time * RCOutputTimer = new Time();
+    
+    TimerList.push_back(*RollTimer);   
+    TimerList.push_back(*PitchTimer);  
+    TimerList.push_back(*YawTimer);  
+    TimerList.push_back(*ThrottleTimer);
+    TimerList.push_back(*DeltaTimer);  
+    TimerList.push_back(*RCOutputTimer);  
 }
 
 HAL::Timer::~Timer() {
@@ -64,16 +90,16 @@ void HAL::Timer::Delay_ms(Time Period) {
     while (DelayTimer < Period);
 }
 
-HAL::Timer* HAL::Timer::GetInstance() {
-    
-    if (!Instance) {
-        
-        try{
-            Instance = new Timer();
-        }
-        catch (std::bad_alloc) {
-            return 0;
-        }
-    }
-    return Instance;
-}
+//HAL::Timer* HAL::Timer::GetInstance() {
+//    
+//    if (!Instance) {
+//        
+//        try{
+//            Instance = new Timer();
+//        }
+//        catch (std::bad_alloc) {
+//            return 0;
+//        }
+//    }
+//    return Instance;
+//}

@@ -25,9 +25,28 @@
 #define INPUT_FLOOR 1000
 #define INPUT_CEILING 2000
 
-#define SYSTEM_IS_SINGLETON
+//#define SYSTEM_IS_SINGLETON
 #define GetUSBClock()               SYS_CLOCK
 
+#define ENABLE_GYRO
+#define ENABLE_ACCELL
+#define ENABLE_MAG
+#define ENABLE_ALTIMETER
+#define ENABLE_MOTOR_1
+#define ENABLE_MOTOR_2
+#define ENABLE_MOTOR_3
+#define ENABLE_MOTOR_4
+#define ENABLE_MOTOR_5
+#define ENABLE_MOTOR_6
+#define ENABLE_USB
+
+#define ROLL_COEF_NO_CARGO 1.0f
+#define PITCH_COEF_NO_CARGO 1.0f
+#define YAW_COEF_NO_CARGO 1.0f
+#define ROLL_COEF_CARGO 1.0f
+#define PITCH_COEF_CARGO 1.0f
+#define YAW_COEF_CARGO 1.0f
+#define REVERSE_COEF -1.0f
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -36,6 +55,29 @@
 #include "Quaternion.h"
 #include "Accelerometer.h"
 
+//Macro for allowing the flight computer to run outside of test mode.
+#define TEST_MODE_OFF 0
+
+//Macro for initiating the RC input test.
+#define TEST_RC_INPUT 1
+
+//Macro for initiating the propulsion test.
+#define TEST_PROPULSION 2
+
+//Macro for initiating the cargo motors test.
+#define TEST_CARGO 3
+
+//Macro for testing the RC output.
+#define TEST_FLIGHT_DATA 4
+
+/*******************************************************************************
+ * FloatBuffer Union
+ * This union is present for the purpose of converting a single precision,
+ * IEEE-754 floating point number to an array of four chars. It will also help
+ * convert an array of four chars to a float. This is present for the purpose
+ * of sending floating point numbers over the SPI bus and the USB bus, of which
+ * both operate with char arrays.
+*******************************************************************************/
 typedef union {
     float a;
     unsigned char b[4];
@@ -104,6 +146,8 @@ public:
      * The GetInstance function will retrieve and return a reference to the 
      * system object. If the system object has not been 
     ***************************************************************************/
+    
+    HAL::Timer CoreTimer;
 #ifdef SYSTEM_IS_SINGLETON
     static System* GetInstance();
 #endif
@@ -160,6 +204,9 @@ private:
     //The output for the RC output channel
     unsigned int RC_Output;
     
+    //Control variable for conduction tests
+    unsigned int ValidationTestMode;
+    
     //Gain for the Madgwick filters.
     float Beta;
     
@@ -171,6 +218,14 @@ private:
     
     //Derivative gain for PID controller.
     float Kd;
+    
+    float Input_Roll;
+    float Input_Pitch;
+    float Input_Yaw;
+    float Input_Throttle;
+    float Input_Cargo;
+    
+    bool CargoIsReleased;
     
     //Motor engagement safety
     bool Safety;
@@ -268,6 +323,7 @@ private:
     bool Command_ReadAccelerometer(std::string Command);
     bool Command_GetOrientation();
     bool Command_GetPressure();
+    bool Command_GetStartingPressure();
     bool Command_GetTemperature();
     bool Command_GetAltitude();
     bool Command_SetThrottle(std::string Command);
@@ -278,6 +334,11 @@ private:
     bool Command_HoldCargo();
     bool Command_ReturnToStandby();
     bool Command_USBTest();
+    bool Command_GetRCInput();
+    bool Command_GetRoll();
+    bool Command_GetPitch();
+    bool Command_GetYaw();
+    
 };
 
 #endif	/* SYSTEM_H */

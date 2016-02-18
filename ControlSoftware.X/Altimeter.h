@@ -58,6 +58,7 @@ namespace HAL {
         
         SignedInteger32 GetAltitude();
         UnsignedInteger32 GetPressure();
+        UnsignedInteger32 GetStartingPressure();
         UnsignedInteger32 GetTemperature();
         
     private:

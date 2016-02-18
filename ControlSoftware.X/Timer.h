@@ -37,7 +37,7 @@ public:
     //Delay in milliseconds.
     void Delay_ms(Time Period);
     
-    static Timer* GetInstance();
+    //static Timer* GetInstance();
     
     std::vector<Time> TimerList;
     

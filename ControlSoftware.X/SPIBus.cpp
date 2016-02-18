@@ -38,6 +38,7 @@ bool HAL::SPIBus::Initialize() {
     //Turn on the SPI port
     SpiChnOpen(SPI_CHANNEL1, (SpiOpenFlags)config, 8);
     
+    /*
     //Configure pin B1 as an output for SPI.
     PPSOutput(2, RPB1, SDO1);
     PPSInput(2, SDI1, RPB5);
@@ -63,7 +64,7 @@ bool HAL::SPIBus::Initialize() {
     PORTSetBits(IOPORT_C, BIT_0);
     PORTSetBits(IOPORT_C, BIT_1);
     PORTSetBits(IOPORT_C, BIT_2);
-    
+    */
     return true;
 }
 bool HAL::SPIBus::Update() {
@@ -73,29 +74,31 @@ bool HAL::SPIBus::Update() {
 void HAL::SPIBus::SelectSlave(ADDRESS Address) {
     
     switch (Address) {
-        case ADDRESS_GYRO: PORTClearBits(IOPORT_A, BIT_0); break;
-        case ADDRESS_ACCEL: PORTClearBits(IOPORT_A, BIT_1); break;
-        case ADDRESS_BAROMETER: PORTClearBits(IOPORT_B, BIT_0); break;
-        case ADDRESS_MOTOR_1: PORTClearBits(IOPORT_B, BIT_1); break;
-        case ADDRESS_MOTOR_2: PORTClearBits(IOPORT_B, BIT_2); break;
-        case ADDRESS_MOTOR_3: PORTClearBits(IOPORT_B, BIT_3); break;
-        case ADDRESS_MOTOR_4: PORTClearBits(IOPORT_C, BIT_0); break;
-        case ADDRESS_MOTOR_5: PORTClearBits(IOPORT_C, BIT_1); break;
-        case ADDRESS_MOTOR_6: PORTClearBits(IOPORT_A, BIT_2); break;
+        case ADDRESS_GYRO:      PORTClearBits(IOPORT_A, BIT_1); break;
+        case ADDRESS_ACCEL:     PORTClearBits(IOPORT_A, BIT_0); break;
+        case ADDRESS_MAG:       PORTClearBits(IOPORT_B, BIT_0); break;
+        case ADDRESS_BAROMETER: PORTClearBits(IOPORT_B, BIT_1); break;
+        case ADDRESS_MOTOR_1:   PORTClearBits(IOPORT_B, BIT_2); break;
+        case ADDRESS_MOTOR_2:   PORTClearBits(IOPORT_B, BIT_3); break;
+        case ADDRESS_MOTOR_3:   PORTClearBits(IOPORT_C, BIT_0); break;
+        case ADDRESS_MOTOR_4:   PORTClearBits(IOPORT_C, BIT_1); break;
+        case ADDRESS_MOTOR_5:   PORTClearBits(IOPORT_C, BIT_2); break;
+        case ADDRESS_MOTOR_6:   PORTClearBits(IOPORT_A, BIT_3); break;
     }
 }
 
 void HAL::SPIBus::ReleaseSlave(ADDRESS Address) {
     
     switch (Address) {
-        case ADDRESS_GYRO: PORTSetBits(IOPORT_A, BIT_0); break;
-        case ADDRESS_ACCEL: PORTSetBits(IOPORT_A, BIT_1); break;
-        case ADDRESS_BAROMETER: PORTSetBits(IOPORT_B, BIT_0); break;
-        case ADDRESS_MOTOR_1: PORTSetBits(IOPORT_B, BIT_1); break;
-        case ADDRESS_MOTOR_2: PORTSetBits(IOPORT_B, BIT_2); break;
-        case ADDRESS_MOTOR_3: PORTSetBits(IOPORT_B, BIT_3); break;
-        case ADDRESS_MOTOR_4: PORTSetBits(IOPORT_C, BIT_0); break;
-        case ADDRESS_MOTOR_5: PORTSetBits(IOPORT_C, BIT_1); break;
-        case ADDRESS_MOTOR_6: PORTSetBits(IOPORT_C, BIT_2); break;
+        case ADDRESS_GYRO:      PORTSetBits(IOPORT_A, BIT_1); break;
+        case ADDRESS_ACCEL:     PORTSetBits(IOPORT_A, BIT_0); break;
+        case ADDRESS_MAG:       PORTClearBits(IOPORT_B, BIT_0); break;
+        case ADDRESS_BAROMETER: PORTSetBits(IOPORT_B, BIT_1); break;
+        case ADDRESS_MOTOR_1:   PORTSetBits(IOPORT_B, BIT_2); break;
+        case ADDRESS_MOTOR_2:   PORTSetBits(IOPORT_B, BIT_3); break;
+        case ADDRESS_MOTOR_3:   PORTSetBits(IOPORT_C, BIT_0); break;
+        case ADDRESS_MOTOR_4:   PORTSetBits(IOPORT_C, BIT_1); break;
+        case ADDRESS_MOTOR_5:   PORTSetBits(IOPORT_C, BIT_2); break;
+        case ADDRESS_MOTOR_6:   PORTSetBits(IOPORT_C, BIT_3); break;
     }
 }

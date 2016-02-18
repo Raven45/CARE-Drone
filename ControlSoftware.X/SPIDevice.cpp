@@ -36,11 +36,13 @@ UnsignedInteger16 HAL::SPIDevice::SendAndReceive(UnsignedInteger16 Outgoing) {
 
         DeviceManager->SelectSlave(this->Address);
 
+#ifdef ENABLE_SPI
         //Send the data to the slave.
         SpiChnPutC(SPI_CHANNEL1, Outgoing);
 
         //Capture response from slave.
         Incoming = SpiChnGetC(SPI_CHANNEL1);
+#endif
 
         DeviceManager->ReleaseSlave(this->Address);
 

@@ -25,6 +25,8 @@
 //#define _DISABLE_OPENADC10_CONFIGPORT_WARNING
 //#include <plib.h>
 
+//#define ENABLE_SPI
+
 #define ADDRESS unsigned char
 
 #define ADDRESS_GYRO        0x00
