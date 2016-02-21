@@ -32,24 +32,10 @@ HAL::Timer::Timer() {
     OpenTimer1(     T1_ON |                 //Turn on timer 1.
                     T1_IDLE_CON |           //Continue on idle.
                     T1_PS_1_1,              //Set post scale to 1.
-                    0x300);                  //Set timer 1 period to 1 us.
+                    0x3C0);                  //Set timer 1 period to 1 us.
     
-    ConfigIntTimer2(T2_INT_ON |             //Turn on timer 2 interrupt.
-                    T2_INT_PRIOR_6);        //Set interrupt priority
-    
-    Time * RollTimer = new Time();
-    Time * PitchTimer = new Time();
-    Time * YawTimer = new Time();
-    Time * ThrottleTimer = new Time();
-    Time * DeltaTimer = new Time();
-    Time * RCOutputTimer = new Time();
-    
-    TimerList.push_back(*RollTimer);   
-    TimerList.push_back(*PitchTimer);  
-    TimerList.push_back(*YawTimer);  
-    TimerList.push_back(*ThrottleTimer);
-    TimerList.push_back(*DeltaTimer);  
-    TimerList.push_back(*RCOutputTimer);  
+//    ConfigIntTimer2(T2_INT_ON |             //Turn on timer 2 interrupt.
+//                    T2_INT_PRIOR_6);        //Set interrupt priority
 }
 
 HAL::Timer::~Timer() {
@@ -66,28 +52,31 @@ bool HAL::Timer::Update() {
 
 void HAL::Timer::Delay(Time Period) {
     
-    Time DelayTimer;
     DelayTimer.SetClock(0, 0, 0);
     
-    while (DelayTimer < Period);
+    while (DelayTimer < Period) {
+        __asm volatile("nop");
+    }
 }
     
 
 void HAL::Timer::Delay_us(Time Period) {
     
-    Time DelayTimer;
     DelayTimer.SetClock(0, 0, 0);
     
-    while (DelayTimer < Period);
+    while (DelayTimer < Period) {
+        __asm volatile("nop");
+    }
 }
     
 
 void HAL::Timer::Delay_ms(Time Period) {
     
-    Time DelayTimer;
     DelayTimer.SetClock(0, 0, 0);
     
-    while (DelayTimer < Period);
+    while (DelayTimer < Period) {
+        __asm volatile("nop");
+    }
 }
 
 //HAL::Timer* HAL::Timer::GetInstance() {

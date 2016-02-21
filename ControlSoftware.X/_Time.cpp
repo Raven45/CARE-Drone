@@ -35,7 +35,8 @@ bool Time::Update() {
 
 UnsignedInteger32 Time::Tick() {
     
-    MicroSeconds++;
+    //MicroSeconds++;
+    MicroSeconds += 20;
     
     if (MicroSeconds == 1000) {
         MicroSeconds = 0;

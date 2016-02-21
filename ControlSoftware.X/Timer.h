@@ -39,10 +39,12 @@ public:
     
     //static Timer* GetInstance();
     
-    std::vector<Time> TimerList;
+    //std::vector<Time> TimerList;
     
+    Time DeltaTimer;
+    Time DelayTimer;
 private:
-    static Timer* Instance;
+    //static Timer* Instance;
     
 };
 }

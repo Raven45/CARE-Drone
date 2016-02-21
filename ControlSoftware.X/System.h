@@ -147,10 +147,19 @@ public:
      * system object. If the system object has not been 
     ***************************************************************************/
     
+    
+    void SetRollInput(unsigned int input);
+    void SetPitchInput(unsigned int input);
+    void SetYawInput(unsigned int input);
+    void SetThrottleInput(unsigned int input);
+    void SetCargoInput(unsigned int input);
+    
     HAL::Timer CoreTimer;
 #ifdef SYSTEM_IS_SINGLETON
     static System* GetInstance();
 #endif
+    
+    bool CargoIsReleased;
     
 private:
     
@@ -225,7 +234,7 @@ private:
     float Input_Throttle;
     float Input_Cargo;
     
-    bool CargoIsReleased;
+    
     
     //Motor engagement safety
     bool Safety;
@@ -319,22 +328,20 @@ private:
     ***************************************************************************/
     Math::Quaternion CalculatePID(Math::Quaternion Error);
     
-    bool Command_ReadGyroscope(std::string Command);
-    bool Command_ReadAccelerometer(std::string Command);
     bool Command_GetOrientation();
     bool Command_GetPressure();
     bool Command_GetStartingPressure();
     bool Command_GetTemperature();
     bool Command_GetAltitude();
-    bool Command_SetThrottle(std::string Command);
-    bool Command_GetThrottle(std::string Command);
+    bool Command_SetThrottle(char * Command);
+    bool Command_GetThrottle(char * Command);
     bool Command_StopAllMotors();
-    bool Command_SetAllMotors(std::string Command);
+    bool Command_SetAllMotors(char * Command);
     bool Command_ReleaseCargo();
     bool Command_HoldCargo();
     bool Command_ReturnToStandby();
     bool Command_USBTest();
-    bool Command_GetRCInput();
+    bool Command_GetRCInput(char * Command);
     bool Command_GetRoll();
     bool Command_GetPitch();
     bool Command_GetYaw();
