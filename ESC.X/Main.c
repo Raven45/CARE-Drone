@@ -79,7 +79,7 @@ struct Global {
     bool ComplimentaryPWM; 
     bool BipolarSwitching;
     unsigned short int NumPoles;
-    unsigned int CurrentSpeed;
+    unsigned long long int CurrentSpeed;
     unsigned short int FilterDelay;
     unsigned short int ADCProc;
     unsigned short int PhaseAdvance;
@@ -106,6 +106,65 @@ void Command_Start();
 void Command_Stop();
 void Command_SetThrottle(unsigned int Throttle);
 void Command_GetThrottle();
+
+void __attribute__((__interrupt__)) _OscillatorFail(void);
+void __attribute__((__interrupt__)) _AddressError(void);
+void __attribute__((__interrupt__)) _StackError(void);
+void __attribute__((__interrupt__)) _MathError(void);
+//void __attribute__((__interrupt__)) _DMACError(void);
+void __attribute__((__interrupt__)) _AltOscillatorFail(void);
+void __attribute__((__interrupt__)) _AltAddressError(void);
+void __attribute__((__interrupt__)) _AltStackError(void);
+void __attribute__((__interrupt__)) _AltMathError(void);
+//void __attribute__((__interrupt__)) _AltDMACError(void);
+
+void __attribute__((__interrupt__, no_auto_psv)) _INT0Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC2Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC2Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _NVMInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _NVMInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _SI2CInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _MI2CInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _INT1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC8Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC3Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC4Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _T4Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _T5Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _INT2Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _SPI2Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _C1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC3Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC4Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC5Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _IC6Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC5Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC6Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC7Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _OC8Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _INT3Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _INT4Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _C2Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _PWMInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _QEIInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _DCIInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _LVDInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _FLTAInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _FLTBInterrupt(void);
+
 
 void InitializeGlobals () {
     
@@ -210,7 +269,7 @@ void InitializeADC() {
                                 //Auto-sample time set to zero TAD
     ADCON2 = 0x0300;            //Convert channels 0-3.
     
-    IPC2bits.ADIP = 5;          //Set interrupt priority.
+    IPC2bits.ADIP = 6;          //Set interrupt priority.
     IFS0bits.ADIF = 0;          //Clear interrupt flag.
     //IEC0bits.ADIE = 1;
     ADCON1bits.ADON = 1;        //Enable the ADC
@@ -629,7 +688,7 @@ void StartupMotor() {
         }
         else if (Time <= 1000) {
             IEC0bits.ADIE = 1;
-            //return;
+            return;
         }
     }
 }
@@ -774,60 +833,200 @@ void Command_GetThrottle() {
 *******************************************************************************/
 int main(int argc, char** argv) {
     
-    INTCON1bits.NSTDIS = 0;
-    T1CONbits.TON = 1;
-    IPC1bits.T2IP = 7;
-    IFS0bits.T2IF = 0;
-    IEC0bits.T2IE = 1;
+    TRISDbits.TRISD1 = 0;
+    TRISDbits.TRISD0 = 0;
     
-    InitializeGlobals();        //Initialize global variables.
-    InitializePWM();            //Startup the PWM system at 20 KHz
-    SetThrottle(60);            //Set initial duty cycle to 45%
-    Globals.ComplimentaryPWM = true;
-    InitializeADC();            //Start the ADC for back-EMF detection.
-    StartupMotor();             //Dry start motor in open-loop mode.
-    
-    while (1) {
-       
-    #ifdef ENABLE_THROTTLE_TEST   /*
-        SetThrottle(20);
-        __delay_ms(10000);
+    if (RCONbits.TRAPR == 1) {
         
-        SetThrottle(40);
-        __delay_ms(10000);*/
-        
-        SetThrottle(60);
-        __delay_ms(10000);
-        
-        PDC1 = 0x8FF;
-        PDC2 = 0x8FF;
-        PDC3 = 0x8FF;
-        __delay_ms(10000);
-    #endif
-        
-        
-    #ifdef ENABLE_SPI
-        //Manage SPI communications
-        unsigned int Incoming = ReadSPI(0);
-        
-        //Handle incoming command/information
-        if (VerifyMessage(Incoming)) {
-            
-            unsigned int Command = ((Incoming & 0x7F00) >> 8);
-            unsigned int Data = (Incoming & 0x00FF);
-            
-            switch (Command) {
-                
-                case 1: Command_Start(); break;
-                case 2: Command_Stop(); break;
-                case 3: Command_SetThrottle(Data); break;
-                case 4: Command_GetThrottle(); break;
-            }  
-        }
-    #endif
+        LATDbits.LATD1 = 0;
+        LATDbits.LATD0 = 1;
+        while(1);
     }
+    
+    else {
+        
+        LATDbits.LATD1 = 1;
+        LATDbits.LATD0 = 0;
+    
+        INTCON1bits.NSTDIS = 0;
+        T1CONbits.TON = 1;
+        IPC1bits.T2IP = 5;
+        IFS0bits.T2IF = 0;
+        IEC0bits.T2IE = 1;
 
+        InitializeGlobals();        //Initialize global variables.
+        InitializePWM();            //Startup the PWM system at 20 KHz
+        SetThrottle(55);            //Set initial duty cycle to 45%
+        Globals.ComplimentaryPWM = true;
+        InitializeADC();            //Start the ADC for back-EMF detection.
+        StartupMotor();             //Dry start motor in open-loop mode.
+
+        while (1) {
+
+        #ifdef ENABLE_THROTTLE_TEST   /*
+    //        SetThrottle(20);
+    //        __delay_ms(10000);
+    //        
+    //        SetThrottle(40);
+    //        __delay_ms(10000);*/
+    //        
+            SetThrottle(55);
+            __delay_ms(10000);
+
+             SetThrottle(70);
+            __delay_ms(10000);
+    //        
+    //        PDC1 = 0x8FF;
+    //        PDC2 = 0x8FF;
+    //        PDC3 = 0x8FF;
+    //        __delay_ms(10000);
+        #endif
+
+
+        #ifdef ENABLE_SPI
+            //Manage SPI communications
+            unsigned int Incoming = ReadSPI(0);
+
+            //Handle incoming command/information
+            if (VerifyMessage(Incoming)) {
+
+                unsigned int Command = ((Incoming & 0x7F00) >> 8);
+                unsigned int Data = (Incoming & 0x00FF);
+
+                switch (Command) {
+
+                    case 1: Command_Start(); break;
+                    case 2: Command_Stop(); break;
+                    case 3: Command_SetThrottle(Data); break;
+                    case 4: Command_GetThrottle(); break;
+                }  
+            }
+        #endif
+        }
+    }
     return (0);
+}
+
+
+void __attribute__((__interrupt__, no_auto_psv)) _INT0Interrupt(void) {
+    IFS0bits.INT0IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void) {
+    IFS0bits.IC1IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _OC1Interrupt(void) {
+    IFS0bits.OC1IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+/*******************************************************************************
+ * Subroutine:  _T1Interrupt					
+ * Description: An interrupt service routine that is called when timer 1 has
+ *              a rollover event.        
+ 
+ * Prerequisites:   Timer subsystem must be initialized.
+ *                  Timer 1 interrupt must be initialized.
+ * Priority:        0
+ * Platform:        Microchip dsPIC30F2010.
+ * Author:          Aaron Burns.
+
+ * Change-log:
+ * 01-2016          Original code for CARE-Drone ESC.
+*******************************************************************************/
+void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
+    
+    IFS0bits.T1IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _IC2Interrupt(void) {
+    IFS0bits.IC2IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _OC2Interrupt(void) {
+    IFS0bits.OC2IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+/*******************************************************************************
+ * Subroutine:  _T2Interrupt					
+ * Description: An interrupt service routine that is called when timer 2 has
+ *              expired.
+ * 
+ *              Timer 2 is sometimes referred to as the commutation timer. When
+ *              timer 2 expires, the motor is commutated. Because timer 2 is
+ *              absolutely critical to the motor running, this interrupt should
+ *              be the highest priority interrupt in the system.
+ 
+ * Prerequisites:   Timer subsystem must be initialized.
+ *                  Timer 2 interrupt must be initialized.
+ *                  PWM must be initialized.
+ * Priority:        7
+ * Platform:        Microchip dsPIC30F2010.
+ * Author:          Aaron Burns.
+
+ * Change-log:
+ * 01-2016          Original code for CARE-Drone ESC.
+*******************************************************************************/
+void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void) {
+    
+    //Clear interrupt flag.
+    IFS0bits.T2IF = 0;
+    
+    //Perform sector change.
+    SectorChange();
+    
+    //Disarm timer 2
+    T2CONbits.TON = 0; 
+    TMR2 = 0; 
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt(void) {
+    IFS0bits.T3IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+/*******************************************************************************
+ * Subroutine:  _SPI1Interrupt					
+ * Description: An interrupt service routine that is called when a SPI 
+ *              transaction is completed.
+ 
+ * Prerequisites:   SPI subsystem is initialized.
+ * Priority:        0
+ * Platform:        Microchip dsPIC30F2010.
+ * Author:          Aaron Burns.
+
+ * Change-log:
+ * 12-05-2015          Original code for CARE-Drone ESC.
+*******************************************************************************/
+void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void)
+{  
+    IFS0bits.SPI1IF = 0;
+    SPI1STATbits.SPIROV = 0;
+} 
+
+void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
+    IFS0bits.U1RXIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
+    IFS0bits.U1TXIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
 }
 
 /*******************************************************************************
@@ -871,36 +1070,36 @@ void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
     bool ZeroCrossDetected = false;
     
     //Grab the ADC values for the measured back-EMF.
-    unsigned int BackEMF[3] = { ADCBUF1, ADCBUF2, ADCBUF3 };
+    //unsigned int BackEMF[3] = { ADCBUF1, ADCBUF2, ADCBUF3 };
     
     //Detect current sector.
-    if      (BackEMF[0] > BackEMF[2] && BackEMF[1] < BackEMF[2]) { CurrentSector = 0; }
-    else if (BackEMF[0] > BackEMF[1] && BackEMF[2] < BackEMF[1]) { CurrentSector = 1; }
-    else if (BackEMF[1] > BackEMF[0] && BackEMF[2] < BackEMF[0]) { CurrentSector = 2; }
-    else if (BackEMF[1] > BackEMF[2] && BackEMF[0] < BackEMF[2]) { CurrentSector = 3; }
-    else if (BackEMF[2] > BackEMF[1] && BackEMF[0] < BackEMF[1]) { CurrentSector = 4; }
-    else if (BackEMF[2] > BackEMF[0] && BackEMF[1] < BackEMF[0]) { CurrentSector = 5; }
+    if      (ADCBUF1 > ADCBUF3 && ADCBUF2 < ADCBUF3) { CurrentSector = 0; }
+    else if (ADCBUF1 > ADCBUF2 && ADCBUF3 < ADCBUF2) { CurrentSector = 1; }
+    else if (ADCBUF2 > ADCBUF1 && ADCBUF3 < ADCBUF1) { CurrentSector = 2; }
+    else if (ADCBUF2 > ADCBUF3 && ADCBUF1 < ADCBUF3) { CurrentSector = 3; }
+    else if (ADCBUF3 > ADCBUF2 && ADCBUF1 < ADCBUF2) { CurrentSector = 4; }
+    else if (ADCBUF3 > ADCBUF1 && ADCBUF2 < ADCBUF1) { CurrentSector = 5; }
 
     //Estimate the virtual neutral point.
-    Globals.ZeroCrossPoint = (BackEMF[0] + BackEMF[1] + BackEMF[2])/3;
+    Globals.ZeroCrossPoint = (ADCBUF1 + ADCBUF2 + ADCBUF3)/3;
     
     //Check for zero-cross event.
-    if (CurrentSector == 0 && BackEMF[2] <= Globals.ZeroCrossPoint) {
+    if (CurrentSector == 0 && ADCBUF3 <= Globals.ZeroCrossPoint) {
         ZeroCrossDetected = true;
     }
-    else if (CurrentSector == 1 && BackEMF[1] >= Globals.ZeroCrossPoint) {
+    else if (CurrentSector == 1 && ADCBUF2 >= Globals.ZeroCrossPoint) {
         ZeroCrossDetected = true;
     }
-    else if (CurrentSector == 2 && BackEMF[0] <= Globals.ZeroCrossPoint) {
+    else if (CurrentSector == 2 && ADCBUF1 <= Globals.ZeroCrossPoint) {
         ZeroCrossDetected = true;
     }
-    else if (CurrentSector == 3 && BackEMF[2] >= Globals.ZeroCrossPoint) {
+    else if (CurrentSector == 3 && ADCBUF3 >= Globals.ZeroCrossPoint) {
         ZeroCrossDetected = true;
     }
-    else if (CurrentSector == 4 && BackEMF[1] <= Globals.ZeroCrossPoint) {
+    else if (CurrentSector == 4 && ADCBUF2 <= Globals.ZeroCrossPoint) {
         ZeroCrossDetected = true;
     }
-    else if (CurrentSector == 5 && BackEMF[0] >= Globals.ZeroCrossPoint) {
+    else if (CurrentSector == 5 && ADCBUF1 >= Globals.ZeroCrossPoint) {
         ZeroCrossDetected = true;
     }
     
@@ -912,8 +1111,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
         //Set the started flag so we can kick out of open-loop mode.
         Globals.MotorIsStarted = true;
         
+        Globals.CurrentSpeed = (16000000)/(14*TMR1);
+        
         //Arm commutation timer.
-        PR2 = TMR1/2 - 0x3F/*- Globals.FilterDelay - Globals.ADCProc - Globals.PhaseAdvance*/;
+        PR2 = TMR1/2 - 0x7F/*- Globals.FilterDelay - Globals.ADCProc - Globals.PhaseAdvance*/;
         T2CONbits.TON = 1;
         
         //Reset Timer 1
@@ -923,73 +1124,197 @@ void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
     }
 }
 
-/*******************************************************************************
- * Subroutine:  _T1Interrupt					
- * Description: An interrupt service routine that is called when timer 1 has
- *              a rollover event.        
- 
- * Prerequisites:   Timer subsystem must be initialized.
- *                  Timer 1 interrupt must be initialized.
- * Priority:        0
- * Platform:        Microchip dsPIC30F2010.
- * Author:          Aaron Burns.
-
- * Change-log:
- * 01-2016          Original code for CARE-Drone ESC.
-*******************************************************************************/
-void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
-    
-    IFS0bits.T1IF = 0;
+void __attribute__((__interrupt__, no_auto_psv)) _NVMInterrupt(void) {
+    IFS0bits.NVMIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
 }
 
-/*******************************************************************************
- * Subroutine:  _T2Interrupt					
- * Description: An interrupt service routine that is called when timer 2 has
- *              expired.
- * 
- *              Timer 2 is sometimes referred to as the commutation timer. When
- *              timer 2 expires, the motor is commutated. Because timer 2 is
- *              absolutely critical to the motor running, this interrupt should
- *              be the highest priority interrupt in the system.
- 
- * Prerequisites:   Timer subsystem must be initialized.
- *                  Timer 2 interrupt must be initialized.
- *                  PWM must be initialized.
- * Priority:        7
- * Platform:        Microchip dsPIC30F2010.
- * Author:          Aaron Burns.
-
- * Change-log:
- * 01-2016          Original code for CARE-Drone ESC.
-*******************************************************************************/
-void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void) {
-    
-    //Clear interrupt flag.
-    IFS0bits.T2IF = 0;
-    
-    //Perform sector change.
-    SectorChange();
-    
-    //Disarm timer 2
-    T2CONbits.TON = 0; 
-    TMR2 = 0; 
+void __attribute__((__interrupt__, no_auto_psv)) _SI2CInterrupt(void){
+    IFS0bits.SI2CIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
 }
 
-/*******************************************************************************
- * Subroutine:  _SPI1Interrupt					
- * Description: An interrupt service routine that is called when a SPI 
- *              transaction is completed.
- 
- * Prerequisites:   SPI subsystem is initialized.
- * Priority:        0
- * Platform:        Microchip dsPIC30F2010.
- * Author:          Aaron Burns.
+void __attribute__((__interrupt__, no_auto_psv)) _MI2CInterrupt(void) {
+    IFS0bits.MI2CIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
 
- * Change-log:
- * 12-05-2015          Original code for CARE-Drone ESC.
-*******************************************************************************/
-void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void)
-{  
-    IFS0bits.SPI1IF = 0;
-    SPI1STATbits.SPIROV = 0;
-} 
+void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
+    IFS0bits.CNIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _INT1Interrupt(void) {
+    IFS1bits.INT1IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void) {
+    IFS1bits.IC7IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _IC8Interrupt(void) {
+    IFS1bits.IC8IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _INT2Interrupt(void) {
+    IFS1bits.INT2IF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _PWMInterrupt(void) {
+    IFS2bits.PWMIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _QEIInterrupt(void) {
+    IFS2bits.QEIIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _FLTAInterrupt(void) {
+    IFS2bits.FLTAIF = 0;
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+}
+
+
+/* Primary Exception Vector handlers:
+   These routines are used if INTCON2bits.ALTIVT = 0.
+   All trap service routines in this file simply ensure that device
+   continuously executes code within the trap service routine. Users
+   may modify the basic framework provided here to suit to the needs
+   of their application. */
+
+void __attribute__((__interrupt__)) _OscillatorFail(void)
+{
+    INTCON1bits.OSCFAIL = 0;        //Clear the trap flag
+    
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+}
+
+void __attribute__((__interrupt__)) _AddressError(void)
+{
+    INTCON1bits.ADDRERR = 0;        //Clear the trap flag
+    
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+}
+
+void __attribute__((__interrupt__)) _StackError(void)
+{
+    INTCON1bits.STKERR = 0;         //Clear the trap flag
+    
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+    
+}
+
+void __attribute__((__interrupt__)) _MathError(void)
+{
+    INTCON1bits.MATHERR = 0;        //Clear the trap flag
+    
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+}
+
+/* Alternate Exception Vector handlers:
+   These routines are used if INTCON2bits.ALTIVT = 1.
+   All trap service routines in this file simply ensure that device
+   continuously executes code within the trap service routine. Users
+   may modify the basic framework provided here to suit to the needs
+   of their application. */
+
+void __attribute__((__interrupt__)) _AltOscillatorFail(void)
+{
+    INTCON1bits.OSCFAIL = 0;
+    
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+}
+
+void __attribute__((__interrupt__)) _AltAddressError(void)
+{
+    INTCON1bits.ADDRERR = 0;
+    
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+}
+
+void __attribute__((__interrupt__)) _AltStackError(void)
+{
+    INTCON1bits.STKERR = 0;
+    
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+}
+
+void __attribute__((__interrupt__)) _AltMathError(void)
+{
+    //Clear trap
+    INTCON1bits.MATHERR = 0;
+
+    //Set error LED
+    LATDbits.LATD1 = 0;
+    LATDbits.LATD0 = 1;
+
+    //Kill all PWM channels.
+    OVDCON = 0;
+
+    while (1);
+}
