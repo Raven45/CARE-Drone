@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=C:/Users/Aaron/Documents/MPLAB/ESC.X/Main.c C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.s
+SOURCEFILES_QUOTED_IF_SPACED=C:/Users/Aaron/Documents/MPLAB/ESC.X/Main.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/535750862/Main.o ${OBJECTDIR}/_ext/535750862/Butterworth.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/535750862/Main.o.d ${OBJECTDIR}/_ext/535750862/Butterworth.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/535750862/Main.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/535750862/Main.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/535750862/Main.o ${OBJECTDIR}/_ext/535750862/Butterworth.o
+OBJECTFILES=${OBJECTDIR}/_ext/535750862/Main.o
 
 # Source Files
-SOURCEFILES=C:/Users/Aaron/Documents/MPLAB/ESC.X/Main.c C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.s
+SOURCEFILES=C:/Users/Aaron/Documents/MPLAB/ESC.X/Main.c
 
 
 CFLAGS=
@@ -102,21 +102,7 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: assemble
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/_ext/535750862/Butterworth.o: C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.s  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/535750862" 
-	@${RM} ${OBJECTDIR}/_ext/535750862/Butterworth.o.d 
-	@${RM} ${OBJECTDIR}/_ext/535750862/Butterworth.o 
-	${MP_CC} $(MP_EXTRA_AS_PRE)  C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.s  -o ${OBJECTDIR}/_ext/535750862/Butterworth.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -omf=elf -Wa,-MD,"${OBJECTDIR}/_ext/535750862/Butterworth.o.d",--defsym=__MPLAB_BUILD=1,--defsym=__ICD2RAM=1,--defsym=__MPLAB_DEBUG=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_PK3=1,-g,--no-relax$(MP_EXTRA_AS_POST)
-	@${FIXDEPS} "${OBJECTDIR}/_ext/535750862/Butterworth.o.d"  $(SILENT)  -rsi ${MP_CC_DIR}../  
-	
 else
-${OBJECTDIR}/_ext/535750862/Butterworth.o: C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.s  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/535750862" 
-	@${RM} ${OBJECTDIR}/_ext/535750862/Butterworth.o.d 
-	@${RM} ${OBJECTDIR}/_ext/535750862/Butterworth.o 
-	${MP_CC} $(MP_EXTRA_AS_PRE)  C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.s  -o ${OBJECTDIR}/_ext/535750862/Butterworth.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -omf=elf -Wa,-MD,"${OBJECTDIR}/_ext/535750862/Butterworth.o.d",--defsym=__MPLAB_BUILD=1,-g,--no-relax$(MP_EXTRA_AS_POST)
-	@${FIXDEPS} "${OBJECTDIR}/_ext/535750862/Butterworth.o.d"  $(SILENT)  -rsi ${MP_CC_DIR}../  
-	
 endif
 
 # ------------------------------------------------------------------------------------

@@ -21,14 +21,6 @@
  * not be faint." -Isaiah 40:31
 *******************************************************************************/
 
-#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
-#define CLEAR_BIT(var,pos) ((var) &= ~(1<<(pos)))
-#define SET_BIT(var,pos)   ((var) |= (1<<(pos)))
-
-#define OUTPUT  0
-#define INPUT   1
-
-
 #include "p30fxxxx.h"
 #include <xc.h>
 #define FOSC 64000000UL
@@ -37,13 +29,24 @@
 #include <p30F2010.h>
 #include <spi.h>
 
+//<editor-fold defaultstate="collapsed" desc="Macros">
+
 //Set configuration to use external oscillator with x8 PLL for 16 MHz clock.
 _FOSC(PRI & XT_PLL8)
 _FWDT(WDT_OFF)
 
-//Macros
-//#define ENABLE_SPI        
-#define ENABLE_THROTTLE_TEST
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
+#define CLEAR_BIT(var,pos) ((var) &= ~(1<<(pos)))
+#define SET_BIT(var,pos)   ((var) |= (1<<(pos)))
+
+#define OUTPUT  0
+#define INPUT   1        
+        
+#define GetSystemClock() (FCY)    
+#define _EmergencyStop() {LATDbits.LATD1 = 0;LATDbits.LATD0 = 1;OVDCON = 0;}        
+        
+#define ENABLE_SPI        
+//#define ENABLE_THROTTLE_TEST
 
 #define bool short int        
 #define false 0x00
@@ -51,6 +54,13 @@ _FWDT(WDT_OFF)
         
 #define SPI_COMMAND_BITMASK     0x7F00
 #define SPI_DATA_BITMASK        0x00FF
+        
+#define SPI_COMMAND_START_MOTOR     0x01
+#define SPI_COMMAND_STOP_MOTOR      0x02
+#define SPI_COMMAND_SET_THROTTLE    0x03
+#define SPI_COMMAND_GET_THROTTLE    0x04
+#define SPI_COMMAND_GET_SPEED_L     0x0B
+#define SPI_COMMAND_GET_SPEED_U     0x0C
 
 #define PWM1L_FORCE             0x0001
 #define PWM1H_FORCE             0x0002     
@@ -69,6 +79,9 @@ _FWDT(WDT_OFF)
 //PWM frequency in hertz
 #define PWM_FREQ 20000
         
+//</editor-fold>
+        
+//<editor-fold defaultstate="collapsed" desc="Global variables">        
 unsigned int PWM_Resolution = 0;
 unsigned int PDC_MAX = 0;
 int CurrentSector = 5;
@@ -85,7 +98,12 @@ struct Global {
     unsigned short int PhaseAdvance;
     unsigned int ZeroCrossPoint;
     unsigned int CurrentThrottle;
+    unsigned int CommutationTime;
 } Globals;
+
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="prototypes">
 
 void InitializeGlobals();
 void InitializePWM();
@@ -106,6 +124,8 @@ void Command_Start();
 void Command_Stop();
 void Command_SetThrottle(unsigned int Throttle);
 void Command_GetThrottle();
+void Command_GetSpeedLower();
+void Command_GetSpeedUpper();
 
 void __attribute__((__interrupt__)) _OscillatorFail(void);
 void __attribute__((__interrupt__)) _AddressError(void);
@@ -165,6 +185,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _LVDInterrupt(void);
 void __attribute__((__interrupt__, no_auto_psv)) _FLTAInterrupt(void);
 void __attribute__((__interrupt__, no_auto_psv)) _FLTBInterrupt(void);
 
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="Functions">
+
 
 void InitializeGlobals () {
     
@@ -172,16 +196,18 @@ void InitializeGlobals () {
     Globals.Direction = false; //Clockwise rotation.
     
     //Modes of switching operation.
-    Globals.ComplimentaryPWM = false; 
+    Globals.ComplimentaryPWM = true; 
     Globals.BipolarSwitching = false;
     
     //Set up for our 580 KV motor
     Globals.NumPoles = 22;
     
     Globals.CurrentSpeed = 0;
-    Globals.FilterDelay = 1739; //calculated value for 108 ms filter delay at 16MHz clock.
+    Globals.FilterDelay = 0; 
     Globals.ADCProc = 0; 
-    Globals.PhaseAdvance = 0;
+    Globals.PhaseAdvance = 0x7F;
+    
+    Globals.CommutationTime = 0;
 }
 
 /*******************************************************************************
@@ -816,6 +842,8 @@ void Command_GetThrottle() {
     ReadSPI(PDC1);
 }
 
+//</editor-fold>
+
 
 /*******************************************************************************
  * Subroutine:  Main							
@@ -838,16 +866,16 @@ int main(int argc, char** argv) {
     
     if (RCONbits.TRAPR == 1) {
         
-        LATDbits.LATD1 = 0;
-        LATDbits.LATD0 = 1;
+        _EmergencyStop();
         while(1);
     }
     
     else {
-        
-        LATDbits.LATD1 = 1;
-        LATDbits.LATD0 = 0;
     
+        LATDbits.LATD1 = 1;         //Turn on green status LED
+        LATDbits.LATD0 = 0;         //Turn off red status 
+    
+        //Turn off nested interrupts
         INTCON1bits.NSTDIS = 0;
         T1CONbits.TON = 1;
         IPC1bits.T2IP = 5;
@@ -856,30 +884,21 @@ int main(int argc, char** argv) {
 
         InitializeGlobals();        //Initialize global variables.
         InitializePWM();            //Startup the PWM system at 20 KHz
-        SetThrottle(55);            //Set initial duty cycle to 45%
-        Globals.ComplimentaryPWM = true;
+        SetThrottle(55);            //Set initial duty cycle to 55%
         InitializeADC();            //Start the ADC for back-EMF detection.
-        StartupMotor();             //Dry start motor in open-loop mode.
+        
+        #ifdef ENABLE_THROTTLE_TEST  
+            StartupMotor();             //Dry start motor in open-loop mode.
+        #endif
 
         while (1) {
 
-        #ifdef ENABLE_THROTTLE_TEST   /*
-    //        SetThrottle(20);
-    //        __delay_ms(10000);
-    //        
-    //        SetThrottle(40);
-    //        __delay_ms(10000);*/
-    //        
+        #ifdef ENABLE_THROTTLE_TEST   
             SetThrottle(55);
             __delay_ms(10000);
 
              SetThrottle(70);
             __delay_ms(10000);
-    //        
-    //        PDC1 = 0x8FF;
-    //        PDC2 = 0x8FF;
-    //        PDC3 = 0x8FF;
-    //        __delay_ms(10000);
         #endif
 
 
@@ -895,10 +914,12 @@ int main(int argc, char** argv) {
 
                 switch (Command) {
 
-                    case 1: Command_Start(); break;
-                    case 2: Command_Stop(); break;
-                    case 3: Command_SetThrottle(Data); break;
-                    case 4: Command_GetThrottle(); break;
+                    case SPI_COMMAND_START_MOTOR:   Command_Start(); break;
+                    case SPI_COMMAND_STOP_MOTOR:    Command_Stop(); break;
+                    case SPI_COMMAND_SET_THROTTLE:  Command_SetThrottle(Data); break;
+                    case SPI_COMMAND_GET_THROTTLE:  Command_GetThrottle(); break;
+                    case SPI_COMMAND_GET_SPEED_L:   Command_GetThrottle(); break;
+                    case SPI_COMMAND_GET_SPEED_U:   Command_GetThrottle(); break;
                 }  
             }
         #endif
@@ -907,23 +928,20 @@ int main(int argc, char** argv) {
     return (0);
 }
 
-
+//<editor-fold defaultstate="collapsed" desc="Interrupt Service Routines">
 void __attribute__((__interrupt__, no_auto_psv)) _INT0Interrupt(void) {
     IFS0bits.INT0IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void) {
     IFS0bits.IC1IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _OC1Interrupt(void) {
     IFS0bits.OC1IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 /*******************************************************************************
@@ -943,20 +961,17 @@ void __attribute__((__interrupt__, no_auto_psv)) _OC1Interrupt(void) {
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
     
     IFS0bits.T1IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _IC2Interrupt(void) {
     IFS0bits.IC2IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _OC2Interrupt(void) {
     IFS0bits.OC2IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 /*******************************************************************************
@@ -994,8 +1009,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void) {
 
 void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt(void) {
     IFS0bits.T3IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 /*******************************************************************************
@@ -1019,14 +1033,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void)
 
 void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     IFS0bits.U1RXIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
     IFS0bits.U1TXIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 /*******************************************************************************
@@ -1060,6 +1072,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
  * 02-05-2016       Added logic to prevent misfires.
  * 02-06-2016       Got rid of the digital filters; ISR is now reliant on
  *                  physical low-pass filters.
+ * 02-21-2016       Modified to remove arrays in order to eliminate possible
+ *                  address errors. Interrupt priority changed from 5 to 6.
+ * 02-25-2016       Added current speed calculations.
 *******************************************************************************/
 void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
     
@@ -1068,9 +1083,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
     
     //Set initial Zero point flag.
     bool ZeroCrossDetected = false;
-    
-    //Grab the ADC values for the measured back-EMF.
-    //unsigned int BackEMF[3] = { ADCBUF1, ADCBUF2, ADCBUF3 };
     
     //Detect current sector.
     if      (ADCBUF1 > ADCBUF3 && ADCBUF2 < ADCBUF3) { CurrentSector = 0; }
@@ -1111,10 +1123,19 @@ void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
         //Set the started flag so we can kick out of open-loop mode.
         Globals.MotorIsStarted = true;
         
-        Globals.CurrentSpeed = (16000000)/(14*TMR1);
+        //Capture the time between commutations.
+        Globals.CommutationTime = TMR1;
+        
+        //Calculate current speed in rpm.
+        if (Globals.CommutationTime != 0) {
+            Globals.CurrentSpeed = (GetSystemClock()*60)/(Globals.NumPoles*Globals.CommutationTime);
+        }
+        else {
+            Globals.CurrentSpeed = 0;   //Avoid divide by zero condition.
+        }
         
         //Arm commutation timer.
-        PR2 = TMR1/2 - 0x7F/*- Globals.FilterDelay - Globals.ADCProc - Globals.PhaseAdvance*/;
+        PR2 = Globals.CommutationTime/2  - Globals.PhaseAdvance;
         T2CONbits.TON = 1;
         
         //Reset Timer 1
@@ -1126,71 +1147,62 @@ void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
 
 void __attribute__((__interrupt__, no_auto_psv)) _NVMInterrupt(void) {
     IFS0bits.NVMIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _SI2CInterrupt(void){
     IFS0bits.SI2CIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _MI2CInterrupt(void) {
     IFS0bits.MI2CIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
     IFS0bits.CNIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _INT1Interrupt(void) {
     IFS1bits.INT1IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void) {
     IFS1bits.IC7IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _IC8Interrupt(void) {
     IFS1bits.IC8IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _INT2Interrupt(void) {
     IFS1bits.INT2IF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _PWMInterrupt(void) {
     IFS2bits.PWMIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _QEIInterrupt(void) {
     IFS2bits.QEIIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _FLTAInterrupt(void) {
     IFS2bits.FLTAIF = 0;
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
+    _EmergencyStop();
 }
 
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Trap Service Routines">
 /* Primary Exception Vector handlers:
    These routines are used if INTCON2bits.ALTIVT = 0.
    All trap service routines in this file simply ensure that device
@@ -1202,13 +1214,7 @@ void __attribute__((__interrupt__)) _OscillatorFail(void)
 {
     INTCON1bits.OSCFAIL = 0;        //Clear the trap flag
     
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
 }
 
@@ -1216,13 +1222,7 @@ void __attribute__((__interrupt__)) _AddressError(void)
 {
     INTCON1bits.ADDRERR = 0;        //Clear the trap flag
     
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
 }
 
@@ -1230,13 +1230,7 @@ void __attribute__((__interrupt__)) _StackError(void)
 {
     INTCON1bits.STKERR = 0;         //Clear the trap flag
     
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
     
 }
@@ -1245,13 +1239,7 @@ void __attribute__((__interrupt__)) _MathError(void)
 {
     INTCON1bits.MATHERR = 0;        //Clear the trap flag
     
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
 }
 
@@ -1266,13 +1254,7 @@ void __attribute__((__interrupt__)) _AltOscillatorFail(void)
 {
     INTCON1bits.OSCFAIL = 0;
     
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
 }
 
@@ -1280,13 +1262,7 @@ void __attribute__((__interrupt__)) _AltAddressError(void)
 {
     INTCON1bits.ADDRERR = 0;
     
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
 }
 
@@ -1294,13 +1270,7 @@ void __attribute__((__interrupt__)) _AltStackError(void)
 {
     INTCON1bits.STKERR = 0;
     
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
 }
 
@@ -1309,12 +1279,8 @@ void __attribute__((__interrupt__)) _AltMathError(void)
     //Clear trap
     INTCON1bits.MATHERR = 0;
 
-    //Set error LED
-    LATDbits.LATD1 = 0;
-    LATDbits.LATD0 = 1;
-
-    //Kill all PWM channels.
-    OVDCON = 0;
-
+    _EmergencyStop();
     while (1);
 }
+
+//</editor-fold>

@@ -4,8 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>dsp30SPI.h</itemPath>
-      <itemPath>C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -15,7 +13,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>C:/Users/Aaron/Documents/MPLAB/ESC.X/Main.c</itemPath>
-      <itemPath>C:/Users/Aaron/Documents/MPLAB/ESC.X/Butterworth.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
