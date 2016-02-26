@@ -203,24 +203,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _FLTBInterrupt(void);
 //<editor-fold defaultstate="collapsed" desc="Functions">
 
 
-/*******************************************************************************
- * Subroutine:  InitializeGlobals	
- * Description: Set all global variables to some initial value. Right now, for
- 								the purposes of this particular project (Harding Sr Design 2016)
- 								these default values are hard coded. For an actual commercial 
- 								project, or if a future Sr Design team wanted to continue the
- 								project, then these values would ideally be retrieved from 
- 								an EEPROM chip connected via SPI.
- 
- * Prerequisites:   A properly configured instruction clock of 16 MHz.
- * Input:           None.
- * Output:          None.
- * Platform:        Microchip dsPIC30F2010.
- * Author:          Aaron Burns.
-
- * Change-log:
- * 02-2016       		Original code for CARE-Drone ESC.
-*******************************************************************************/
 void InitializeGlobals () {
     
     Globals.MotorIsStarted = false;
@@ -486,7 +468,6 @@ unsigned int EncodeParity(unsigned int message) {
  * Change-log:
  * 12-05-2015       Original code for detailed design milestone.
  * 02-06-2016       Ported to Spring 2016 ESC design.
- * 02-26-2016				Modified per 
 *******************************************************************************/ 
 unsigned int ReadSPI(unsigned int data) {
     
@@ -522,7 +503,6 @@ unsigned int ReadSPI(unsigned int data) {
 
  * Change-log:
  * 02-25-2016       Original code for spring 2016 ESC.
- * 02-26-2016				Modified slightly and tested with an attached Arduino Uno.
 *******************************************************************************/ 
 void WriteSPI(unsigned int data){
     
@@ -1007,6 +987,7 @@ int main(int argc, char** argv) {
         #ifdef ENABLE_SPI
             //Manage SPI communications
             unsigned int Incoming = ReadSPI(0);
+
 
             //Handle incoming command/information
             if (VerifyMessage(Incoming)) {
