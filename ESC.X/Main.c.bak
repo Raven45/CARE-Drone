@@ -1,24 +1,92 @@
 /*******************************************************************************
- * Copyright 2016 Department of Engineering, Harding University
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+Copyright 2016 Department of Engineering, Harding University
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
   
-       http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
  
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
  
- * Created on January 15, 2016, 9:14 PM
+Created on January 15, 2016, 9:14 PM
 *******************************************************************************/
 
 /*******************************************************************************
- * "but those who hope in the Lord will renew their strength. They will soar on 
- * wings like eagles; they will run and not grow weary, they will walk and
- * not be faint." -Isaiah 40:31
+"but those who hope in the Lord will renew their strength. They will soar on 
+wings like eagles; they will run and not grow weary, they will walk and
+not be faint." -Isaiah 40:31
+*******************************************************************************/
+
+/*******************************************************************************
+CARE-Drone ESC Control Software
+
+Target Microcontroller: 	dsPIC30F2010 w/ 8MHz crystal oscillator
+Software Author:			Aaron Burns
+Hardware Designer(s):		Joshua Donaway
+							Aaron Burns
+Version:					0.0.0.5
+Date:						February 2016
+School:						Harding University, Department of Engineering.
+Class:						Sr. Design.
+
+This firmware is meant for the CARE-Drone's ESC (Eletronic Speed Controller).
+The ESC for the CARE-Drone is designed to be operated as a SPI (Serial
+peripherial interface) slave to another microprocessor; it is not meant to
+act as a standalone unit. The other microprocessor can be an Arduino, S12,
+another PIC, etc; the requirement for the other microprocessor is that it can
+operate at 100 KHz - 20 MHz in SPI Mode 0 as a master. This code has been 
+tested, and is rated for up to 20 MHz operation through SPI.
+
+This firmware essentially acts as a command interpreter. The ESC will boot,
+and then wait for commands to be received from a SPI master. The ESC, at
+command, can start the motor in open loop mode, run the motor in closed loop
+mode, calculate the speed of the motor, and brake the motor. Technically 
+speaking, this ESC can be used for far more purposes than simply a drone, but
+rather it can be used for any project that uses a BLDC (brushless direct 
+current) motor.
+
+This firmware utilizes Back-EMF sampling in order to control an attached BLDC.
+Back-EMF is simply the electrical potential measured on a motor lead that is
+undriven; essentially the voltage due to the motor acting as a generator.
+Care must be taken with the hardware; the hardware must somehow isolate the 
+PIC's ADC inputs away from the motor while still allowing the ADC to sample
+the motor potentials. Capacitors and voltage followers both work well here.
+In fact, I've seen one design where someone used a capacitor sandwiched by
+two voltage followers. Our project used a 330 uF polarized capacitor, which
+works well if you connect the negative lead to the ADC input; this prevents 
+both the motor and capacitor from discharging current through the ADC.
+
+The Back-EMF allows the ESC to do three things:
+1) It allows the ESC to operate the motor in closed loop mode by using the
+Back-EMF to calculate the time until the next motor commutation.
+2) It allows the ESC to tell what physical sector the motor is in in order
+to determine the correct firing pattern.
+3) It allows the ESC to calculate the speed of the motor.
+
+It could also allow a PID loop to be set for more precise control, but this
+was not implemented in our project due to time contrainsts. In short, just
+the ESC alone is enough to fulfill any computer engineering student's 
+obligations for Sr Design at most ABET schools.
+
+The firmware relies on hardware filtering; there is no software based
+filter used here. The hardware filter must filter the PWM signal out of the
+back-EMF signals. Fortunately, there is some room for error, as the code
+here is very resilent to noisy and malformed back-EMF, though it's not perfect.
+This design decision was made because we felt like we could implement a hardware
+filter with a smaller filter delay than a 4th order Butterworth implemented
+in software. Also, the 4th order Butterworth didn't work.
+
+If a Sr Design team ever picks this up to use for a future project, I have a 
+suggested change to the ESC design: port the code over to a dsPIC33EP 
+microprocessor with two SPI ports. Use one as the slave port to the SPI master
+and use the other SPI port to link to an external ADC that is at least 16 bits
+in resolution; a higher resolution ADC means that the ESC will spend less time
+and power in its very harsh ramp up routine and that it can run the motor at
+a lower speed without stalling.
 *******************************************************************************/
 
 #include "p30fxxxx.h"
@@ -54,29 +122,44 @@ _FWDT(WDT_OFF)
 #define false 0x00
 #define true 0xFF
         
-#define SPI_COMMAND_BITMASK     		0x7F00
-#define SPI_DATA_BITMASK        		0x00FF
+#define SPI_COMMAND_BITMASK     	0x7F00
+#define SPI_DATA_BITMASK        	0x00FF
         
 #define SPI_COMMAND_START_MOTOR     0x01
 #define SPI_COMMAND_STOP_MOTOR      0x02
 #define SPI_COMMAND_SET_THROTTLE    0x03
 #define SPI_COMMAND_GET_THROTTLE    0x04
-#define SPI_COMMAND_GET_SPEED_L     0x0B
-#define SPI_COMMAND_GET_SPEED_U     0x0C
+#define SPI_COMMAND_GET_KP			0x05
+#define SPI_COMMAND_SET_KP			0x06
+#define SPI_COMMAND_GET_KI			0x07
+#define SPI_COMMAND_SET_KI			0x08
+#define SPI_COMMAND_GET_KD			0x09
+#define SPI_COMMAND_SET_KD			0x0A
+#define SPI_COMMAND_GET_SPEED     	0x0B
+#define SPI_COMMAND_GET_PHASE     	0x0C
+#define SPI_COMMAND_SET_PHASE		0x0D
+#define SPI_COMMAND_GET_POLES		0x0E
+#define SPI_COMMAND_SET_POLES		0x0F
+#define SPI_COMMAND_GET_PWM			0x10
+#define SPI_COMMAND_SET_COMP		0x11
+#define SPI_COMMAND_SET_IND			0x12
+#define SPI_COMMAND_MOTOR_STARTED	0x13
+#define SPI_COMMAND_ENABLE_PID		0x14
+#define SPI_COMMAND_DISABLE_PID		0x15
 
-#define PWM1L_FORCE             		0x0001
-#define PWM1H_FORCE             		0x0002     
-#define PWM2L_FORCE             		0x0004
-#define PWM2H_FORCE             		0x0008
-#define PWM3L_FORCE             		0x0010
-#define PWM3H_FORCE             		0x0020
+#define PWM1L_FORCE             	0x0001
+#define PWM1H_FORCE             	0x0002     
+#define PWM2L_FORCE             	0x0004
+#define PWM2H_FORCE             	0x0008
+#define PWM3L_FORCE             	0x0010
+#define PWM3H_FORCE             	0x0020
         
-#define PWM1L_ON                		0x0100
-#define PWM1H_ON                		0x0200
-#define PWM2L_ON                		0x0400
-#define PWM2H_ON                		0x0800        
-#define PWM3L_ON                		0x1000
-#define PWM3H_ON                		0x2000   
+#define PWM1L_ON                	0x0100
+#define PWM1H_ON                	0x0200
+#define PWM2L_ON                	0x0400
+#define PWM2H_ON                	0x0800        
+#define PWM3L_ON                	0x1000
+#define PWM3H_ON                	0x2000   
         
 //PWM frequency in hertz
 #define PWM_FREQ 20000
@@ -90,26 +173,26 @@ int CurrentSector = 5;
 
 struct Global {
 	
-    bool MotorIsStarted;									//false=not started, 
-    																			//true=started
-    bool Direction; 											//true=clockwise, 
-    																			//false=counter-clockwise.
-    bool ComplimentaryPWM; 								//false=independent switching
-    																			//true=complimentary switching.
-    bool BipolarSwitching;								//false=unipolar switching
-    																			//true=bipolar switching
-    																			//Not implemented
-    unsigned short int NumPoles;					//Number of motor poles.
-    																			//Used for determining current speed.
+    bool MotorIsStarted;					//false=not started, 
+    										//true=started
+    bool Direction; 						//true=clockwise, 
+    										//false=counter-clockwise.
+    bool ComplimentaryPWM; 					//false=independent switching
+    										//true=complimentary switching.
+    bool BipolarSwitching;					//false=unipolar switching
+    										//true=bipolar switching
+    										//Not implemented
+    unsigned short int NumPoles;			//Number of motor poles.
+    										//Used for determining current speed.
     unsigned long long int CurrentSpeed;	//Current speed of motor in rpm.
-    unsigned short int FilterDelay;				//Delay of the physical filter in 
-    																			//clock cycles.
-    unsigned short int ADCProc;						//ADC processing delay in clock cycles
-    unsigned short int PhaseAdvance;			//Phase advance in clock cycles.
-    unsigned int ZeroCrossPoint;					//Virtual motor neutral point.
-    unsigned int CurrentThrottle;					//Current throttle of the motor.
-    unsigned int CommutationTime;					//Time until next commutation.
-    																			//Measured in clock cycles.
+    unsigned short int FilterDelay;			//Delay of the physical filter in 
+    										//clock cycles.
+    unsigned short int ADCProc;				//ADC processing delay in clock cycles
+    unsigned short int PhaseAdvance;		//Phase advance in clock cycles.
+    unsigned int ZeroCrossPoint;			//Virtual motor neutral point.
+    unsigned int CurrentThrottle;			//Current throttle of the motor.
+    unsigned int CommutationTime;			//Time until next commutation.
+    										//Measured in clock cycles.
 } Globals;
 
 //</editor-fold>
@@ -137,8 +220,17 @@ void Command_Start();
 void Command_Stop();
 void Command_SetThrottle(unsigned int Throttle);
 void Command_GetThrottle();
-void Command_GetSpeedLower();
-void Command_GetSpeedUpper();
+void Command_GetSpeed();
+void Command_GetPhaseAdvance();
+void Command_SetPhaseAdvance();
+void Command_GetNumPoles();
+void Command_SetNumPoles();
+void Command_GetPWMSwitching();
+void Command_SetComplimentarySwitching();
+void Command_SetIndependentSwitching();
+void Command_IsMotorStarted();
+void Command_EnablePID();
+void Command_DisablePID();
 
 //dsPIC30f trap table. Support on all dsPIC30f's.
 void __attribute__((__interrupt__)) _OscillatorFail(void);
@@ -203,24 +295,36 @@ void __attribute__((__interrupt__, no_auto_psv)) _FLTBInterrupt(void);
 //<editor-fold defaultstate="collapsed" desc="Functions">
 
 
+/*******************************************************************************
+ * Subroutine:  InitializeGlobals	
+ * Description: Set all global variables to some initial value. Right now, for
+ 								the purposes of this particular project (Harding Sr Design 2016)
+ 								these default values are hard coded. For an actual commercial 
+ 								project, or if a future Sr Design team wanted to continue the
+ 								project, then these values would ideally be retrieved from 
+ 								an EEPROM chip connected via SPI.
+ 
+ * Prerequisites:   A properly configured instruction clock of 16 MHz.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip dsPIC30F2010.
+ * Author:          Aaron Burns.
+
+ * Change-log:
+ * 02-2016       	Original code for CARE-Drone ESC.
+*******************************************************************************/
 void InitializeGlobals () {
     
-    Globals.MotorIsStarted = false;
-    Globals.Direction = false; //Clockwise rotation.
-    
-    //Modes of switching operation.
-    Globals.ComplimentaryPWM = true; 
-    Globals.BipolarSwitching = false;
-    
-    //Set up for our 580 KV motor
-    Globals.NumPoles = 22;
-    
-    Globals.CurrentSpeed = 0;
-    Globals.FilterDelay = 0; 
-    Globals.ADCProc = 0; 
-    Globals.PhaseAdvance = 0x7F;
-    
-    Globals.CommutationTime = 0;
+    Globals.MotorIsStarted = false;		//Initialize to motor is not started.
+    Globals.Direction = false; 			//Clockwise rotation.
+    Globals.ComplimentaryPWM = true; 	//Enable complimentary PWM.
+    Globals.BipolarSwitching = false;	//Enable unipolar switching.
+    Globals.NumPoles = 14;				//14 for 470 Kv, 22 for 580 Kv motors.
+    Globals.CurrentSpeed = 0;			//Initialize current speed to zero.
+    Globals.FilterDelay = 0; 			//Initialize to 0.
+    Globals.ADCProc = 0; 				//Initialize to 0.
+    Globals.PhaseAdvance = 0x7F;		//Set phase advance to roughly 8 ms.
+    Globals.CommutationTime = 0;		//Initialize to 0.
 }
 
 /*******************************************************************************
@@ -262,7 +366,7 @@ void InitializePWM() {
     PTCON = 0x0010;             //Set the PTCON register.
     PWMCON1 = 0x00FF;           //Set the PWMCON1 register.
     PTMR = 0;                   //Initialize the PWM timer.
-    DTCON1 = 0x6F;               //Set dead time.
+    DTCON1 = 0x6F;              //Set dead time. 
     _PTEN = 1;                  //Fire up the PWM subsystem.
 }
 
@@ -384,6 +488,7 @@ void InitializeSPI() {
  * Change-log:
  * 12-05-2015       Original code for detailed design milestone.
  * 02-06-2016       Ported to Spring 2016 ESC design.
+   02-26-2016		Parity bit checking removed.
 *******************************************************************************/ 
 unsigned int VerifyMessage(unsigned int message) {
     
@@ -468,6 +573,8 @@ unsigned int EncodeParity(unsigned int message) {
  * Change-log:
  * 12-05-2015       Original code for detailed design milestone.
  * 02-06-2016       Ported to Spring 2016 ESC design.
+ * 02-26-2016		Modified per testing. Parity bit encoding and checking
+ 					was removed, as it was found to be unneccesary.
 *******************************************************************************/ 
 unsigned int ReadSPI(unsigned int data) {
     
@@ -503,11 +610,21 @@ unsigned int ReadSPI(unsigned int data) {
 
  * Change-log:
  * 02-25-2016       Original code for spring 2016 ESC.
+ * 02-26-2016		Modified slightly and tested with an attached Arduino Uno.
 *******************************************************************************/ 
 void WriteSPI(unsigned int data){
     
+    //Wait until we are summoned by the master.
+    while (PORTBbits.RB2 != 0){}
+    
+    //Reply with data.
     WriteSPI1(data);  
     while(SPI1STATbits.SPITBF);
+    
+    //Capture data from master in order to clear buffer.
+    //discard the results from here.
+    while (!DataRdySPI1()){}
+    unsigned int Incoming = ReadSPI1();
 }
 
 /*******************************************************************************
@@ -600,27 +717,18 @@ void SectorChange() {
     //Unipolar, independent PWM switching method. Verified working for 
     //10 - 50% duty cycles with a 470 Kv motor and a 580 Kv motor. 
     if (Globals.ComplimentaryPWM == false && Globals.BipolarSwitching == false) {
-        if (CurrentSector == 0) { 
-            OVDCON = PWM1H_ON | PWM2L_FORCE;
-        }
-        else if (CurrentSector == 1) {
-            OVDCON = PWM1H_ON | PWM3L_FORCE;
-        }
-        else if (CurrentSector == 2) {
-            OVDCON = PWM2H_ON | PWM3L_FORCE;
-        }
-        else if (CurrentSector == 3) {
-            OVDCON = PWM2H_ON | PWM1L_FORCE;
-        }
-        else if (CurrentSector == 4) {
-            OVDCON = PWM3H_ON | PWM1L_FORCE;
-        }
-        else if (CurrentSector == 5) {
-            OVDCON = PWM3H_ON | PWM2L_FORCE;
+        switch (CurrentSector) {
+            case 0: OVDCON = PWM1H_ON | PWM2L_FORCE; break;
+            case 1: OVDCON = PWM1H_ON | PWM3L_FORCE; break;
+            case 2: OVDCON = PWM2H_ON | PWM3L_FORCE; break;
+            case 3: OVDCON = PWM2H_ON | PWM1L_FORCE; break;
+            case 4: OVDCON = PWM3H_ON | PWM1L_FORCE; break;
+            case 5: OVDCON = PWM3H_ON | PWM2L_FORCE; break;
         }
     }
     
-    //Unipolar, complementary PWM switching method.
+    //Unipolar, complementary PWM switching method. Verified working for
+    //20% - 80% duty cycles with a 470 Kv and a 580 Kv motor. 
     else if (Globals.ComplimentaryPWM == true && Globals.BipolarSwitching == false) {
         switch (CurrentSector) {
             case 0: OVDCON = PWM1H_ON | PWM1L_ON | PWM2L_FORCE; break;
@@ -779,7 +887,7 @@ void StopMotor() {
     IEC0bits.ADIE = 0;
     
     //Set the flag.
-    Globals.MotorIsStarted = 0;
+    Globals.MotorIsStarted = false;
     
     //Brake.
     AlignMotor();
@@ -879,13 +987,13 @@ void Command_SetThrottle(unsigned int Throttle) {
  * 02-06-2016          Original code for CARE-Drone ESC.
 *******************************************************************************/
 void Command_GetThrottle() {
-    ReadSPI(Globals.CurrentThrottle);
+    WriteSPI(Globals.CurrentThrottle);
 }
 
 /*******************************************************************************
- * Subroutine:  Command_GetSpeedLower						
+ * Subroutine:  Command_GetSpeed					
  * Description: An SPI command instructing the PIC to send to the SPI master
- *              the lower byte of the current speed of the motor.
+ *              the current speed of the motor.
  
  * Prerequisites:   PWM subsystem must be initialized.
  *                  SPI subsystem must be initialized.
@@ -895,30 +1003,59 @@ void Command_GetThrottle() {
  * Author:          Aaron Burns.
 
  * Change-log:
- * 02-25-2016          Original code for CARE-Drone ESC.
+ * 02-25-2016       Original code for CARE-Drone ESC.
+   02-26-2016		Modified to send a 16 bit value, name changed from
+   					Command_GetSpeedLower to Command_GetSpeed.
 *******************************************************************************/
-void Command_GetSpeedLower(){
-    WriteSPI(Globals.CurrentSpeed & 0x00FF);
+void Command_GetSpeed(){
+    WriteSPI(Globals.CurrentSpeed);
 }
 
-/*******************************************************************************
- * Subroutine:  Command_GetSpeedUpper						
- * Description: An SPI command instructing the PIC to send to the SPI master
- *              the upper byte of the current speed of the motor.
- 
- * Prerequisites:   PWM subsystem must be initialized.
- *                  SPI subsystem must be initialized.
- * Input:           None.
- * Output:          The current speed of the motor.
- * Platform:        Microchip dsPIC30F2010.
- * Author:          Aaron Burns.
-
- * Change-log:
- * 02-25-2016          Original code for CARE-Drone ESC.
-*******************************************************************************/
-void Command_GetSpeedUpper() {
-    WriteSPI(Globals.CurrentSpeed & 0xFF00);
+void Command_GetPhaseAdvance() {
+	WriteSPI(Globals.PhaseAdvance);
 }
+
+void Command_SetPhaseAdvance(unsigned int PhaseAdvance) {
+	if (Globals.MotorIsStarted == false) { 
+		Globals.PhaseAdvance = PhaseAdvance;
+	}
+}
+
+void Command_GetNumPoles() {
+	WriteSPI(Globals.NumPoles);
+}
+
+void Command_SetNumPoles(unsigned int NumPoles) {
+	Globals.NumPoles = NumPoles;
+}
+
+void Command_GetPWMSwitching(){
+	WriteSPI(Globals.ComplimentaryPWM);
+}
+
+void Command_SetComplimentarySwitching() {
+	if (Globals.MotorIsStarted ==false) {
+		Globals.ComplimentaryPWM == true;
+	}
+}
+
+void Command_SetIndependentSwitching() {
+	if (Globals.MotorIsStarted ==false) {
+		Globals.ComplimentaryPWM == false;
+	}
+}
+void Command_IsMotorStarted() {
+	WriteSPI(Globals.MotorIsStarted);	
+}
+
+
+void Command_EnablePID() {
+}
+
+void Command_DisablePID() {
+}
+
+
 
 
 //</editor-fold>
@@ -988,7 +1125,6 @@ int main(int argc, char** argv) {
             //Manage SPI communications
             unsigned int Incoming = ReadSPI(0);
 
-
             //Handle incoming command/information
             if (VerifyMessage(Incoming)) {
 
@@ -997,12 +1133,29 @@ int main(int argc, char** argv) {
 
                 switch (Command) {
 
-                    case SPI_COMMAND_START_MOTOR:   Command_Start(); LATDbits.LATD0 = 1;  break;
-                    case SPI_COMMAND_STOP_MOTOR:    Command_Stop(); break;
+                    case SPI_COMMAND_START_MOTOR:   Command_Start(); 
+                    								LATDbits.LATD0 = 1; break;
+                    case SPI_COMMAND_STOP_MOTOR:    Command_Stop(); 
+                    								LATDbits.LATD0 = 0; break;
+                    case SPI_COMMAND_GET_KP: 		break;
+                   	case SPI_COMMAND_SET_KP: 		break;
+                   	case SPI_COMMAND_GET_KI: 		break;
+                   	case SPI_COMMAND_SET_KI: 		break;
+                   	case SPI_COMMAND_GET_KD: 		break;
+                   	case SPI_COMMAND_SET_KD: 		break;	
                     case SPI_COMMAND_SET_THROTTLE:  Command_SetThrottle(Data); break;
                     case SPI_COMMAND_GET_THROTTLE:  Command_GetThrottle(); break;
-                    case SPI_COMMAND_GET_SPEED_L:   Command_GetSpeedLower(); break;
-                    case SPI_COMMAND_GET_SPEED_U:   Command_GetSpeedUpper(); break;
+                    case SPI_COMMAND_GET_SPEED:   	Command_GetSpeed(); break;
+                    case SPI_COMMAND_GET_PHASE: 	Command_GetPhaseAdvance(); break;
+                   	case SPI_COMMAND_SET_PHASE: 	Command_SetPhaseAdvance(Data); break;
+                   	case SPI_COMMAND_GET_POLES: 	Command_GetNumPoles(); break;
+                   	case SPI_COMMAND_SET_POLES: 	Command_SetNumPoles(Data); break;
+                   	case SPI_COMMAND_GET_PWM: 		Command_GetPWMSwitching(); break;
+                   	case SPI_COMMAND_SET_COMP: 		Command_SetComplimentarySwitching(); break;
+                   	case SPI_COMMAND_SET_IND: 		Command_SetIndependentSwitching(); break;
+                   	case SPI_COMMAND_MOTOR_STARTED: Command_IsMotorStarted(); break;
+                   	case SPI_COMMAND_ENABLE_PID: 	break;
+                   	case SPI_COMMAND_DISABLE_PID: 	break;
                 }  
             }
         #endif
@@ -1070,7 +1223,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _OC2Interrupt(void) {
  * Prerequisites:   Timer subsystem must be initialized.
  *                  Timer 2 interrupt must be initialized.
  *                  PWM must be initialized.
- * Priority:        7
+ * Priority:        5
  * Platform:        Microchip dsPIC30F2010.
  * Author:          Aaron Burns.
 
@@ -1142,11 +1295,21 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
  *              minus filter delay time and phase advance times. Timer 1 is 
  *              then reset.             
  
+ 				Timer 2 must have a lower priority than the ADC; failure
+ 				to properly setup the priorities will cause an address trap
+ 				to occur at the moment that the motor switches from open
+ 				loop to closed loop control.
+ 				
+ 				If a future Sr Design team ever decides to pick this project
+ 				up for a generation 2, then I would like to see this 
+ 				expanded to implement Microchip's high speed algorithm
+ 				according to Microchip application note AN1083.
+ 
  * Prerequisites:   ADC subsystem must be initialized.
  *                  Motor must be ramped up fast enough to generate back-EMF.
  *                  The physical circuit must provide a low-pass filter that
  *                  filters the PWM signals out of the back-EMF signals.
- * Priority:        5
+ * Priority:        6
  * Platform:        Microchip dsPIC30F2010.
  * Author:          Aaron Burns.
 
@@ -1158,6 +1321,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
  * 02-21-2016       Modified to remove arrays in order to eliminate possible
  *                  address errors. Interrupt priority changed from 5 to 6.
  * 02-25-2016       Added current speed calculations.
+ * 02-26-2016		Verified working at 26,000 rpm.
 *******************************************************************************/
 void __attribute__((__interrupt__, no_auto_psv)) _ADCInterrupt(void) {
     
