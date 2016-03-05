@@ -26,13 +26,45 @@ HAL::SPIDevice::SPIDevice(ADDRESS Address, SPIBus* DeviceManager){
 
 HAL::SPIDevice::~SPIDevice() {}
 
+UnsignedInteger16 HAL::SPIDevice::ReadSPI() {
+    
+    DeviceManager->SelectSlave(this->Address);
+    
+    SpiChnWriteC(SPI_CHANNEL1, 0x00);
+    while(SPI1STATbits.SPITBF);
+    
+    while (!DataRdySPI1()){}
+    unsigned int Incoming = SpiChnReadC(SPI_CHANNEL1);
+    
+    DeviceManager->ReleaseSlave(this->Address);
+    
+    for (int i = 1000; i >0 ; i--) {};
+    
+    return Incoming;
+}
+
+void HAL::SPIDevice::WriteSPI(UnsignedInteger8 Data) {
+    
+    DeviceManager->SelectSlave(this->Address);
+    
+    SpiChnWriteC(SPI_CHANNEL1, Data);
+    while(SPI1STATbits.SPITBF);
+    
+    while (!DataRdySPI1()){}
+    unsigned int Incoming = SpiChnReadC(SPI_CHANNEL1);
+    
+    DeviceManager->ReleaseSlave(this->Address);
+    
+    for (int i = 1000; i >0 ; i--) {};
+}
+
     
 UnsignedInteger16 HAL::SPIDevice::SendAndReceive(UnsignedInteger16 Outgoing) {
     
     try {
         
         UnsignedInteger16 Incoming = 0;
-        Outgoing = EncodeParity(Outgoing);
+        //Outgoing = EncodeParity(Outgoing);
 
         DeviceManager->SelectSlave(this->Address);
 
@@ -45,13 +77,10 @@ UnsignedInteger16 HAL::SPIDevice::SendAndReceive(UnsignedInteger16 Outgoing) {
 #endif
 
         DeviceManager->ReleaseSlave(this->Address);
+        
+        for (int i = 1000; i >0 ; i--) {};
 
-        if (VerifyParity(Incoming)) {
-            return Incoming;
-        }
-        else {
-            return 0;
-        }
+        return Incoming;
     }
     
     catch (...) {

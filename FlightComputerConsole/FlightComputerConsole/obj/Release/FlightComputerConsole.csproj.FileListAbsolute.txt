@@ -1,0 +1,9 @@
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\bin\Release\FlightComputerConsole.exe.config
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\bin\Release\FlightComputerConsole.exe
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\bin\Release\FlightComputerConsole.pdb
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.ControlPanel.resources
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.Properties.Resources.resources
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.csproj.GenerateResource.Cache
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.exe
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.pdb
+\\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.csprojResolveAssemblyReference.cache

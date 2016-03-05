@@ -52,6 +52,9 @@
 #pragma config CP       = OFF           // Code Protect
 #pragma config BWP      = OFF           // Boot Flash Write Protect
 #pragma config PWP      = OFF           // Program Flash Write Protect
+#pragma config FUSBIDIO = OFF           // USB USID Selection (Controlled by Port Function)
+#pragma config FVBUSONIO= OFF           // USB VBUS ON Selection (Controlled by Port Function)
+#pragma config JTAGEN   = OFF           //Turn the JTAG port off to allow SPI.
 
 #define _PPSUnlock()    {SYSKEY=0x0;SYSKEY=0xAA996655;SYSKEY=0x556699AA;CFGCONbits.IOLOCK=0;} 
 #define _PPSLock()      {SYSKEY=0x0;SYSKEY=0xAA996655;SYSKEY=0x556699AA;CFGCONbits.IOLOCK=1;}
@@ -114,11 +117,11 @@ int main(int argc, char** argv) {
 
 void InitializeIO() {
     
-    //ConfigurePPS();
-    //InitializeSlaveSelect();
+    ConfigurePPS();
+    InitializeSlaveSelect();
     //InitializeRC();
     InitializeCargoControl();
-    //InitializeSerial();
+    InitializeSerial();
     //SetUnusedPorts();
 
     //Configure Global interrupts
@@ -133,6 +136,7 @@ void ConfigurePPS() {
     _PPSUnlock();
     
     #if defined(__32MX270F256D__)
+
         PPSOutput(2, RPB8, SDO1);                   //Set SDO1 to B8
         PPSInput(2, SDI1, RPB5);                    //Set SDI1 to B5
 
@@ -142,12 +146,18 @@ void ConfigurePPS() {
         PPSInput(3, IC5, RPA4);                     //Set IC4 to A4
         PPSInput(2, IC3, RPA8);                     //Set IC5 to A8
         PPSOutput(1, RPC7, OC1);                    //Set OC1 to C7
+        
     #elif defined(__32MX270F256B__)
-
+        
+        PPSOutput(2, RPB8, SDO1);                   //Set SDO1 to B8
+        PPSInput(2, SDI1, RPB5);                    //Set SDI1 to B5
+        
+        PPSInput(3, IC1, RPB13);                    //Set IC1 to B13
+        PPSInput(4, IC2, RPB9);                     //Set IC2 to B8
+        PPSInput(1, IC4, RPB15);                    //Set IC3 to B15
+        PPSInput(3, IC5, RPA4);                     //Set IC4 to A4
     #endif
-    
-    
-    
+ 
     //Re-lock the pps.
     _PPSLock();
 }
@@ -181,11 +191,18 @@ void InitializeSlaveSelect() {
         PORTSetBits(IOPORT_C, BIT_3);
     
     #elif defined(__32MX270F256B__)
-        
+
+        PORTSetPinsDigitalOut(IOPORT_B, BIT_2);     //Slave select 4: Motor 1
+        PORTSetBits(IOPORT_B, BIT_2);
     #endif
 }
 
 void InitializeRC() {
+    
+    OpenTimer3(     T3_ON |                 //Turn on timer 1.
+                    T3_IDLE_CON |           //Continue on idle.
+                    T3_PS_1_1,
+                    0xFFFF);                  //Set timer 1 period to 1 us.
     
     #if defined(__32MX270F256D__)
 
@@ -212,6 +229,21 @@ void InitializeRC() {
     
     #elif defined(__32MX270F256B__)
         
+        //Initialize the RC channels
+        PORTSetPinsDigitalIn(IOPORT_B, BIT_13);     //RC channel 1
+        PORTSetPinsDigitalIn(IOPORT_B, BIT_9);      //RC channel 2
+        PORTSetPinsDigitalIn(IOPORT_B, BIT_15);     //RC channel 3
+        PORTSetPinsDigitalIn(IOPORT_A, BIT_4);      //RC channel 4
+
+        //Configure input capture
+        OpenCapture1(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
+        OpenCapture2(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
+        OpenCapture3(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
+        OpenCapture4(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
+        ConfigIntCapture1(IC_INT_ON | IC_INT_PRIOR_4 | IC_INT_SUB_PRIOR_3);
+        ConfigIntCapture2(IC_INT_ON | IC_INT_PRIOR_4 | IC_INT_SUB_PRIOR_3);
+        ConfigIntCapture3(IC_INT_ON | IC_INT_PRIOR_4 | IC_INT_SUB_PRIOR_3);
+        ConfigIntCapture4(IC_INT_ON | IC_INT_PRIOR_4 | IC_INT_SUB_PRIOR_3);
     #endif
 }
 
@@ -237,15 +269,15 @@ void InitializeCargoControl() {
 
 void InitializeSerial() {
     
-    #if defined(__32MX270F256D__)
+    //#if defined(__32MX270F256D__)
 
         //Configure serial bus
-        PORTSetPinsDigitalOut(IOPORT_B, BIT_8);     //Master out, slave in
-        PORTSetPinsDigitalOut(IOPORT_B, BIT_14);    //SCK
-        PORTSetPinsDigitalIn(IOPORT_B, BIT_5);      //Master in, slave out
-    #elif defined(__32MX270F256B__)
+//        PORTSetPinsDigitalOut(IOPORT_B, BIT_8);     //Master out, slave in
+//        PORTSetPinsDigitalOut(IOPORT_B, BIT_14);    //SCK
+//        PORTSetPinsDigitalIn(IOPORT_B, BIT_5);      //Master in, slave out
+    //#elif defined(__32MX270F256B__)
         
-    #endif
+    //#endif
     
     
 }
@@ -325,15 +357,16 @@ extern "C" {
     void __ISR (_INPUT_CAPTURE_1_VECTOR , IPL4AUTO) _InputCapture1Handler(void) {
         
         INTClearFlag(INT_IC1);
+        unsigned int Capture = IC1BUF;
         
         //Rising edge
         if (PORTBbits.RB13 == 1) {
             WriteTimer3(0);
-            unsigned int trash = IC1BUF;
+            //unsigned int trash = IC1BUF;
         }
         //Falling edge
         else {
-            CARE_Drone.SetRollInput(IC1BUF);
+            CARE_Drone.SetRollInput(Capture);
         }
     }
     

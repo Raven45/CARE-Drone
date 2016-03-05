@@ -25,7 +25,10 @@
 //#define _DISABLE_OPENADC10_CONFIGPORT_WARNING
 //#include <plib.h>
 
-//#define ENABLE_SPI
+#define ENABLE_SPI
+
+#define BUS_CLOCK           (10000000ul)
+#define GetSPIClock()       (BUS_CLOCK)
 
 #define ADDRESS unsigned char
 

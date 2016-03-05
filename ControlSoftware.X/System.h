@@ -337,6 +337,7 @@ private:
     bool Command_GetThrottle(char * Command);
     bool Command_StopAllMotors();
     bool Command_SetAllMotors(char * Command);
+    bool Command_StartMotor(UnsignedInteger8 Motor);
     bool Command_ReleaseCargo();
     bool Command_HoldCargo();
     bool Command_ReturnToStandby();
@@ -345,6 +346,8 @@ private:
     bool Command_GetRoll();
     bool Command_GetPitch();
     bool Command_GetYaw();
+    bool Command_ID();
+    bool Command_GetVersion();
     
 };
 

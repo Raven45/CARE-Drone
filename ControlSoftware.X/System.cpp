@@ -25,6 +25,7 @@
 System* System::Instance = 0;
 #endif
 
+//<editor-fold defaultstate="collapsed" desc="Core Functions">
 System::System() {
     
 }
@@ -35,7 +36,13 @@ System::~System() {
 
 bool System::InitializeSystem() {
     
-    //InitializeSystemClock();
+    //Initialize the SPI bus.
+    DeviceManager.Initialize();
+    
+    //Delay for 10 seconds to allow slaves to startup.
+    Time Delaytimer;
+    Delaytimer.SetClock(10, 0, 0);
+    CoreTimer.Delay(Delaytimer);
     
     try {
         //Create the devices
@@ -43,7 +50,7 @@ bool System::InitializeSystem() {
 //        _Accelerometer = new HAL::Accelerometer(ADDRESS_ACCEL, &DeviceManager);
 //        _Magnetometer = new HAL::Magnetometer(ADDRESS_MAG, &DeviceManager);
 //        _Altimeter = new HAL::Altimeter(ADDRESS_BAROMETER, &DeviceManager);
-//        Motor_1 = new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager);
+        Motor_1 = new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager);
 //        Motor_2 = new HAL::PWMC(ADDRESS_MOTOR_2, &DeviceManager);
 //        Motor_3 = new HAL::PWMC(ADDRESS_MOTOR_3, &DeviceManager);
 //        Motor_4 = new HAL::PWMC(ADDRESS_MOTOR_4, &DeviceManager);
@@ -55,7 +62,7 @@ bool System::InitializeSystem() {
 //        Devices.push_back(_Accelerometer);
 //        Devices.push_back(_Magnetometer);
 //        Devices.push_back(_Altimeter);
-//        Devices.push_back(Motor_1);
+        Devices.push_back(Motor_1);
 //        Devices.push_back(Motor_2);
 //        Devices.push_back(Motor_3);
 //        Devices.push_back(Motor_4);
@@ -69,7 +76,7 @@ bool System::InitializeSystem() {
         for (unsigned int i = 0; i < Devices.size(); i++) {
             Devices[i]->Initialize();
         }
-
+        
         return true;
     }
     catch (...) {
@@ -82,9 +89,9 @@ bool System::InitializeSystem() {
 bool System::UpdateSystem() {
     
     //Update devices
-//    for (unsigned int i = 0; i < Devices.size(); i++) {
-//        Devices[i]->Update();
-//    }
+    for (unsigned int i = 0; i < Devices.size(); i++) {
+        Devices[i]->Update();
+    }
 }
 
 void System::Main() {
@@ -128,6 +135,8 @@ bool System::IsUSBAttached() {
     return (usb_is_configured() && !usb_out_endpoint_halted(2));
 }
 
+//</editor-fold>
+
 //<editor-fold defaultstate="collapsed" desc="input handlers">
 
 void System::SetRollInput(unsigned int input) {
@@ -151,6 +160,8 @@ void System::SetCargoInput(unsigned int input) {
 }
 
 //</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="Main Functions">
 
 #ifdef SYSTEM_IS_SINGLETON
 System* System::GetInstance() {
@@ -282,6 +293,8 @@ void System::GoToState(UnsignedInteger16 State) {
     this->State = State;
 }
 
+//</editor-fold>
+
 //<editor-fold defaultstate="collapsed" desc="USB command handlers">
     
 const unsigned char * System::ReceiveCommand() {
@@ -310,44 +323,77 @@ const unsigned char * System::ReceiveCommand() {
 
 bool System::ExecuteCommand(const unsigned char * Command) {
     
-    if (strcmp((const char*)Command, "GetOrientation\n") == 0) { 
+    if (strstr((const char*)Command, "GetOrientation") != 0) { 
         Command_GetOrientation();
     }
-    else if (strcmp((const char*)Command, "GetPressure\n") == 0) { 
+    else if (strstr((const char*)Command, "GetPressure") != 0) { 
         Command_GetPressure();
     }
-    else if (strcmp((const char*)Command, "GetStartingPressure\n") == 0) { 
+    else if (strstr((const char*)Command, "GetStartingPressure") != 0) { 
         Command_GetStartingPressure();
     }
-    else if (strcmp((const char*)Command, "GetTemperature\n") == 0) { 
+    else if (strstr((const char*)Command, "GetTemperature") != 0) { 
         Command_GetTemperature();
     }
-    else if (strcmp((const char*)Command, "GetAltitude\n") == 0) { 
+    else if (strstr((const char*)Command, "GetAltitude") != 0) { 
         Command_GetAltitude();
     }
-    else if (strcmp((const char*)Command, "SetThrottle\n") == 0) { 
+    else if (strstr((const char*)Command, "SetThrottle") != 0) { 
         Command_GetThrottle((char *)Command);
     }
-    else if (strcmp((const char*)Command, "GetThrottle\n") == 0) { 
+    else if (strstr((const char*)Command, "GetThrottle") != 0) { 
         Command_GetThrottle((char *)Command);
     }
-    else if (strcmp((const char*)Command, "StopAllMotors\n") == 0) { 
+    else if (strstr((const char*)Command, "StopAllMotors") != 0) { 
         Command_StopAllMotors();
     }
-    else if (strcmp((const char*)Command, "SetAllMotors\n") == 0) { 
+    else if (strstr((const char*)Command, "SetAllMotors") != 0) { 
         Command_SetAllMotors((char *)Command);
     }
-    else if (strstr((const char*)Command, "ReleaseCargo\n") != 0) { 
+    else if (strstr((const char*)Command, "StartMotor 1") != 0) { 
+        Command_StartMotor(1);
+    }
+//    else if (strstr((const char*)Command, "StartMotor 2") != 0) { 
+//        Command_StartMotor(2);
+//    }
+//    else if (strstr((const char*)Command, "StartMotor 3") != 0) { 
+//        Command_StartMotor(3);
+//    }
+//    else if (strstr((const char*)Command, "StartMotor 4") != 0) { 
+//        Command_StartMotor(4);
+//    }
+//    else if (strstr((const char*)Command, "StartMotor 5") != 0) { 
+//        Command_StartMotor(5);
+//    }
+//    else if (strstr((const char*)Command, "StartMotor 6") != 0) { 
+//        Command_StartMotor(6);
+//    }
+    else if (strstr((const char*)Command, "ReleaseCargo") != 0) { 
         Command_ReleaseCargo(); 
     }
-    else if (strstr((const char*)Command, "HoldCargo\n") != 0) { 
+    else if (strstr((const char*)Command, "HoldCargo") != 0) { 
         Command_HoldCargo();
     }
-    else if (strcmp((const char*)Command, "ReturnToStandby\n") == 0) { 
+    else if (strstr((const char*)Command, "ReturnToStandby") != 0) { 
         Command_ReturnToStandby();
     }
-    else if (strstr((const char*)Command, "SelfTest\n") != 0) { 
+    else if (strstr((const char*)Command, "SelfTest") != 0) { 
         Command_USBTest();
+    }
+    else if (strstr((const char*)Command, "WhoAreYou?") != 0) { 
+        Command_ID();
+    }
+    else if (strstr((const char*)Command, "GetVersion") != 0) { 
+        Command_GetVersion();
+    }
+    else if (strstr((const char*)Command, "GetRoll") != 0) { 
+        Command_GetRoll();
+    }
+    else if (strstr((const char*)Command, "GetPitch") != 0) { 
+        Command_GetPitch();
+    }
+    else if (strstr((const char*)Command, "GetYaw") != 0) { 
+        Command_GetYaw();
     }
     
     return true;
@@ -527,15 +573,26 @@ Math::Quaternion System::CalculatePID(Math::Quaternion Error) {
 
 bool System::Command_GetOrientation() {
     
-    AHRS_Update();
-    FloatBuffer fbuf;
-    
-    for (int i = 0; i < 4; i++) {
-       
-        fbuf.a = CurrentOrientation[i];
-        char * buf = (char*)fbuf.b;
-        SendUSBData(buf);
+    if (_Gyroscope != NULL &&
+        _Accelerometer != NULL &&
+        _Magnetometer != NULL) {
+        
+        AHRS_Update(); 
     }
+    
+    else if (_Gyroscope != NULL &&
+            _Accelerometer != NULL &&
+            _Magnetometer == NULL) {
+        
+        IMU_Update();
+    }
+    
+    char Q[10];
+    sprintf(Q, "%f %f %f %f\n", CurrentOrientation[0],
+                                CurrentOrientation[1],
+                                CurrentOrientation[2],
+                                CurrentOrientation[3]);
+    SendUSBData(Q);
     
     return true;
 }
@@ -543,33 +600,54 @@ bool System::Command_GetOrientation() {
 bool System::Command_GetPressure() {
     
     char * pressure = 0;
-    sprintf(pressure, "%f", _Altimeter->GetPressure());
-    SendUSBData(pressure);
+    if (_Altimeter != NULL) {
+        sprintf(pressure, "%f\n", _Altimeter->GetPressure());
+        SendUSBData(pressure);
+    }
+    else {
+        SendUSBData("Altimeter not enabled/attached!\n");
+    }
     return true;
 }
 
 bool System::Command_GetStartingPressure() {
     
     char * sp = 0;
-    sprintf(sp, "%f", _Altimeter->GetStartingPressure());
-    SendUSBData(sp);
+    if (_Altimeter != NULL) {
+        sprintf(sp, "%f\n", _Altimeter->GetStartingPressure());
+        SendUSBData(sp);
+    }
+    else {
+        SendUSBData("Altimeter not enabled/attached!\n");
+    }
     return true;
 }
 
 bool System::Command_GetTemperature() {
     
     char * temp = 0;
-    sprintf(temp, "%f", _Altimeter->GetTemperature());
-    SendUSBData(temp);
+    if (_Altimeter != NULL) {
+        sprintf(temp, "%f\n", _Altimeter->GetTemperature());
+        SendUSBData(temp);
+    }
+    else {
+        SendUSBData("Altimeter not enabled/attached!\n");
+    }
     return true;
 }
 
 bool System::Command_GetAltitude() {
     
     char * altitude = 0;
-    sprintf(altitude, "%f", _Altimeter->GetAltitude());
-    SendUSBData(altitude);
+    if (_Altimeter != NULL) {
+        sprintf(altitude, "%f\n", _Altimeter->GetAltitude());
+        SendUSBData(altitude);
+    }
+    else {
+        SendUSBData("Altimeter not enabled/attached!\n");
+    }
     return true;
+    
 }
 
 bool System::Command_SetThrottle(char * Command) {
@@ -584,12 +662,13 @@ bool System::Command_GetThrottle(char * Command) {
 bool System::Command_StopAllMotors() {
     
     SendUSBData("Stopping all motors.\n");
-    Motor_1->StopMotor();
-    Motor_2->StopMotor();
-    Motor_3->StopMotor();
-    Motor_4->StopMotor();
-    Motor_5->StopMotor();
-    Motor_6->StopMotor();
+    
+    if (Motor_1 != NULL) { Motor_1->StopMotor(); }
+    if (Motor_2 != NULL) { Motor_2->StopMotor(); }
+    if (Motor_3 != NULL) { Motor_3->StopMotor(); }
+    if (Motor_4 != NULL) { Motor_4->StopMotor(); }
+    if (Motor_5 != NULL) { Motor_5->StopMotor(); }
+    if (Motor_6 != NULL) { Motor_6->StopMotor(); }
     
     return true;
 }
@@ -598,6 +677,25 @@ bool System::Command_SetAllMotors(char * Command) {
     
 
 }
+
+bool System::Command_StartMotor(UnsignedInteger8 Motor) {
+    
+    try {
+        switch (Motor) {
+            case 1: Motor_1->StartMotor(); break;
+            case 2: Motor_2->StartMotor(); break;
+            case 3: Motor_3->StartMotor(); break;
+            case 4: Motor_4->StartMotor(); break;
+            case 5: Motor_5->StartMotor(); break;
+            case 6: Motor_6->StartMotor(); break;
+        }
+        return true;
+    }
+    catch (...) {
+        return false;
+    }
+}
+
 
 bool System::Command_ReleaseCargo() {
     
@@ -674,11 +772,11 @@ bool System::Command_GetRCInput(char * Command) {
     char * strInput_Throttle = 0;
     char * strInput_Cargo = 0;
     
-    sprintf(strInput_Roll, "%f", Input_Roll);
-    sprintf(strInput_Pitch, "%f", Input_Pitch);
-    sprintf(strInput_Yaw, "%f", Input_Yaw);
-    sprintf(strInput_Throttle, "%f", Input_Throttle);
-    sprintf(strInput_Cargo, "%f", Input_Cargo);
+    sprintf(strInput_Roll, "%f\n", Input_Roll);
+    sprintf(strInput_Pitch, "%f\n", Input_Pitch);
+    sprintf(strInput_Yaw, "%f\n", Input_Yaw);
+    sprintf(strInput_Throttle, "%f\n", Input_Throttle);
+    sprintf(strInput_Cargo, "%f\n", Input_Cargo);
     
     char * channel = strstr(Command, "C:");
     if (channel != 0 ) {
@@ -695,8 +793,8 @@ bool System::Command_GetRCInput(char * Command) {
 
 bool System::Command_GetRoll() {
     
-    char * roll = 0;
-    sprintf(roll, "%f", CurrentOrientation.GetRoll());
+    char roll[24];
+    sprintf(roll, "%f\n", CurrentOrientation.GetRoll());
     SendUSBData(roll);
     
     return true;
@@ -704,8 +802,8 @@ bool System::Command_GetRoll() {
 
 bool System::Command_GetPitch() {
     
-    char * pitch = 0;
-    sprintf(pitch, "%f", CurrentOrientation.GetPitch());
+    char pitch[24];
+    sprintf(pitch, "%f\n", CurrentOrientation.GetPitch());
     SendUSBData(pitch);
     
     return true;
@@ -713,10 +811,22 @@ bool System::Command_GetPitch() {
 
 bool System::Command_GetYaw() {
     
-    char * yaw = 0;
-    sprintf(yaw, "%f", CurrentOrientation.GetYaw());
+    char yaw[24];
+    sprintf(yaw, "%f\n", CurrentOrientation.GetYaw());
     SendUSBData(yaw);
     
+    return true;
+}
+
+bool System::Command_ID() {
+    
+    SendUSBData("Flight Computer\n");
+    return true;
+}
+
+bool System::Command_GetVersion() {
+    
+    SendUSBData("0.0.0.1\n");
     return true;
 }
 

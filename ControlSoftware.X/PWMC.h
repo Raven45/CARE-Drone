@@ -22,18 +22,29 @@
 #define	PWMC_H
 #include "SPIDevice.h"
 
+//ESC Command Table
+#define START_MOTOR     0x0100  //Starts the motor
+#define STOP_MOTOR      0x0200  //Stops the motor
+#define SET_THROTTLE    0x0300  //Sets motor throttle to specified value.
+#define GET_THROTTLE    0x0400  //Gets current motor throttle.
+#define SET_KP          0x0500  //Sets the PID proportional gain.
+#define GET_KP          0x0600  //Gets current proportional gain.
+#define SET_KI          0x0700  //Sets the PID integral gain.
+#define GET_KI          0x0800  //Gets current integral gain.
+#define SET_KD          0x0900  //Sets the PID derivative gain.
+#define GET_KD          0x0A00  //Gets current derivative gain.
+#define GET_SPEED       0x0B00  //Gets current motor speed in rpm.
+#define GET_PHASE       0x0C00  //Gets current phase advance in ticks per second.
+#define SET_PHASE       0x0D00  //Sets the motor phase advance.
+#define GET_POLES       0x0E00  //Gets the current number of motor poles.
+#define SET_POLES       0x0F00  //Sets the number of motor poles.
+#define GET_PWM         0x1000  //Gets the current switching mode.
+#define SET_COMP        0x1100  //Enable Complimentary PWM switching.
+#define SET_IND         0x1200  //Enable Independent PWM switching.
+#define MOTOR_STARTED   0x1300  //Is motor currently started?
+#define ENABLE_PID      0x1400  //Enables the ESC's PID controller.
+#define DISABLE_PID     0x1500  //Disables the ESC's PID controller.
 
-#define START_MOTOR     0x01
-#define STOP_MOTOR      0x02
-#define SET_SPEED       0x03
-#define GET_SPEED       0x04
-#define SET_KP          0x05
-#define GET_KP          0x06
-#define SET_KI          0x07
-#define GET_KI          0x08
-#define SET_KD          0x09
-#define GET_KD          0x0A
-//#define GET_STATUS      0x0B
 
 #define STATUS_MOTOR_DEAD    0x00
 #define STATUS_MOTOR_STOPPED 0x01
@@ -52,6 +63,7 @@ public:
     bool Update();
     
     UnsignedInteger8 GetThrottle();
+    UnsignedInteger16 GetSpeed();
     void SetThrottle(UnsignedInteger8 Throttle);
     
     void StartMotor();
@@ -65,11 +77,16 @@ public:
     void SetKd(UnsignedInteger8 Kd);
     
 private:
-    //bool StartMotor;
-    UnsignedInteger8 Throttle;
-    UnsignedInteger8 Kp;
-    UnsignedInteger8 Ki;
-    UnsignedInteger8 Kd;
+
+    UnsignedInteger16 Throttle;
+    UnsignedInteger16 MotorSpeed;
+    UnsignedInteger16 PhaseAdvance;
+    UnsignedInteger16 MotorPoles;
+    bool PWMSwitchingMethod;    //true = complimentary, false = independent
+    bool IsMotorStarted;        //true=motor running, false=motor stalled.
+    UnsignedInteger16 Kp;
+    UnsignedInteger16 Ki;
+    UnsignedInteger16 Kd;
 };
 }
 

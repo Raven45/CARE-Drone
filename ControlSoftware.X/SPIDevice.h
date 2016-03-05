@@ -47,6 +47,9 @@ public:
     virtual bool Initialize() = 0;
     virtual bool Update() = 0;
     
+    UnsignedInteger16 ReadSPI();
+    void WriteSPI(UnsignedInteger8 Data);
+    
     UnsignedInteger16 SendAndReceive(UnsignedInteger16 Outgoing);
     UnsignedInteger16 * SendAndReceiveBurst(UnsignedInteger16 * Outgoing, UnsignedInteger16 Length);
     /*
