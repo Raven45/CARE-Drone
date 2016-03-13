@@ -30,13 +30,14 @@ bool HAL::SPIBus::Initialize() {
     
     //Configure the SPI port.
     unsigned int config=SPI_OPEN_MODE16 |           //Use 16 bit words.
-                        SPI_OPEN_CKP_HIGH |         //Clock idle high-active low.
+                        //SPI_OPEN_CKP_HIGH |         //Clock idle high-active low.
                         SPI_OPEN_CKE_REV |          //Transmit active-to-idle.
+                        //SPI_OPEN_SMP_END |
                         SPI_OPEN_ON |               //We should turn it on.
                         SPI_OPEN_MSTEN;             //Enable master mode.
 
     //Turn on the SPI port
-    SpiChnOpen(SPI_CHANNEL1, (SpiOpenFlags)config, GetPeripheralClock()/500000);
+    SpiChnOpen(SPI_CHANNEL1, (SpiOpenFlags)config, GetPeripheralClock()/5000000);
     
     return true;
 }

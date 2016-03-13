@@ -40,17 +40,17 @@ bool System::InitializeSystem() {
     DeviceManager.Initialize();
     
     //Delay for 10 seconds to allow slaves to startup.
-    Time Delaytimer;
-    Delaytimer.SetClock(10, 0, 0);
-    CoreTimer.Delay(Delaytimer);
+//    Time Delaytimer;
+//    Delaytimer.SetClock(10, 0, 0);
+//    CoreTimer.Delay(Delaytimer);
     
     try {
         //Create the devices
 //        _Gyroscope = new HAL::Gyroscope(ADDRESS_GYRO, &DeviceManager);
 //        _Accelerometer = new HAL::Accelerometer(ADDRESS_ACCEL, &DeviceManager);
 //        _Magnetometer = new HAL::Magnetometer(ADDRESS_MAG, &DeviceManager);
-//        _Altimeter = new HAL::Altimeter(ADDRESS_BAROMETER, &DeviceManager);
-        Motor_1 = new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager);
+        _Altimeter = new HAL::Altimeter(ADDRESS_BAROMETER, &DeviceManager);
+//        Motor_1 = new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager);
 //        Motor_2 = new HAL::PWMC(ADDRESS_MOTOR_2, &DeviceManager);
 //        Motor_3 = new HAL::PWMC(ADDRESS_MOTOR_3, &DeviceManager);
 //        Motor_4 = new HAL::PWMC(ADDRESS_MOTOR_4, &DeviceManager);
@@ -61,8 +61,8 @@ bool System::InitializeSystem() {
 //        Devices.push_back(_Gyroscope);
 //        Devices.push_back(_Accelerometer);
 //        Devices.push_back(_Magnetometer);
-//        Devices.push_back(_Altimeter);
-        Devices.push_back(Motor_1);
+        Devices.push_back(_Altimeter);
+//        Devices.push_back(Motor_1);
 //        Devices.push_back(Motor_2);
 //        Devices.push_back(Motor_3);
 //        Devices.push_back(Motor_4);
@@ -599,9 +599,9 @@ bool System::Command_GetOrientation() {
 
 bool System::Command_GetPressure() {
     
-    char * pressure = 0;
+    char pressure[24];
     if (_Altimeter != NULL) {
-        sprintf(pressure, "%f\n", _Altimeter->GetPressure());
+        sprintf(pressure, "%d Pa\n", _Altimeter->GetPressure());
         SendUSBData(pressure);
     }
     else {
@@ -612,9 +612,9 @@ bool System::Command_GetPressure() {
 
 bool System::Command_GetStartingPressure() {
     
-    char * sp = 0;
+    char sp[24];
     if (_Altimeter != NULL) {
-        sprintf(sp, "%f\n", _Altimeter->GetStartingPressure());
+        sprintf(sp, "%d Pa\n", _Altimeter->GetStartingPressure());
         SendUSBData(sp);
     }
     else {
@@ -625,9 +625,11 @@ bool System::Command_GetStartingPressure() {
 
 bool System::Command_GetTemperature() {
     
-    char * temp = 0;
+    char temp[24];
+    float fTemp = (float)_Altimeter->GetTemperature();
+    fTemp /= 100.0f;
     if (_Altimeter != NULL) {
-        sprintf(temp, "%f\n", _Altimeter->GetTemperature());
+        sprintf(temp, "%.2f K\n", fTemp);
         SendUSBData(temp);
     }
     else {
@@ -638,9 +640,9 @@ bool System::Command_GetTemperature() {
 
 bool System::Command_GetAltitude() {
     
-    char * altitude = 0;
+    char altitude[24];
     if (_Altimeter != NULL) {
-        sprintf(altitude, "%f\n", _Altimeter->GetAltitude());
+        sprintf(altitude, "%d ft\n", _Altimeter->GetAltitude());
         SendUSBData(altitude);
     }
     else {

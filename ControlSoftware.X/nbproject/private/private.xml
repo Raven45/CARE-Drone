@@ -5,9 +5,11 @@
         <group>
             <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/SPIBus.cpp</file>
             <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/Main.cpp</file>
+            <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/_Time.cpp</file>
             <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/System.cpp</file>
             <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/SPIDevice.cpp</file>
-            <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/PWMC.cpp</file>
+            <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/Altimeter.cpp</file>
+            <file>file:/C:/Users/aburns2/Desktop/CARE-Drone/ControlSoftware.X/Altimeter.h</file>
         </group>
     </open-files>
 </project-private>

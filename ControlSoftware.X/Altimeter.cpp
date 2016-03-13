@@ -31,119 +31,96 @@ HAL::Altimeter::~Altimeter() {
     
 bool HAL::Altimeter::Initialize() {
     
-    WriteSPI(0xD0);
-    unsigned int incoming1 = ReadSPI();
+    SendAndReceive(0xE0B6 & 0x7FFF);
     
-    WriteSPI(0xF7);
-    unsigned int incoming2 = ReadSPI();
+    for (int i = 0; i<5000; i++);
     
-    WriteSPI(0xFA);
-    unsigned int incoming3 = ReadSPI();
+    ChipID = SendAndReceive(0xD000);
+    ChipID = ChipID & 0x00FF;
     
-    WriteSPI(0xAA);
-    unsigned int incoming4 = ReadSPI();
-    incoming1++;
-//        
-//    //Create an array of commands that will retrieve the trim values.
-//    UnsignedInteger16 * GetTrimCommands = new UnsignedInteger16[24];
-//    UnsignedInteger16* TrimValues = new UnsignedInteger16[24];
-//    for (int i = 0, j = DIGT1_ADDRESS; i < 24; i++, j += 0x0100) {
-//        //Assign individual commands, incrementing the address each frame.
-//        GetTrimCommands[i] = j;
-//    }
-//    
-//    UnsignedInteger16 Test = SendAndReceive(0xD0D0 & 0x7F7F);
-//    
-//    //Perform the actual burst
-//    TrimValues = SendAndReceiveBurst(GetTrimCommands,24);
-//    if (TrimValues == 0) {
-//        //if we got nothing back, then it means that the device is not 
-//        //communicating. Return false and let the software layers above deal
-//        //with the issue.
-//        return false;
-//    }
-//    
-//    //If we got actual data back. Note that there is no safeguard against junk.
-//    else {
-//        
-//        dig_T1 = (TrimValues[0] | (TrimValues[1] << 8));
-//        dig_T2 = ((SignedInteger16)TrimValues[2] | ((SignedInteger16)TrimValues[3] << 8));
-//        dig_T3 = (SignedInteger16)TrimValues[4] | ((SignedInteger16)TrimValues[5] << 8);
-//        
-//        dig_P1 = TrimValues[6] | (TrimValues[7] << 8);
-//        dig_P2 = (SignedInteger16)TrimValues[8] | ((SignedInteger16)TrimValues[9] << 8);
-//        dig_P3 = (SignedInteger16)TrimValues[10] | ((SignedInteger16)TrimValues[11] << 8);
-//        dig_P4 = (SignedInteger16)TrimValues[12] | ((SignedInteger16)TrimValues[13] << 8);
-//        dig_P5 = (SignedInteger16)TrimValues[14] | ((SignedInteger16)TrimValues[15] << 8);
-//        dig_P6 = (SignedInteger16)TrimValues[16] | ((SignedInteger16)TrimValues[17] << 8);
-//        dig_P7 = (SignedInteger16)TrimValues[18] | ((SignedInteger16)TrimValues[19] << 8);
-//        dig_P8 = (SignedInteger16)TrimValues[20] | ((SignedInteger16)TrimValues[21] << 8);
-//        dig_P9 = (SignedInteger16)TrimValues[22] | ((SignedInteger16)TrimValues[23] << 8);
-//    }
-//    
-//    //Create an array of commands that will retrieve the pressure.
-//    UnsignedInteger16 * GetPressureCommands = new UnsignedInteger16[3];
-//    GetPressureCommands[0] = (PRES_ADDRESS + 0x0200);
-//    GetPressureCommands[1] = (PRES_ADDRESS + 0x0100);
-//    GetPressureCommands[2] = PRES_ADDRESS;
-//    
-//    //Perform burst transmission
-//    UnsignedInteger16 * PressureArray = SendAndReceiveBurst(GetPressureCommands, 3);
-//    if (PressureArray == 0) {
-//        //if we got nothing back, then it means that the device is not 
-//        //communicating. Return false and let the software layers above deal
-//        //with the issue.
-//        return false;
-//    }
-//    //If we got actual data back. Note that there is no safeguard against junk.
-//    else {
-//        UnsignedInteger32 PressureRaw = (PressureArray[0] >> 4);
-//        PressureRaw |= ((UnsignedInteger32)PressureArray[1] << 4);
-//        PressureRaw |= ((UnsignedInteger32)PressureArray[2] << 12);
-//    
-//        //Save the initial pressure reading. This will serve as the 
-//        //reference point for the altimeter.
-//        InitialPressure = CompensatePressure(PressureRaw) / 256;
-//    }
-//    
+    if (ChipID != 0x0060) {
+        return false;
+    }
+    
+    SendAndReceive(0xF510 & 0x7FFF); //x16 filter, 0.5 ms
+    SendAndReceive(0xF201 & 0x7FFF); //x1 oversampling for humidity.
+    SendAndReceive(0xF447 & 0x7FFF); //x16 oversampling for pressure, x2 for temp, normal mode.
+    
+    BME280Status = SendAndReceive(0xF300);
+    BME280Config = SendAndReceive(0xF500);
+    BME280Ctrl   = SendAndReceive(0xF400);
+
+    dig_T1 = ((SendAndReceive(0x8900)& 0x00ff) << 8) | (SendAndReceive(0x8800) & 0x00FF);
+    dig_T2 = (SignedInteger16)((SendAndReceive(0x8B00)& 0x00ff) << 8) | (SendAndReceive(0x8A00) & 0x00FF);
+    dig_T3 = (SignedInteger16)((SendAndReceive(0x8D00)& 0x00ff) << 8) | (SendAndReceive(0x8C00) & 0x00FF);
+
+    dig_P1 = ((SendAndReceive(0x8F00)&0x00ff) << 8) | (SendAndReceive(0x8E00) & 0x00FF);
+    dig_P2 = (SignedInteger16)((SendAndReceive(0x9100)&0x00ff) << 8) | (SendAndReceive(0x9000) & 0x00FF);
+    dig_P3 = (SignedInteger16)((SendAndReceive(0x9300)&0x00ff) << 8) | (SendAndReceive(0x9200) & 0x00FF);
+    dig_P4 = (SignedInteger16)((SendAndReceive(0x9500)&0x00ff) << 8) | (SendAndReceive(0x9400) & 0x00FF);
+    dig_P5 = (SignedInteger16)((SendAndReceive(0x9700)&0x00ff) << 8) | (SendAndReceive(0x9600) & 0x00FF);
+    dig_P6 = (SignedInteger16)((SendAndReceive(0x9900)&0x00ff) << 8) | (SendAndReceive(0x9800) & 0x00FF);
+    dig_P7 = (SignedInteger16)((SendAndReceive(0x9B00)&0x00ff) << 8) | (SendAndReceive(0x9A00) & 0x00FF);
+    dig_P8 = (SignedInteger16)((SendAndReceive(0x9D00)&0x00ff) << 8) | (SendAndReceive(0x9C00) & 0x00FF);
+    dig_P9 = (SignedInteger16)((SendAndReceive(0x9F00)&0x00ff) << 8) | (SendAndReceive(0x9E00) & 0x00FF);
+
+//     DeviceManager->SelectSlave(this->Address);
+//
+//    while (!SPI1STATbits.SPITBE);
+//    SPI1BUF = 0xF700;
+//    while (!SPI1STATbits.SPIRBF);
+//    UnsignedInteger32 P1 = SPI1BUF;
+//    P1 = P1 & 0x00FF;
+//
+//    while (!SPI1STATbits.SPITBE);
+//    SPI1BUF = 0x0000;
+//    while (!SPI1STATbits.SPIRBF);
+//    UnsignedInteger16 P2 = SPI1BUF;
+//
+//    DeviceManager->ReleaseSlave(this->Address);
+//
+//    for (int i = 0; i<100; i++);
+
+//    InitialPressure = (P1 <<12) | (P2>>4);    
+//    InitialPressure = CompensatePressure(InitialPressure)/256;
+    InitialPressure = 101325;
+        
+    UnsignedInteger32 T1 = SendAndReceive(0xFA00) & 0x00FF;
+    UnsignedInteger16 T2 = SendAndReceive(0xFB00) & 0x00FF;
+    UnsignedInteger16 T3 = SendAndReceive(0xFC00) & 0x00FF;
+
+    CurrentTemperature = (T1 <<12) | (T2<<4) | (T3>>4);
+    CurrentTemperature = CompensateTemperature(CurrentTemperature) + 27315;
+//
+//        UnsignedInteger32 P1 = SendAndReceive(0xF700) & 0x00FF;
+//        UnsignedInteger16 P2 = SendAndReceive(0xF800) & 0x00FF;
+//        UnsignedInteger16 P3 = SendAndReceive(0xF900) & 0x00FF;
+//
+//        InitialPressure = (P1 <<12) | (P2<<4) | (P3>>4);    
+//        InitialPressure = CompensatePressure(InitialPressure)/256;
+    
+    //while (SendAndReceive(0xF300) & 0x000F);
+    
+   
+ 
     return true;
 }
 
 bool HAL::Altimeter::Update() {
-    
-    UnsignedInteger16 * GetPressureCommands = new UnsignedInteger16[3];
-    GetPressureCommands[0] = (PRES_ADDRESS + 0x0200);
-    GetPressureCommands[1] = (PRES_ADDRESS + 0x0100);
-    GetPressureCommands[2] = PRES_ADDRESS;
-    
-    UnsignedInteger16 * PressureArray = SendAndReceiveBurst(GetPressureCommands, 3);
-    if (PressureArray == 0) {
-        return false;
-    }
-    else {
-        UnsignedInteger32 PressureRaw = (PressureArray[0] >> 4);
-        PressureRaw |= ((UnsignedInteger32)PressureArray[1] << 4);
-        PressureRaw |= ((UnsignedInteger32)PressureArray[2] << 12);
-    
-        CurrentPressure = CompensatePressure(PressureRaw) / 256;
-    }
-    
-    UnsignedInteger16 * GetTemperatureCommands = new UnsignedInteger16[3];
-    GetTemperatureCommands[0] = (TEMP_ADDRESS + 0x0200);
-    GetTemperatureCommands[1] = (TEMP_ADDRESS + 0x0100);
-    GetTemperatureCommands[2] = TEMP_ADDRESS;
-    
-    SignedInteger16 * TempArray = (SignedInteger16 *)SendAndReceiveBurst(GetTemperatureCommands, 3);
-    if (TempArray == 0) {
-        return false;
-    }
-    else {
-        SignedInteger32 TemperatureRaw = (TempArray[0] >> 4);
-        TemperatureRaw |= ((SignedInteger32)TempArray[1] << 4);
-        TemperatureRaw |= ((SignedInteger32)TempArray[2] << 12);
-    
-        CurrentTemperature = CompensateTemperature(TemperatureRaw);
-    }
+        
+    UnsignedInteger32 T1 = SendAndReceive(0xFA00) & 0x00FF;
+    UnsignedInteger16 T2 = SendAndReceive(0xFB00) & 0x00FF;
+    UnsignedInteger16 T3 = SendAndReceive(0xFC00) & 0x00FF;
+
+    CurrentTemperature = (T1 <<12) | (T2<<4) | (T3>>4);
+    CurrentTemperature = CompensateTemperature(CurrentTemperature) + 27315;
+
+    UnsignedInteger32 P1 = SendAndReceive(0xF700) & 0x00FF;
+    UnsignedInteger16 P2 = SendAndReceive(0xF800) & 0x00FF;
+    UnsignedInteger16 P3 = SendAndReceive(0xF900) & 0x00FF;
+
+    CurrentPressure = (P1 <<12) | (P2<<4) | (P3>>4);    
+    CurrentPressure = CompensatePressure(CurrentPressure)/256;
     
     return true;
 }
@@ -154,7 +131,9 @@ SignedInteger32 HAL::Altimeter::GetAltitude() {
     //8314 = ideal gas constant times 1000.
     //9.81 = acceleration due to gravity
     //28.97 = molar mass of air
-    return ((8314*CurrentTemperature)/(9.81f * 28.97f)) * log(InitialPressure/CurrentPressure);
+    float temp = CurrentTemperature/100;
+    return ((3.28f*8314*temp)/(9.81f * 28.97f)) * log((float)InitialPressure/(float)CurrentPressure);
+    //return 3.28 * 44330.0 * (1.0 - pow((float)CurrentPressure / (float)InitialPressure, 0.1903));
 }
 
 UnsignedInteger32 HAL::Altimeter::GetPressure() {

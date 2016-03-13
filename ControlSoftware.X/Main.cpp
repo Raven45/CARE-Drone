@@ -55,6 +55,7 @@
 #pragma config FUSBIDIO = OFF           // USB USID Selection (Controlled by Port Function)
 #pragma config FVBUSONIO= OFF           // USB VBUS ON Selection (Controlled by Port Function)
 #pragma config JTAGEN   = OFF           //Turn the JTAG port off to allow SPI.
+#pragma config ICESEL   = ICS_PGx4      //Use debug port 4.
 
 #define _PPSUnlock()    {SYSKEY=0x0;SYSKEY=0xAA996655;SYSKEY=0x556699AA;CFGCONbits.IOLOCK=0;} 
 #define _PPSLock()      {SYSKEY=0x0;SYSKEY=0xAA996655;SYSKEY=0x556699AA;CFGCONbits.IOLOCK=1;}
@@ -94,6 +95,24 @@ extern "C" {
 //access time critical data.
 System CARE_Drone;
 
+
+/*******************************************************************************
+ * Subroutine:  Main										
+ * Description: The main point of entry for the PIC's firmware. Main
+ *              will initialize the system and then run the System.Main 
+ *              function.
+ 
+ * Prerequisites:   All configuration bits must be configured.
+ *                  CPU speed must be set to 48 MHz.
+ *                  USB PLL must be configured for 48 MHz clock.
+ *                  Debug port must be set to PGEx4.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 01-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 int main(int argc, char** argv) {
      
     InitializeIO();
@@ -115,11 +134,25 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+/*******************************************************************************
+ * Subroutine:  InitializeIO										
+ * Description: This function will initialize and configure all physical
+ *              pins of the target PIC32MX. This will also turn on
+ *              global interrupts.
+ 
+ * Prerequisites:   None.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 void InitializeIO() {
     
     ConfigurePPS();
     InitializeSlaveSelect();
-    //InitializeRC();
+    InitializeRC();
     InitializeCargoControl();
     InitializeSerial();
     //SetUnusedPorts();
@@ -130,6 +163,19 @@ void InitializeIO() {
     __asm volatile("ei");
 }
 
+/*******************************************************************************
+ * Subroutine:  ConfigurePPS									
+ * Description: This function will perform a system unlock and configure
+ *              the peripheral pin select subsystem of the PIC32MX.
+ 
+ * Prerequisites:   None.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 void ConfigurePPS() {
     
     //Unlock pps.
@@ -162,6 +208,20 @@ void ConfigurePPS() {
     _PPSLock();
 }
 
+/*******************************************************************************
+ * Subroutine:  InitializeSlaveSelect										
+ * Description: This function will initialize the slave select pins as
+ *              general purpose I/O. All slave select pins will be set to 
+ *              active high states in order to implement SPI mode 0.
+ 
+ * Prerequisites:   None.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 void InitializeSlaveSelect() {
     
     #if defined(__32MX270F256D__)
@@ -197,11 +257,26 @@ void InitializeSlaveSelect() {
     #endif
 }
 
+/*******************************************************************************
+ * Subroutine:  InitializeRC									
+ * Description: This function will initialize and configure the physical pins
+ *              and interrupts required to implement RC inputs. This will
+ *              setup timer 3 as the interrupt capture timer and will configure
+ *              input capture channels 1-5 for inputs.
+ 
+ * Prerequisites:   None.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 void InitializeRC() {
     
     OpenTimer3(     T3_ON |                 //Turn on timer 1.
                     T3_IDLE_CON |           //Continue on idle.
-                    T3_PS_1_1,
+                    T3_PS_1_4,
                     0xFFFF);                  //Set timer 1 period to 1 us.
     
     #if defined(__32MX270F256D__)
@@ -247,6 +322,19 @@ void InitializeRC() {
     #endif
 }
 
+/*******************************************************************************
+ * Subroutine:  InitializeCargoControl										
+ * Description: This function will initialize and configure the outpus
+ *              needed for the cargo control subsystem.
+ 
+ * Prerequisites:   None.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 void InitializeCargoControl() {
     
     #if defined(__32MX270F256D__)
@@ -267,6 +355,18 @@ void InitializeCargoControl() {
     #endif
 }
 
+/*******************************************************************************
+ * Subroutine:  InitializeSerial										
+ * Description: This function will initialize and configure the SPI interface.
+ 
+ * Prerequisites:   None.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 void InitializeSerial() {
     
     //#if defined(__32MX270F256D__)
@@ -282,6 +382,20 @@ void InitializeSerial() {
     
 }
 
+/*******************************************************************************
+ * Subroutine:  SetUnusedPorts									
+ * Description: This function will turn on the PIC32MX's internal pull-down
+ *              resistors for unused pins; all unused I/O will be set to
+ *              active low operation.
+ 
+ * Prerequisites:   None.
+ * Input:           None.
+ * Output:          None.
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 void SetUnusedPorts() {
     
     #if defined(__32MX270F256D__)

@@ -25,64 +25,203 @@
 
 #include "SPIDevice.h"
 
-#define DIGT1_ADDRESS 0x8800
-#define DIGT2_ADDRESS 0x8A00
-#define DIGT3_ADDRESS 0x8C00
-
-#define DIGP1_ADDRESS 0x8E00
-#define DIGP2_ADDRESS 0x9000
-#define DIGP3_ADDRESS 0x9200
-#define DIGP4_ADDRESS 0x9400
-#define DIGP5_ADDRESS 0x9600
-#define DIGP6_ADDRESS 0x9800
-#define DIGP7_ADDRESS 0x9A00
-#define DIGP8_ADDRESS 0x9C00
-#define DIGP9_ADDRESS 0x9E00
-
-#define TEMP_ADDRESS 0xFA00
-#define PRES_ADDRESS 0xF700
+#define TEMP_ADDRESS_MSB    0xFA00
+#define TEMP_ADDRESS_LSB    0xFB00
+#define TEMP_ADDRESS_XLSB   0xFC00
+#define PRES_ADDRESS_MSB    0xF700
+#define PRES_ADDRESS_LSB    0xF800
+#define PRES_ADDRESS_XLSB   0xF900
 
 typedef unsigned int BMP280_U32_t;
 typedef signed int BMP280_S32_t;
 
 namespace HAL {
     
+ /*******************************************************************************
+ * Class:  Altimeter									
+ * Description: An altimeter object represents an interface to a physical 
+  *             sensor that provides the neccesary data for an altitude
+  *             calculation. In this case, the altimeter class uses the SPI
+  *             bus to communicate with a Bosch BME280 sensor. This class is
+  *             essentially the driver for the BME280 for the flight computer.
+ 
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
     class Altimeter: public SPIDevice {
         
     public:
+        
+        /***********************************************************************
+        * Subroutine:  Default constructor									
+        * Description: The default constructor will initialize the Altimeter
+         *              object as an SPI device. Mainly this will pass on
+         *              information to the SPIDevice's constructor.
+
+        * Prerequisites:   SPI bus must be initialized.
+        * Input:           Address: the physical address to the altimeter.
+         *                 DeviceManage: Reference to the SPI bus manager object
+        * Output:          None.
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         Altimeter(ADDRESS Address, SPIBus* DeviceManager);
         ~Altimeter();
     
+        /***********************************************************************
+        * Subroutine:  Initialize								
+        * Description: The initialize object will attempt to initialize the
+         *              physical sensor, read the chip identification register,
+         *              read the sensor calibration data, and set the chip's
+         *              IIR filter.
+         * 
+         *              This will return false if the chip identification
+         *              register cannot be read.
+
+        * Prerequisites:   SPI bus must be initialized.
+        * Input:           None.
+        * Output:          False: if chip ID register cannot be read.
+         *                 True: Chip ID register was read successfully.
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         bool Initialize();
+        
+        /***********************************************************************
+        * Subroutine:  Update								
+        * Description: The update method will read the current pressure and
+         *              temperature and then calculate the current altitude.
+
+        * Prerequisites:   SPI bus must be initialized.
+        * Input:           None.
+        * Output:          None.
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         bool Update();
         
+        /***********************************************************************
+        * Subroutine:  GetAltitude						
+        * Description: This will return the current altitude.
+
+        * Prerequisites:   SPI bus must be initialized.
+        * Input:           None.
+        * Output:          Current Altitude in feet.
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         SignedInteger32 GetAltitude();
+        
+        /***********************************************************************
+        * Subroutine:  GetPressure					
+        * Description: This will return the current pressure in pascals.
+
+        * Prerequisites:   SPI bus must be initialized.
+        * Input:           None.
+        * Output:          Current pressure in pascals
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         UnsignedInteger32 GetPressure();
+        
+        /***********************************************************************
+        * Subroutine:  GetStartinPressure					
+        * Description: This will return the pressured measured during the 
+         *              flight computer's initialization routine.
+
+        * Prerequisites:   SPI bus must be initialized.
+        * Input:           None.
+        * Output:          Starting pressure in pascals
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         UnsignedInteger32 GetStartingPressure();
+        
+        /***********************************************************************
+        * Subroutine:  GetTemperature				
+        * Description: This will return the current temperature
+
+        * Prerequisites:   SPI bus must be initialized.
+        * Input:           None.
+        * Output:          Current temperature in kelvins
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         UnsignedInteger32 GetTemperature();
         
     private:
-        UnsignedInteger32 InitialPressure;
-        UnsignedInteger32 CurrentPressure;
-        SignedInteger32 CurrentTemperature;
+        UnsignedInteger32 InitialPressure;  //Pressure at startup (Pa)
+        UnsignedInteger32 CurrentPressure;  //Currently measured pressure (Pa)
+        SignedInteger32 CurrentTemperature; //Currently measured temp (K)
         
-        SignedInteger32 t_fine;
+        SignedInteger32 t_fine;             //Temperature adjusted calibration.
         
-        UnsignedInteger16 dig_T1;
-        SignedInteger16 dig_T2;
-        SignedInteger16 dig_T3;
+        UnsignedInteger16 BME280Status;
+        UnsignedInteger16 BME280Config;
+        UnsignedInteger16 BME280Ctrl;
+        UnsignedInteger16 ChipID;           //Chip identification register.
         
-        UnsignedInteger16 dig_P1;
-        SignedInteger16 dig_P2;
-        SignedInteger16 dig_P3;
-        SignedInteger16 dig_P4;
-        SignedInteger16 dig_P5;
-        SignedInteger16 dig_P6;
-        SignedInteger16 dig_P7;
-        SignedInteger16 dig_P8;
-        SignedInteger16 dig_P9;
+        UnsignedInteger16 dig_T1;           //Temperature calibration data
+        SignedInteger16 dig_T2;             //Temperature calibration data
+        SignedInteger16 dig_T3;             //Temperature calibration data
         
+        UnsignedInteger16 dig_P1;           //Pressure calibration data
+        SignedInteger16 dig_P2;             //Pressure calibration data
+        SignedInteger16 dig_P3;             //Pressure calibration data
+        SignedInteger16 dig_P4;             //Pressure calibration data
+        SignedInteger16 dig_P5;             //Pressure calibration data
+        SignedInteger16 dig_P6;             //Pressure calibration data
+        SignedInteger16 dig_P7;             //Pressure calibration data
+        SignedInteger16 dig_P8;             //Pressure calibration data
+        SignedInteger16 dig_P9;             //Pressure calibration data
+        
+        /***********************************************************************
+        * Subroutine:  CompensatePressure					
+        * Description: This will calculate the pressure based off of the 
+         *              input raw value from the sensor and the calibration data
+
+        * Prerequisites:   CompensatTemperature must be ran first in order
+         *                 to have compensated temp calibration data.
+        * Input:           Raw: a 20 bit value that comes directly from the
+         *                 sensor's registers.
+        * Output:          The pressure in pascals
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         UnsignedInteger32 CompensatePressure(UnsignedInteger32 Raw);
+        
+        /***********************************************************************
+        * Subroutine:  CompensatePressure					
+        * Description: This will calculate the temperature based off of raw
+         *             data and calibration data.
+
+        * Prerequisites:   None.
+        * Input:           Raw: a 20 bit value containing sensor data directly
+         *                 from the sensor's registers.
+        * Output:          Temperature in kelvins.
+        * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+        * Author:          Aaron Burns.
+        * Change-log:
+        * 01-2016       Original code for CARE-Drone ESC.
+       ************************************************************************/
         SignedInteger32 CompensateTemperature(SignedInteger32 Raw);
     };
 }

@@ -24,6 +24,27 @@
 
 #include "Object.h"
 
+/*******************************************************************************
+ * Class:  Time									
+ * Description: A "Time" object is a representative of time with respect to
+ *              how a human would interpret time; computers have a different
+ *              perception of time, so a "translation" is required. A time
+ *              object represents time with respect to seconds, milliseconds, &
+ *              microseconds. The PIC32MX270 can track up to 20 microsecond
+ *              intervals while still maintaining performance. A faster chip
+ *              can track smaller intervals with increases in clock speed. A 
+ *              50 MHz chip can track 20 uS intervals, a 100 MHz chip can track
+ *              10 uS intervals, and so forth.
+ * 
+ *              Time objects can be directly interfaced with the physical 
+ *              timer 1 peripheral. The timer 1 ISR can called the "tick"
+ *              function, of which increments the stored value by 20 uS.
+ 
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 class Time: public Object{
     
 public:

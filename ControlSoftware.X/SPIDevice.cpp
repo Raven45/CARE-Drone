@@ -63,22 +63,28 @@ UnsignedInteger16 HAL::SPIDevice::SendAndReceive(UnsignedInteger16 Outgoing) {
     
     try {
         
-        UnsignedInteger16 Incoming = 0;
+        UnsignedInteger16 Incoming = Outgoing;
         //Outgoing = EncodeParity(Outgoing);
 
         DeviceManager->SelectSlave(this->Address);
 
 #ifdef ENABLE_SPI
         //Send the data to the slave.
-        SpiChnPutC(SPI_CHANNEL1, Outgoing);
-
-        //Capture response from slave.
-        Incoming = SpiChnGetC(SPI_CHANNEL1);
+//        SpiChnWriteC(SPI_CHANNEL1, Outgoing);
+//        while(SPI1STATbits.SPITBF);
+//
+//        //Capture response from slave.
+//        while (!DataRdySPI1()){}
+//        Incoming = SpiChnReadC(SPI_CHANNEL1);
+        while (!SPI1STATbits.SPITBE);
+        SPI1BUF = Outgoing;
+        while (!SPI1STATbits.SPIRBF);
+        Incoming = SPI1BUF;
 #endif
 
         DeviceManager->ReleaseSlave(this->Address);
         
-        for (int i = 1000; i >0 ; i--) {};
+        for (int i = 0; i<200; i++);
 
         return Incoming;
     }

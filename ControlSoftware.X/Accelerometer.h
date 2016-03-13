@@ -43,6 +43,20 @@
 
 namespace HAL {
 
+    
+ /*******************************************************************************
+ * Class:  Altimeter									
+ * Description: An altimeter object represents an interface to a physical 
+  *             sensor that provides the neccesary data for an altitude
+  *             calculation. In this case, the altimeter class uses the SPI
+  *             bus to communicate with a Bosch BME280 sensor. This class is
+  *             essentially the driver for the BME280 for the flight computer.
+ 
+ * Platform:        Microchip PIC32MX270F256D/PIC32MX270F256B
+ * Author:          Aaron Burns.
+ * Change-log:
+ * 02-2016       Original code for CARE-Drone ESC.
+*******************************************************************************/
 class Accelerometer: public SPIDevice {
     
 public:
