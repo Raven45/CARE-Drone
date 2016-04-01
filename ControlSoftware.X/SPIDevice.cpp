@@ -84,7 +84,7 @@ UnsignedInteger16 HAL::SPIDevice::SendAndReceive(UnsignedInteger16 Outgoing) {
 
         DeviceManager->ReleaseSlave(this->Address);
         
-        for (int i = 0; i<200; i++);
+        for (int i = 0; i<10; i++);
 
         return Incoming;
     }
@@ -94,15 +94,41 @@ UnsignedInteger16 HAL::SPIDevice::SendAndReceive(UnsignedInteger16 Outgoing) {
     }
 }
 
-UnsignedInteger16 * HAL::SPIDevice::SendAndReceiveBurst(UnsignedInteger16 * Outgoing, UnsignedInteger16 Length) {
+UnsignedInteger16 * HAL::SPIDevice::SendAndReceiveBurst(UnsignedInteger16 Outgoing, UnsignedInteger16 Length) {
 
     try {
         
-        UnsignedInteger16 * Incoming = new UnsignedInteger16[Length];
+        //UnsignedInteger16 * Incoming = new UnsignedInteger16[Length];
+        UnsignedInteger16 Incoming[Length];
 
-        for (UnsignedInteger16 i = 0; i < Length; i++) {
-            Incoming[i] = SendAndReceive(Outgoing[i]);
-        }
+        UnsignedInteger8 i = 0;
+
+        DeviceManager->SelectSlave(this->Address);
+
+        #ifdef ENABLE_SPI
+//        for (UnsignedInteger8 i = 0; i < Length; i++) {
+//            
+//            while (!SPI1STATbits.SPITBE);   //While transmit buffer is not empty.
+//            SPI1BUF = Outgoing;             //Set buffer to outgoing.
+//            while (!SPI1STATbits.SPIRBF);   //While receive buffer is not full.
+//            Incoming[i] = SPI1BUF;          //Grab incoming from buffer.
+//
+//            if (Outgoing != 0) { Outgoing = 0; } 
+//        }
+        do {
+
+            while (!SPI1STATbits.SPITBE);   //While transmit buffer is not empty.
+            SPI1BUF = Outgoing;             //Set buffer to outgoing.
+            while (!SPI1STATbits.SPIRBF);   //While receive buffer is not full.
+            Incoming[i] = SPI1BUF;          //Grab incoming from buffer.
+
+            if (Outgoing != 0) { Outgoing = 0; }      
+            i++;
+
+        } while (i < Length);
+        #endif
+
+        DeviceManager->ReleaseSlave(this->Address);
 
         return Incoming;
     }

@@ -51,7 +51,7 @@ public:
     void WriteSPI(UnsignedInteger8 Data);
     
     UnsignedInteger16 SendAndReceive(UnsignedInteger16 Outgoing);
-    UnsignedInteger16 * SendAndReceiveBurst(UnsignedInteger16 * Outgoing, UnsignedInteger16 Length);
+    UnsignedInteger16 * SendAndReceiveBurst(UnsignedInteger16 Outgoing, UnsignedInteger16 Length);
     /*
     SignedInteger16 SendAndReceiveS(SignedInteger16 Outgoing);
     SignedInteger16 * SendAndRecieveBurstS(SignedInteger16 * Outgoing, UnsignedInteger16 Length);

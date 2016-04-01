@@ -41,7 +41,7 @@ bool HAL::IMU::Update() {
         //Set read command bit
         AccelDataCommands[i] |= 0x80;
     }
-    SignedInteger16 * AccelData = (SignedInteger16*)(SendAndReceiveBurst(AccelDataCommands, 6));
+    //SignedInteger16 * AccelData = (SignedInteger16*)(SendAndReceiveBurst(AccelDataCommands, 6));
 }
     
 Math::Quaternion HAL::IMU::GetOrientation() {

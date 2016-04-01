@@ -37,7 +37,7 @@ bool HAL::SPIBus::Initialize() {
                         SPI_OPEN_MSTEN;             //Enable master mode.
 
     //Turn on the SPI port
-    SpiChnOpen(SPI_CHANNEL1, (SpiOpenFlags)config, GetPeripheralClock()/5000000);
+    SpiChnOpen(SPI_CHANNEL1, (SpiOpenFlags)config, 6);
     
     return true;
 }
@@ -50,9 +50,9 @@ void HAL::SPIBus::SelectSlave(ADDRESS Address) {
     
     switch (Address) {
         #if defined(__32MX270F256D__)
-            case ADDRESS_GYRO:      PORTClearBits(IOPORT_A, BIT_1); break;
-            case ADDRESS_ACCEL:     PORTClearBits(IOPORT_A, BIT_0); break;
-            case ADDRESS_MAG:       PORTClearBits(IOPORT_B, BIT_0); break;
+            case ADDRESS_GYRO:      PORTClearBits(IOPORT_B, BIT_0); break;
+            case ADDRESS_ACCEL:     PORTClearBits(IOPORT_A, BIT_1); break;
+            case ADDRESS_MAG:       PORTClearBits(IOPORT_A, BIT_0); break;
             case ADDRESS_BAROMETER: PORTClearBits(IOPORT_B, BIT_1); break;
             case ADDRESS_MOTOR_1:   PORTClearBits(IOPORT_B, BIT_2); break;
             case ADDRESS_MOTOR_2:   PORTClearBits(IOPORT_B, BIT_3); break;
@@ -70,9 +70,9 @@ void HAL::SPIBus::ReleaseSlave(ADDRESS Address) {
     
     switch (Address) {
         #if defined(__32MX270F256D__)
-            case ADDRESS_GYRO:      PORTSetBits(IOPORT_A, BIT_1); break;
-            case ADDRESS_ACCEL:     PORTSetBits(IOPORT_A, BIT_0); break;
-            case ADDRESS_MAG:       PORTClearBits(IOPORT_B, BIT_0); break;
+            case ADDRESS_GYRO:      PORTSetBits(IOPORT_B, BIT_0); break;
+            case ADDRESS_ACCEL:     PORTSetBits(IOPORT_A, BIT_1); break;
+            case ADDRESS_MAG:       PORTClearBits(IOPORT_A, BIT_0); break;
             case ADDRESS_BAROMETER: PORTSetBits(IOPORT_B, BIT_1); break;
             case ADDRESS_MOTOR_1:   PORTSetBits(IOPORT_B, BIT_2); break;
             case ADDRESS_MOTOR_2:   PORTSetBits(IOPORT_B, BIT_3); break;

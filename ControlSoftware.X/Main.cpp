@@ -118,13 +118,10 @@ int main(int argc, char** argv) {
     InitializeIO();
 
     //Create system object and attempt to initialize system.
-    while ( CARE_Drone.InitializeSystem() == false ) {
-        //error condition.
-        //Do something, anything.
-    }
+    CARE_Drone.InitializeSystem();
 
     //While system is running.
-    while (CARE_Drone.ClearToProceed()) {
+    while (true) {
 
         //Call the real main function.
         CARE_Drone.Main();
@@ -155,7 +152,7 @@ void InitializeIO() {
     InitializeRC();
     InitializeCargoControl();
     InitializeSerial();
-    //SetUnusedPorts();
+    SetUnusedPorts();
 
     //Configure Global interrupts
     INTEnableSystemMultiVectoredInt();

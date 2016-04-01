@@ -108,18 +108,37 @@ bool HAL::Altimeter::Initialize() {
 
 bool HAL::Altimeter::Update() {
         
-    UnsignedInteger32 T1 = SendAndReceive(0xFA00) & 0x00FF;
-    UnsignedInteger16 T2 = SendAndReceive(0xFB00) & 0x00FF;
-    UnsignedInteger16 T3 = SendAndReceive(0xFC00) & 0x00FF;
+    DeviceManager->SelectSlave(this->Address);
 
-    CurrentTemperature = (T1 <<12) | (T2<<4) | (T3>>4);
+    while (!SPI1STATbits.SPITBE);
+    SPI1BUF = 0xF700;
+    while (!SPI1STATbits.SPIRBF);
+    UnsignedInteger32 P1 = SPI1BUF;
+
+    while (!SPI1STATbits.SPITBE);
+    SPI1BUF = 0x0000;
+    while (!SPI1STATbits.SPIRBF);
+    UnsignedInteger16 P2 = SPI1BUF;
+    
+    while (!SPI1STATbits.SPITBE);
+    SPI1BUF = 0x0000;
+    while (!SPI1STATbits.SPIRBF);
+    UnsignedInteger16 T1 = SPI1BUF;
+    
+    while (!SPI1STATbits.SPITBE);
+    SPI1BUF = 0x0000;
+    while (!SPI1STATbits.SPIRBF);
+    UnsignedInteger16 T2 = SPI1BUF;
+    
+    P1 = P1 & 0x00FF;
+    T2 = T2 & 0xFF00;
+
+    DeviceManager->ReleaseSlave(this->Address);
+    
+    CurrentTemperature = (T1 <<4) | ((T2>>12)& 0x00FF);
     CurrentTemperature = CompensateTemperature(CurrentTemperature) + 27315;
-
-    UnsignedInteger32 P1 = SendAndReceive(0xF700) & 0x00FF;
-    UnsignedInteger16 P2 = SendAndReceive(0xF800) & 0x00FF;
-    UnsignedInteger16 P3 = SendAndReceive(0xF900) & 0x00FF;
-
-    CurrentPressure = (P1 <<12) | (P2<<4) | (P3>>4);    
+    
+    CurrentPressure = (P1 << 12) | ((P2 >> 4) & 0x0FFF);    
     CurrentPressure = CompensatePressure(CurrentPressure)/256;
     
     return true;

@@ -22,49 +22,65 @@
 HAL::Gyroscope::Gyroscope(ADDRESS Address, SPIBus* DeviceManager): 
                 HAL::SPIDevice::SPIDevice(Address, DeviceManager) {
     
-    this->Parity = ParityTypes::OddParity;
+    this->Parity = ParityTypes::NoParity;
+    this->Scale = 245;
 }
 
-HAL::Gyroscope::~Gyroscope(){
-    
-    
-}
+HAL::Gyroscope::~Gyroscope(){ }
     
 bool HAL::Gyroscope::Initialize() {
+
+  ChipID = SendAndReceive(GYRO_READ_CHIPID) & 0x00FF;
+  if (ChipID != 0x00D4) {
+    return false;
+  }
     
-    //Set range to 125 degrees/s.
-    SendAndReceive(GYRO_RANGE);
-    
-    //Set ODR bandwidth to 200 Hz and filter bandwidth to 23 Hz.
-    SendAndReceive(GYRO_BW);
-    
-    //Set the resolution.
-    RateResolution = 124.87f/32768.0f;
+  SendAndReceive(GYRO_ENABLE);        //Enable the gyro along all three axis.
+  SendAndReceive(GYRO_SET_FILTER);   
+  SendAndReceive(GYRO_SET_INT);
+
+  if (Scale == 245) { 
+    SendAndReceive(GYRO_SET_DATA_245);
+  }
+
+  else if (Scale == 500) {
+    SendAndReceive(GYRO_SET_DATA_500);
+  }
+
+  else if (Scale == 2000) {
+    SendAndReceive(GYRO_SET_DATA_2000);
+  }
+  
+  SendAndReceive(GYRO_BOOT);          //Boot the device.
 }
 
 bool HAL::Gyroscope::Update() {
-    
-    SignedInteger16 RateX = 0;
-    SignedInteger16 RateY = 0;
-    SignedInteger16 RateZ = 0;
-    
-    UnsignedInteger16 Commands[6] = {
-        GYRO_RATE_X,
-        GYRO_RATE_X + 0x100,
-        GYRO_RATE_Y,
-        GYRO_RATE_Y + 0x100,
-        GYRO_RATE_Z,
-        GYRO_RATE_Z + 0x100
-    };
-    UnsignedInteger16 * Incoming = SendAndReceiveBurst(Commands, 6);
-    
-    RateX = (Incoming[1] << 8) | Incoming[0];
-    RateY = (Incoming[3] << 8) | Incoming[2];
-    RateZ = (Incoming[5] << 8) | Incoming[4];
-    
-    this->RateX = (float)RateX*RateResolution;
-    this->RateY = (float)RateY*RateResolution;
-    this->RateZ = (float)RateZ*RateResolution;
+
+    UnsignedInteger16 * Data;
+    Data = SendAndReceiveBurst(0xE800, 4);
+
+    UnsignedInteger16 X = (Data[1] & 0xFF00) | (Data[0] & 0x00FF);
+    UnsignedInteger16 Y = (Data[2] & 0xFF00) | (Data[1] & 0x00FF);
+    UnsignedInteger16 Z = (Data[3] & 0xFF00) | (Data[2] & 0x00FF);
+
+    if (Scale == 245) { 
+      RateX = (SignedInteger16)X * 0.00748f;
+      RateY = (SignedInteger16)Y * 0.00748f;
+      RateZ = (SignedInteger16)Z * 0.00748f;
+    }
+
+    else if (Scale == 500) {
+      RateX = (SignedInteger16)X * 0.01526f;
+      RateY = (SignedInteger16)Y * 0.01526f;
+      RateZ = (SignedInteger16)Z * 0.01526f;
+    }
+
+    else if (Scale == 2000) {
+      RateX = (SignedInteger16)X * 0.06104f;
+      RateY = (SignedInteger16)Y * 0.06104f;
+      RateZ = (SignedInteger16)Z * 0.06104f;
+    }
+
 }
     
 float HAL::Gyroscope::GetRateX() {

@@ -329,6 +329,7 @@ private:
     Math::Quaternion CalculatePID(Math::Quaternion Error);
     
     bool Command_GetOrientation();
+    bool Command_GetGyroscope();
     bool Command_GetPressure();
     bool Command_GetStartingPressure();
     bool Command_GetTemperature();

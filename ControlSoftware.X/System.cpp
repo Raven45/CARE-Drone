@@ -28,6 +28,20 @@ System* System::Instance = 0;
 //<editor-fold defaultstate="collapsed" desc="Core Functions">
 System::System() {
     
+    Beta = 10.0f;
+    State = States::Standby;
+    DeltaTime = 0;
+    RC_Output = 0;
+    Kp = 1.0f;
+    Ki = 0.0f;
+    Kd = 0.0f;
+    Input_Roll = 0.0f;
+    Input_Pitch = 0.0f;
+    Input_Yaw = 0.0f;
+    Input_Throttle = 0.0f;
+    Input_Cargo = 0.0f;
+    Safety = true;
+    SystemDebugging = false;
 }
 
 System::~System() {
@@ -46,9 +60,9 @@ bool System::InitializeSystem() {
     
     try {
         //Create the devices
-//        _Gyroscope = new HAL::Gyroscope(ADDRESS_GYRO, &DeviceManager);
-//        _Accelerometer = new HAL::Accelerometer(ADDRESS_ACCEL, &DeviceManager);
-//        _Magnetometer = new HAL::Magnetometer(ADDRESS_MAG, &DeviceManager);
+        _Gyroscope = new HAL::Gyroscope(ADDRESS_GYRO, &DeviceManager);
+        _Accelerometer = new HAL::Accelerometer(ADDRESS_ACCEL, &DeviceManager);
+        _Magnetometer = new HAL::Magnetometer(ADDRESS_ACCEL, &DeviceManager);
         _Altimeter = new HAL::Altimeter(ADDRESS_BAROMETER, &DeviceManager);
 //        Motor_1 = new HAL::PWMC(ADDRESS_MOTOR_1, &DeviceManager);
 //        Motor_2 = new HAL::PWMC(ADDRESS_MOTOR_2, &DeviceManager);
@@ -58,9 +72,9 @@ bool System::InitializeSystem() {
 //        Motor_6 = new HAL::PWMC(ADDRESS_MOTOR_6, &DeviceManager);
 //    
 //        //Build the device list.
-//        Devices.push_back(_Gyroscope);
-//        Devices.push_back(_Accelerometer);
-//        Devices.push_back(_Magnetometer);
+        Devices.push_back(_Gyroscope);
+        Devices.push_back(_Accelerometer);
+        Devices.push_back(_Magnetometer);
         Devices.push_back(_Altimeter);
 //        Devices.push_back(Motor_1);
 //        Devices.push_back(Motor_2);
@@ -271,7 +285,7 @@ void System::RunMain() {
 
 void System::DebugMain() {
     
-    //Run system wide update.
+//    //Run system wide update.
     UpdateSystem();
 
     //Get the amount of time since last frame.
@@ -325,6 +339,9 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     
     if (strstr((const char*)Command, "GetOrientation") != 0) { 
         Command_GetOrientation();
+    }
+    else if (strstr((const char*)Command, "GetGyroscope") != 0) { 
+        Command_GetGyroscope();
     }
     else if (strstr((const char*)Command, "GetPressure") != 0) { 
         Command_GetPressure();
@@ -588,13 +605,28 @@ bool System::Command_GetOrientation() {
     }
     
     char Q[10];
-    sprintf(Q, "%f %f %f %f\n", CurrentOrientation[0],
+    sprintf(Q, "%.2f %.2f %.2f %.2f\n", CurrentOrientation[0],
                                 CurrentOrientation[1],
                                 CurrentOrientation[2],
                                 CurrentOrientation[3]);
     SendUSBData(Q);
     
     return true;
+}
+
+bool System::Command_GetGyroscope() {
+    
+    if (_Gyroscope != NULL) {
+        
+        char G[24];
+        sprintf(G, "%.2f %.2f %.2f\n",  _Gyroscope->GetRateX(),
+                                        _Gyroscope->GetRateY(),
+                                        _Gyroscope->GetRateZ());
+        SendUSBData(G);
+    }
+    else {    
+        SendUSBData("Gyroscope not enabled/attached!\n");
+    }
 }
 
 bool System::Command_GetPressure() {
