@@ -43,7 +43,7 @@ Math::Quaternion::Quaternion(float theta, float phi){
 
 Math::Quaternion::Quaternion(float Alpha, float Beta, float Gamma) {
     
-    *this = Math::Exp((Alpha/2)*Quaternion(0.0f, 0.0f, 0.0f, 1.0f))* 
+    *this = Math::Exp((Alpha/2)*Quaternion(0.0f, 1.0f, 0.0f, 0.0f))* 
             Math::Exp((Beta/2)*Quaternion(0.0f, 0.0f, 1.0f, 0.0f)) * 
             Math::Exp((Gamma/2)*Quaternion(0.0f, 0.0f, 0.0f, 1.0f));;
 }
@@ -181,6 +181,42 @@ bool Math::Quaternion::operator==(const Quaternion& B) const {
     }
 }
 
+bool Math::Quaternion::operator>(const Quaternion & B) const{ 
+    
+    float NormA = std::sqrtf(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+    float NormB = std::sqrtf(B.q0*B.q0 + B.q1*B.q1 + B.q2*B.q2 + B.q3*B.q3);
+    
+    if (NormA > NormB) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool Math::Quaternion::operator>=(const Quaternion& B) const {
+    
+    return (*this > B) || (*this == B);
+}
+
+bool Math::Quaternion::operator<(const Quaternion& B) const {
+    
+    float NormA = std::sqrtf(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+    float NormB = std::sqrtf(B.q0*B.q0 + B.q1*B.q1 + B.q2*B.q2 + B.q3*B.q3);
+    
+    if (NormA < NormB) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool Math::Quaternion::operator<=(const Quaternion& B) const{
+    
+    return (*this < B) || (*this == B);
+}
+
 
 Math::Quaternion Math::Quaternion::CrossProduct(const Quaternion& B) const {
     
@@ -274,7 +310,7 @@ float Math::Quaternion::GetPitch() const {
 }
 
 float Math::Quaternion::GetYaw() const {
-    return (atan2f(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 180/PI);
+    return (atan2f(2.0f * q1 * q2 - 2.0f * q0 * q3, 2.0f * q0 * q0 + 2.0f * q1 * q1 - 1) * 180/PI);
 }
 
 float Math::Quaternion::FastInverseSquareRoot(float x) const{
@@ -287,9 +323,11 @@ float Math::Quaternion::FastInverseSquareRoot(float x) const{
 //	y = y * (1.5f - (halfx * y * y));
 //	return y;
     
-    UnsignedInteger32 i = 0x5F1F1412 - (*(UnsignedInteger32*)&x >>1);
-    float tmp = *(float*)&i;
-    return tmp * (1.69000231f - 0.714158169f * x * tmp * tmp);
+//    UnsignedInteger32 i = 0x5F1F1412 - (*(UnsignedInteger32*)&x >>1);
+//    float tmp = *(float*)&i;
+//    return tmp * (1.69000231f - 0.714158169f * x * tmp * tmp);
+    
+    return 1.0f/sqrtf(x);
 }
 
 

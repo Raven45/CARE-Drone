@@ -54,6 +54,7 @@
 #include "Map.h"
 #include "Quaternion.h"
 #include "Accelerometer.h"
+#include "PID.hpp"
 
 //Macro for allowing the flight computer to run outside of test mode.
 #define TEST_MODE_OFF 0
@@ -207,6 +208,8 @@ private:
     //the attached IMU and the sensor fusion algorithm. 
     Math::Quaternion CurrentOrientation;
     
+    Math::PID<Math::Quaternion> AHRS;
+    
     //The magical delta-time variable. Used for integration.
     UnsignedInteger32 DeltaTime;
     
@@ -309,6 +312,7 @@ private:
      * the drone's attitude in four dimensional space. 
     ***************************************************************************/
     Math::Quaternion AHRS_Update( );
+    //Math::Quaternion AHRS_Update2();
     
     /***************************************************************************
      * The IMU_Update function will use the Madgwick filter algorithm to 

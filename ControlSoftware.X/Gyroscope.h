@@ -35,7 +35,7 @@
 #define GYRO_SET_FILTER       0x2100    //Sets high pass filter to normal mode.
                                         //Set filter cutoff frequency to 7.2 Hz
 #define GYRO_SET_INT          0x2200    //Disable all interrupts and watermarks.
-#define GYRO_SET_DATA_245     0x2300    //Coninuous data update
+#define GYRO_SET_DATA_245     0x2330    //Coninuous data update
                                         //Little Endian ordering
                                         //245 dps scaling
                                         //self-test disabled

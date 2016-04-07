@@ -55,6 +55,10 @@ public:
     float& operator[](const UnsignedInteger8 i);
     bool operator!=(const Quaternion& B) const;
     bool operator==(const Quaternion& B) const;
+    bool operator>(const Quaternion & B) const;
+    bool operator>=(const Quaternion& B) const;
+    bool operator<(const Quaternion& B) const;
+    bool operator<=(const Quaternion& B) const;
     
     //Mathematical operations
     Quaternion CrossProduct(const Quaternion& B) const;

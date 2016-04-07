@@ -23,7 +23,7 @@ HAL::Gyroscope::Gyroscope(ADDRESS Address, SPIBus* DeviceManager):
                 HAL::SPIDevice::SPIDevice(Address, DeviceManager) {
     
     this->Parity = ParityTypes::NoParity;
-    this->Scale = 245;
+    this->Scale = 2000;
 }
 
 HAL::Gyroscope::~Gyroscope(){ }

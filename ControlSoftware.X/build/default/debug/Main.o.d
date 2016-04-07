@@ -20,4 +20,5 @@ usb/include/usb_ch9.h  \
 usb/include/usb_cdc.h  \
 Map.h  \
  Quaternion.h  \
-Accelerometer.h 
+Accelerometer.h  \
+PID.hpp 

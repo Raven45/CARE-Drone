@@ -16,6 +16,7 @@
         <itemPath>Accelerometer.h</itemPath>
         <itemPath>Magnetometer.h</itemPath>
         <itemPath>Timer.h</itemPath>
+        <itemPath>Transmitter.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Math" projectFiles="true">
         <itemPath>Quaternion.h</itemPath>
@@ -36,6 +37,7 @@
       <itemPath>System.h</itemPath>
       <itemPath>Map.h</itemPath>
       <itemPath>_Time.h</itemPath>
+      <itemPath>PID.hpp</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -263,6 +265,7 @@
         <property key="UART1" value="true"/>
         <property key="UART2" value="true"/>
         <property key="USB" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
