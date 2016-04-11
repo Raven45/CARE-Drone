@@ -35,7 +35,7 @@
 #define ACCEL_ENABLE            0x2067  //Enables all 3 axis. 
                                         //Sets data rate to 100 Hz.
                                         //Sets continuous mode.
-#define ACCEL_SET_SCALE         0x21C0  //Sets filter to 194 Hz.
+#define ACCEL_SET_SCALE         0x2148  //Sets filter to 194 Hz.
                                         //Sets range to 16 g.
                                         //Sets sensor to normal mode.
 #define ACCEL_READ              0xE800  //Command to burst read the data queue

@@ -96,7 +96,7 @@ namespace Math{
       this->Kp = 1.0f;
       this->Ki = 0.0f;
       this->Kd = 0.0f;
-      this->Kz - 1.0f;
+      this->Kz = 1.0f;
       this->antiWindup = 1.0f;
 //      this->LimitHigh = 0.0f;
 //      this->LimitLow = 0.0f;
@@ -335,7 +335,7 @@ namespace Math{
       }
 
       //Calculate the feed forward gain if neccesary.
-      if (Kz != 1.0f) {
+      if (FeedForward) {
         Output += CalculateFeedForward(Error);
       }
 
@@ -408,7 +408,7 @@ namespace Math{
 
       DataType Percentage = Error/PreviousError;
 
-      if (Percentage > DeadBandLow && Percentage <= DeadBandHigh) {
+      if (Percentage >= DeadBandLow && Percentage <= DeadBandHigh) {
         return PreviousError;
       }
       else {

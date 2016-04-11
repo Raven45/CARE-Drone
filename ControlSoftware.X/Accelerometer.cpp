@@ -42,16 +42,24 @@ bool HAL::Accelerometer::Initialize() {
 
 bool HAL::Accelerometer::Update() {
     
-  UnsignedInteger16 * Data;
-  Data = SendAndReceiveBurst(ACCEL_READ, 4);
+    UnsignedInteger16 Status = SendAndReceive(0xA700) & 0x0008;
+    
+    if (Status == 0x0008) {
+        
+        UnsignedInteger16 * Data;
+        Data = SendAndReceiveBurst(ACCEL_READ, 4);
 
-  UnsignedInteger16 X = (Data[1] & 0xFF00) | (Data[0] & 0x00FF);
-  UnsignedInteger16 Y = (Data[2] & 0xFF00) | (Data[1] & 0x00FF);
-  UnsignedInteger16 Z = (Data[3] & 0xFF00) | (Data[2] & 0x00FF);
+        UnsignedInteger16 X = (Data[1] & 0xFF00) | (Data[0] & 0x00FF);
+        UnsignedInteger16 Y = (Data[2] & 0xFF00) | (Data[1] & 0x00FF);
+        UnsignedInteger16 Z = (Data[3] & 0xFF00) | (Data[2] & 0x00FF);
 
-  AccelX = (SignedInteger16)X / 2048.0f;
-  AccelY = (SignedInteger16)Y / 2048.0f;
-  AccelZ = (SignedInteger16)Z / 2048.0f;
+//        AccelX = (SignedInteger16)X / 2048.0f;
+//        AccelY = (SignedInteger16)Y / 2048.0f;
+//        AccelZ = (SignedInteger16)Z / 2048.0f;
+        AccelX = ((SignedInteger16)X * 0.122F)/1000.0f;
+        AccelY = ((SignedInteger16)Y * 0.122F)/1000.0f;
+        AccelZ = ((SignedInteger16)Z * 0.122F)/1000.0f;
+    }
 }
     
 float HAL::Accelerometer::GetAccelX() {

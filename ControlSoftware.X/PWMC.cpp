@@ -52,11 +52,11 @@ bool HAL::PWMC::Initialize() {
 bool HAL::PWMC::Update() {
          
     //Set throttle
-//    UnsignedInteger16 ThrottleCommand = ((SET_SPEED << 8) | Throttle);
-//    UnsignedInteger16 Incoming = SendAndReceive(ThrottleCommand);    
+    UnsignedInteger16 ThrottleCommand = ((SET_THROTTLE << 8) | Throttle);
+    UnsignedInteger16 Incoming = SendAndReceive(ThrottleCommand);    
     
     //Retrieve the current switching method.
-    UnsignedInteger16 Loopback = SendAndReceive(MOTOR_STARTED);              //Send command. Discard response.
+    SendAndReceive(MOTOR_STARTED);              //Send command. Discard response.
     IsMotorStarted = (SendAndReceive(0) != 0);    //Get value and write zeros.
 
     //Retrieve the current motor speed

@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp PWMC.cpp Gyroscope.cpp Accelerometer.cpp Magnetometer.cpp Timer.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c _Time.cpp
+SOURCEFILES_QUOTED_IF_SPACED=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp PWMC.cpp Gyroscope.cpp Accelerometer.cpp Magnetometer.cpp Timer.cpp Transceiver.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c _Time.cpp
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/PWMC.o ${OBJECTDIR}/Gyroscope.o ${OBJECTDIR}/Accelerometer.o ${OBJECTDIR}/Magnetometer.o ${OBJECTDIR}/Timer.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/_Time.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d ${OBJECTDIR}/Altimeter.o.d ${OBJECTDIR}/LCD.o.d ${OBJECTDIR}/IMU.o.d ${OBJECTDIR}/PWMC.o.d ${OBJECTDIR}/Gyroscope.o.d ${OBJECTDIR}/Accelerometer.o.d ${OBJECTDIR}/Magnetometer.o.d ${OBJECTDIR}/Timer.o.d ${OBJECTDIR}/Quaternion.o.d ${OBJECTDIR}/usb/src/usb.o.d ${OBJECTDIR}/usb/src/usb_cdc.o.d ${OBJECTDIR}/usb/src/usb_winusb.o.d ${OBJECTDIR}/usb_callbacks.o.d ${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d ${OBJECTDIR}/usb_descriptors.o.d ${OBJECTDIR}/_Time.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/PWMC.o ${OBJECTDIR}/Gyroscope.o ${OBJECTDIR}/Accelerometer.o ${OBJECTDIR}/Magnetometer.o ${OBJECTDIR}/Timer.o ${OBJECTDIR}/Transceiver.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/_Time.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Register.o.d ${OBJECTDIR}/SPIDevice.o.d ${OBJECTDIR}/SPIBus.o.d ${OBJECTDIR}/Altimeter.o.d ${OBJECTDIR}/LCD.o.d ${OBJECTDIR}/IMU.o.d ${OBJECTDIR}/PWMC.o.d ${OBJECTDIR}/Gyroscope.o.d ${OBJECTDIR}/Accelerometer.o.d ${OBJECTDIR}/Magnetometer.o.d ${OBJECTDIR}/Timer.o.d ${OBJECTDIR}/Transceiver.o.d ${OBJECTDIR}/Quaternion.o.d ${OBJECTDIR}/usb/src/usb.o.d ${OBJECTDIR}/usb/src/usb_cdc.o.d ${OBJECTDIR}/usb/src/usb_winusb.o.d ${OBJECTDIR}/usb_callbacks.o.d ${OBJECTDIR}/Object.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/System.o.d ${OBJECTDIR}/usb_descriptors.o.d ${OBJECTDIR}/_Time.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/PWMC.o ${OBJECTDIR}/Gyroscope.o ${OBJECTDIR}/Accelerometer.o ${OBJECTDIR}/Magnetometer.o ${OBJECTDIR}/Timer.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/_Time.o
+OBJECTFILES=${OBJECTDIR}/Register.o ${OBJECTDIR}/SPIDevice.o ${OBJECTDIR}/SPIBus.o ${OBJECTDIR}/Altimeter.o ${OBJECTDIR}/LCD.o ${OBJECTDIR}/IMU.o ${OBJECTDIR}/PWMC.o ${OBJECTDIR}/Gyroscope.o ${OBJECTDIR}/Accelerometer.o ${OBJECTDIR}/Magnetometer.o ${OBJECTDIR}/Timer.o ${OBJECTDIR}/Transceiver.o ${OBJECTDIR}/Quaternion.o ${OBJECTDIR}/usb/src/usb.o ${OBJECTDIR}/usb/src/usb_cdc.o ${OBJECTDIR}/usb/src/usb_winusb.o ${OBJECTDIR}/usb_callbacks.o ${OBJECTDIR}/Object.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/System.o ${OBJECTDIR}/usb_descriptors.o ${OBJECTDIR}/_Time.o
 
 # Source Files
-SOURCEFILES=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp PWMC.cpp Gyroscope.cpp Accelerometer.cpp Magnetometer.cpp Timer.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c _Time.cpp
+SOURCEFILES=Register.cpp SPIDevice.cpp SPIBus.cpp Altimeter.cpp LCD.cpp IMU.cpp PWMC.cpp Gyroscope.cpp Accelerometer.cpp Magnetometer.cpp Timer.cpp Transceiver.cpp Quaternion.cpp usb/src/usb.c usb/src/usb_cdc.c usb/src/usb_winusb.c usb_callbacks.c Object.cpp Main.cpp System.cpp usb_descriptors.c _Time.cpp
 
 
 CFLAGS=
@@ -226,6 +226,12 @@ ${OBJECTDIR}/Timer.o: Timer.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/Timer.o 
 	@${FIXDEPS} "${OBJECTDIR}/Timer.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fcheck-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Timer.o.d" -o ${OBJECTDIR}/Timer.o Timer.cpp  
 	
+${OBJECTDIR}/Transceiver.o: Transceiver.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Transceiver.o.d 
+	@${RM} ${OBJECTDIR}/Transceiver.o 
+	@${FIXDEPS} "${OBJECTDIR}/Transceiver.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -fframe-base-loclist  -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fcheck-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Transceiver.o.d" -o ${OBJECTDIR}/Transceiver.o Transceiver.cpp  
+	
 ${OBJECTDIR}/Quaternion.o: Quaternion.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/Quaternion.o.d 
@@ -322,6 +328,12 @@ ${OBJECTDIR}/Timer.o: Timer.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/Timer.o.d 
 	@${RM} ${OBJECTDIR}/Timer.o 
 	@${FIXDEPS} "${OBJECTDIR}/Timer.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fcheck-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Timer.o.d" -o ${OBJECTDIR}/Timer.o Timer.cpp  
+	
+${OBJECTDIR}/Transceiver.o: Transceiver.cpp  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Transceiver.o.d 
+	@${RM} ${OBJECTDIR}/Transceiver.o 
+	@${FIXDEPS} "${OBJECTDIR}/Transceiver.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CPPC} $(MP_EXTRA_CC_PRE)  -g -x c++ -c -mprocessor=$(MP_PROCESSOR_OPTION)  -frtti -fexceptions -fcheck-new -fenforce-eh-specs -I"." -I"usb/include" -I"usb/src" -MMD -MF "${OBJECTDIR}/Transceiver.o.d" -o ${OBJECTDIR}/Transceiver.o Transceiver.cpp  
 	
 ${OBJECTDIR}/Quaternion.o: Quaternion.cpp  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 

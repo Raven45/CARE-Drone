@@ -28,7 +28,7 @@ System* System::Instance = 0;
 //<editor-fold defaultstate="collapsed" desc="Core Functions">
 System::System() {
     
-    Beta = 10.0f;
+    Beta = 60.0f;
     State = States::Standby;
     DeltaTime = 0;
     RC_Output = 0;
@@ -47,9 +47,21 @@ System::System() {
     AHRS.DisableDeadBand();
     AHRS.DisableFeedForward();
     AHRS.DisablePBalance();
-    AHRS.SetKp(100.0f);
-    AHRS.SetKi(1.0f);
-    AHRS.SetKd(0.1f);
+    AHRS.SetKp(180.0f);
+    AHRS.SetKi(10.0f);
+    AHRS.SetKd(0.0f);
+    
+    Throttle.EnableClamp();
+    Throttle.SetHighLimit(80.0f);
+    Throttle.SetLowLimit(20.0f);
+    Throttle.EnableDeadBand();
+    Throttle.SetDeadBandLow(0.0f);
+    Throttle.SetDeadBandHigh(0.1f);
+    Throttle.DisableFeedForward();
+    Throttle.DisablePBalance();
+    Throttle.SetKp(50.0f);
+    Throttle.SetKi(0.0f);
+    Throttle.SetKd(0.0f);
 }
 
 System::~System() {
@@ -114,6 +126,28 @@ bool System::UpdateSystem() {
     for (unsigned int i = 0; i < Devices.size(); i++) {
         Devices[i]->Update();
     }
+    
+    Time CargoDelay;
+    CargoDelay.SetClock(3, 0, 0);
+    
+    if (Input_Cargo != 0.0f && CoreTimer.DelayTimer > CargoDelay) {
+        
+        #if defined(__32MX270F256D__)
+            PORTClearBits(IOPORT_C, BIT_4);
+            PORTClearBits(IOPORT_C, BIT_5);
+        #elif defined(__32MX270F256B__)
+            PORTClearBits(IOPORT_A, BIT_0);
+            PORTClearBits(IOPORT_A, BIT_1);
+        #endif
+
+        Input_Cargo = 0.0f;
+    }
+    
+    //Get the amount of time since last frame.
+    DeltaTime = CoreTimer.DeltaTimer.GetTime_US();
+    CoreTimer.DeltaTimer.SetClock(0,0,0);
+    
+    AHRS_Update();
 }
 
 void System::Main() {
@@ -162,23 +196,88 @@ bool System::IsUSBAttached() {
 //<editor-fold defaultstate="collapsed" desc="input handlers">
 
 void System::SetRollInput(unsigned int input) {
-    this->Input_Roll = input;
+    
+    if (input < 0x2EE0) {
+        this->Input_Roll = 0;
+    }
+    else if (input > 0x5DC0) {
+        this->Input_Roll = ROLL_LIMIT;
+    }
+    else {
+        this->Input_Roll = 2.0f * ROLL_LIMIT * ((float)(input - 0x4650)/(float)0x5DC0);
+    }
 }
 
 void System::SetPitchInput(unsigned int input) {
-    this->Input_Pitch = input;
+    
+    if (input < 0x2EE0) {
+        this->Input_Pitch = 0;
+    }
+    else if (input > 0x5DC0) {
+        this->Input_Pitch = PITCH_LIMIT;
+    }
+    else {
+        this->Input_Pitch = 2.0f * PITCH_LIMIT * ((float)(input - 0x4650)/(float)0x5DC0);
+    }
 }
 
 void System::SetYawInput(unsigned int input) {
-    this->Input_Yaw = input;
+    
+    if (input < 0x2EE0) {
+        this->Input_Yaw = 0;
+    }
+    else if (input > 0x5DC0) {
+        this->Input_Yaw = YAW_LIMIT;
+    }
+    else {
+        this->Input_Yaw = 2.0f * YAW_LIMIT * ((float)(input - 0x4650)/(float)0x5DC0);
+    }
 }
 
 void System::SetThrottleInput(unsigned int input) {
-    this->Input_Throttle = input;
+    
+    if (input < 0x2EE0) {
+        this->Input_Throttle = THROTTLE_MIN;
+    }
+    else if (input > 0x5DC0) {
+        this->Input_Throttle = THROTTLE_MAX;
+    }
+    else {
+        this->Input_Throttle = 200.0f * ((float)(input - 0x2EE0)/(float)0x5DC0);
+    }
 }
 
 void System::SetCargoInput(unsigned int input) {
-    this->Input_Cargo = input;
+    
+    if (input <= 0x4650 && CargoIsReleased) {
+        
+        Input_Cargo = 1.0f;
+        CargoIsReleased = false;
+        CoreTimer.DelayTimer.SetClock(0,0,0);
+
+        #if defined(__32MX270F256D__)
+            PORTClearBits(IOPORT_C, BIT_4);
+            PORTSetBits(IOPORT_C, BIT_5);
+        #elif defined(__32MX270F256B__)
+            PORTClearBits(IOPORT_A, BIT_0);
+            PORTSetBits(IOPORT_A, BIT_1);
+        #endif
+    }
+
+    else if (input > 0x4650 && !CargoIsReleased) {
+
+        Input_Cargo = 1.0f;
+        CargoIsReleased = true;
+        CoreTimer.DelayTimer.SetClock(0,0,0);
+        
+        #if defined(__32MX270F256D__)
+            PORTSetBits(IOPORT_C, BIT_4);
+            PORTClearBits(IOPORT_C, BIT_5);
+        #elif defined(__32MX270F256B__)
+            PORTSetBits(IOPORT_A, BIT_0);
+            PORTClearBits(IOPORT_A, BIT_1);
+        #endif
+    }
 }
 
 //</editor-fold>
@@ -248,13 +347,6 @@ void System::RunMain() {
     
     //Else we're in the air.
     else {
-        
-        //Get the amount of time since last frame.
-        DeltaTime = CoreTimer.DeltaTimer.GetTime_US();
-        CoreTimer.DeltaTimer.SetClock(0,0,0);
-        
-        //Get the current orientation using Madgwick's sensor fusion algorithm.
-        AHRS_Update();
 
         //Calculate the error
         Math::Quaternion Error = SetPoint*CurrentOrientation;
@@ -293,14 +385,8 @@ void System::RunMain() {
 
 void System::DebugMain() {
     
-//    //Run system wide update.
+    //Run system wide update.
     UpdateSystem();
-
-    //Get the amount of time since last frame.
-    DeltaTime = CoreTimer.DeltaTimer.GetTime_US();
-    CoreTimer.DeltaTimer.SetClock(0,0,0);
-    
-    AHRS_Update();
     
     const unsigned char * Command = ReceiveCommand();
     
@@ -444,157 +530,160 @@ bool System::SendUSBData(std::string Message) {
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Control Algorithm">
-
-//Math::Quaternion System::AHRS_Update() {
-//    
-//    float recipNorm;
-//	float s0, s1, s2, s3;
-//	float qDot1, qDot2, qDot3, qDot4;
-//	float hx, hy;
-//	float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
 //
-//	// Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalization)
-//	if (    (_Magnetometer->GetMagX() == 0.0f) && 
-//            (_Magnetometer->GetMagY() == 0.0f) && 
-//            (_Magnetometer->GetMagZ() == 0.0f)) {
-//        
-//		return IMU_Update();
-//	}
-//
-//	// Rate of change of quaternion from gyroscope
-//    Math::Quaternion Gyro(0, _Gyroscope->GetRateX(), _Gyroscope->GetRateY(), _Gyroscope->GetRateZ());
-//    Math::Quaternion RateOfChange = 0.5f * CurrentOrientation * Gyro;
-//
-//	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalization)
-//	if(!(   (_Accelerometer->GetAccelX() == 0.0f) && 
-//            (_Accelerometer->GetAccelY() == 0.0f) && 
-//            (_Accelerometer->GetAccelZ() == 0.0f))) {
-//
-//        //Normalize accelerometer measurement
-//        Math::Quaternion Accel(0, _Accelerometer->GetAccelX(), _Accelerometer->GetAccelY(), _Accelerometer->GetAccelZ());
-//        Accel = Accel.Normalize();
-//		 
-//        //Normalize magnetometer measurement
-//        Math::Quaternion Mag(0, _Magnetometer->GetMagX(), _Magnetometer->GetMagY(), _Magnetometer->GetMagZ());
-//        Mag = Mag.Normalize();
-//
-//		// Auxiliary variables to avoid repeated arithmetic
-//        _2q0mx = 2.0f * CurrentOrientation[0] * _Magnetometer->GetMagX();
-//        _2q0my = 2.0f * CurrentOrientation[0] * _Magnetometer->GetMagY();
-//        _2q0mz = 2.0f * CurrentOrientation[0] * _Magnetometer->GetMagZ();
-//        _2q1mx = 2.0f * CurrentOrientation[1] * _Magnetometer->GetMagX();
-//		_2q0 = 2.0f * CurrentOrientation[0];
-//		_2q1 = 2.0f * CurrentOrientation[1];
-//		_2q2 = 2.0f * CurrentOrientation[2];
-//		_2q3 = 2.0f * CurrentOrientation[3];
-//		_2q0q2 = 2.0f * CurrentOrientation[0] * CurrentOrientation[2];
-//		_2q2q3 = 2.0f * CurrentOrientation[2] * CurrentOrientation[3];
-//		q0q0 = CurrentOrientation[0] * CurrentOrientation[0];
-//		q0q1 = CurrentOrientation[0] * CurrentOrientation[1];
-//		q0q2 = CurrentOrientation[0] * CurrentOrientation[2];
-//		q0q3 = CurrentOrientation[0] * CurrentOrientation[3];
-//		q1q1 = CurrentOrientation[1] * CurrentOrientation[1];
-//		q1q2 = CurrentOrientation[1] * CurrentOrientation[2];
-//		q1q3 = CurrentOrientation[1] * CurrentOrientation[3];
-//		q2q2 = CurrentOrientation[2] * CurrentOrientation[2];
-//		q2q3 = CurrentOrientation[2] * CurrentOrientation[3];
-//		q3q3 = CurrentOrientation[3] * CurrentOrientation[3];
-//
-//		// Reference direction of Earth's magnetic field
-//		hx = _Magnetometer->GetMagX() * q0q0 - _2q0my * CurrentOrientation[3] + _2q0mz * CurrentOrientation[2] + _Magnetometer->GetMagX() * q1q1 + _2q1 * _Magnetometer->GetMagY() * CurrentOrientation[2] + _2q1 * _Magnetometer->GetMagZ() * CurrentOrientation[3] - _Magnetometer->GetMagX() * q2q2 - _Magnetometer->GetMagX() * q3q3;
-//		hy = _2q0mx * CurrentOrientation[3] + _Magnetometer->GetMagY() * q0q0 - _2q0mz * CurrentOrientation[1] + _2q1mx * CurrentOrientation[2] - _Magnetometer->GetMagY() * q1q1 + _Magnetometer->GetMagY() * q2q2 + _2q2 * _Magnetometer->GetMagZ() * CurrentOrientation[3] - _Magnetometer->GetMagY() * q3q3;
-//		_2bx = sqrt(hx * hx + hy * hy);
-//		_2bz = -_2q0mx * CurrentOrientation[2] + _2q0my * CurrentOrientation[1] + _Magnetometer->GetMagZ() * q0q0 + _2q1mx * CurrentOrientation[3] - _Magnetometer->GetMagZ() * q1q1 + _2q2 * _Magnetometer->GetMagY() * CurrentOrientation[3] - _Magnetometer->GetMagZ() * q2q2 + _Magnetometer->GetMagZ() * q3q3;
-//		_4bx = 2.0f * _2bx;
-//		_4bz = 2.0f * _2bz;
-//
-//		// Gradient decent algorithm corrective step
-//        Math::Quaternion StepMagnitude;
-//		StepMagnitude[0] = -_2q2 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q1 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) - _2bz * CurrentOrientation[2] * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (-_2bx * CurrentOrientation[3] + _2bz * CurrentOrientation[1]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + _2bx * CurrentOrientation[2] * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
-//		StepMagnitude[1] = _2q3 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q0 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) - 4.0f * CurrentOrientation[1] * (1 - 2.0f * q1q1 - 2.0f * q2q2 - _Accelerometer->GetAccelZ()) + _2bz * CurrentOrientation[3] * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (_2bx * CurrentOrientation[2] + _2bz * CurrentOrientation[0]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + (_2bx * CurrentOrientation[3] - _4bz * CurrentOrientation[1]) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
-//		StepMagnitude[2] = -_2q0 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q3 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) - 4.0f * CurrentOrientation[2] * (1 - 2.0f * q1q1 - 2.0f * q2q2 - _Accelerometer->GetAccelZ()) + (-_4bx * CurrentOrientation[2] - _2bz * CurrentOrientation[0]) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (_2bx * CurrentOrientation[1] + _2bz * CurrentOrientation[3]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + (_2bx * CurrentOrientation[0] - _4bz * CurrentOrientation[2]) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
-//		StepMagnitude[3] = _2q1 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q2 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) + (-_4bx * CurrentOrientation[3] + _2bz * CurrentOrientation[1]) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (-_2bx * CurrentOrientation[0] + _2bz * CurrentOrientation[2]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + _2bx * CurrentOrientation[1] * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
-//        StepMagnitude = StepMagnitude.Normalize();
-//
-//		// Apply feedback step
-//        RateOfChange -= Beta*StepMagnitude;
-//	}
-//
-//	// Integrate rate of change of quaternion to yield quaternion
-//    CurrentOrientation += RateOfChange * DeltaTime;
-//
-//	// Normalize quaternion
-//    CurrentOrientation = CurrentOrientation.Normalize();
-//    return CurrentOrientation;
-//}
-
-
 Math::Quaternion System::AHRS_Update() {
     
     float recipNorm;
-    float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;  
-  float hx, hy, bx, bz;
-  float halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
-  float halfex, halfey, halfez;
-  float qa, qb, qc;
-  
-  // Rate of change of quaternion from gyroscope
-  Math::Quaternion Gyro(0, _Gyroscope->GetRateX(), _Gyroscope->GetRateY(), _Gyroscope->GetRateZ());
-  Gyro = Gyro.Normalize();
+	float s0, s1, s2, s3;
+	float qDot1, qDot2, qDot3, qDot4;
+	float hx, hy;
+	float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
 
-  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-  if(!(     (_Accelerometer->GetAccelX() == 0.0f) && 
+	// Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalization)
+	if (    (_Magnetometer->GetMagX() == 0.0f) && 
+            (_Magnetometer->GetMagY() == 0.0f) && 
+            (_Magnetometer->GetMagZ() == 0.0f)) {
+        
+		return IMU_Update();
+	}
+
+	// Rate of change of quaternion from gyroscope
+    Math::Quaternion Gyro(0, _Gyroscope->GetRateX(), _Gyroscope->GetRateY(), _Gyroscope->GetRateZ());
+    Math::Quaternion RateOfChange = 0.5f * CurrentOrientation * Gyro;
+
+	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalization)
+	if(!(   (_Accelerometer->GetAccelX() == 0.0f) && 
             (_Accelerometer->GetAccelY() == 0.0f) && 
             (_Accelerometer->GetAccelZ() == 0.0f))) {
 
         //Normalize accelerometer measurement
         Math::Quaternion Accel(0, _Accelerometer->GetAccelX(), _Accelerometer->GetAccelY(), _Accelerometer->GetAccelZ());
         Accel = Accel.Normalize();
-
+		 
         //Normalize magnetometer measurement
         Math::Quaternion Mag(0, _Magnetometer->GetMagX(), _Magnetometer->GetMagY(), _Magnetometer->GetMagZ());
-        Mag = Mag.Normalize();   
+        Mag = Mag.Normalize();
 
-        // Auxiliary variables to avoid repeated arithmetic
-        q0q0 = CurrentOrientation[0] * CurrentOrientation[0];
-        q0q1 = CurrentOrientation[0] * CurrentOrientation[1];
-        q0q2 = CurrentOrientation[0] * CurrentOrientation[2];
-        q0q3 = CurrentOrientation[0] * CurrentOrientation[3];
-        q1q1 = CurrentOrientation[1] * CurrentOrientation[1];
-        q1q2 = CurrentOrientation[1] * CurrentOrientation[2];
-        q1q3 = CurrentOrientation[1] * CurrentOrientation[3];
-        q2q2 = CurrentOrientation[2] * CurrentOrientation[2];
-        q2q3 = CurrentOrientation[2] * CurrentOrientation[3];
-        q3q3 = CurrentOrientation[3] * CurrentOrientation[3];
+		// Auxiliary variables to avoid repeated arithmetic
+        _2q0mx = 2.0f * CurrentOrientation[0] * _Magnetometer->GetMagX();
+        _2q0my = 2.0f * CurrentOrientation[0] * _Magnetometer->GetMagY();
+        _2q0mz = 2.0f * CurrentOrientation[0] * _Magnetometer->GetMagZ();
+        _2q1mx = 2.0f * CurrentOrientation[1] * _Magnetometer->GetMagX();
+		_2q0 = 2.0f * CurrentOrientation[0];
+		_2q1 = 2.0f * CurrentOrientation[1];
+		_2q2 = 2.0f * CurrentOrientation[2];
+		_2q3 = 2.0f * CurrentOrientation[3];
+		_2q0q2 = 2.0f * CurrentOrientation[0] * CurrentOrientation[2];
+		_2q2q3 = 2.0f * CurrentOrientation[2] * CurrentOrientation[3];
+		q0q0 = CurrentOrientation[0] * CurrentOrientation[0];
+		q0q1 = CurrentOrientation[0] * CurrentOrientation[1];
+		q0q2 = CurrentOrientation[0] * CurrentOrientation[2];
+		q0q3 = CurrentOrientation[0] * CurrentOrientation[3];
+		q1q1 = CurrentOrientation[1] * CurrentOrientation[1];
+		q1q2 = CurrentOrientation[1] * CurrentOrientation[2];
+		q1q3 = CurrentOrientation[1] * CurrentOrientation[3];
+		q2q2 = CurrentOrientation[2] * CurrentOrientation[2];
+		q2q3 = CurrentOrientation[2] * CurrentOrientation[3];
+		q3q3 = CurrentOrientation[3] * CurrentOrientation[3];
 
-        // Reference direction of Earth's magnetic field
-        Math::Quaternion H( 0.0f,
-                            2.0f * (Mag[1] * (0.5f - q2q2 - q3q3) + Mag[2] * (q1q2 - q0q3) + Mag[3] * (q1q3 + q0q2)),
-                            2.0f * (Mag[1] * (q1q2 + q0q3) + Mag[2] * (0.5f - q1q1 - q3q3) + Mag[3] * (q2q3 - q0q1)),
-                            0.0f);
-        Math::Quaternion B( 0.0f,
-                            H.AbsoluteValue(),  
-                            0.0f,
-                            2.0f * (Mag[1] * (q1q3 - q0q2) + Mag[2] * (q2q3 + q0q1) + Mag[3] * (0.5f - q1q1 - q2q2)));
+		// Reference direction of Earth's magnetic field
+		hx = _Magnetometer->GetMagX() * q0q0 - _2q0my * CurrentOrientation[3] + _2q0mz * CurrentOrientation[2] + _Magnetometer->GetMagX() * q1q1 + _2q1 * _Magnetometer->GetMagY() * CurrentOrientation[2] + _2q1 * _Magnetometer->GetMagZ() * CurrentOrientation[3] - _Magnetometer->GetMagX() * q2q2 - _Magnetometer->GetMagX() * q3q3;
+		hy = _2q0mx * CurrentOrientation[3] + _Magnetometer->GetMagY() * q0q0 - _2q0mz * CurrentOrientation[1] + _2q1mx * CurrentOrientation[2] - _Magnetometer->GetMagY() * q1q1 + _Magnetometer->GetMagY() * q2q2 + _2q2 * _Magnetometer->GetMagZ() * CurrentOrientation[3] - _Magnetometer->GetMagY() * q3q3;
+		_2bx = sqrt(hx * hx + hy * hy);
+		_2bz = -_2q0mx * CurrentOrientation[2] + _2q0my * CurrentOrientation[1] + _Magnetometer->GetMagZ() * q0q0 + _2q1mx * CurrentOrientation[3] - _Magnetometer->GetMagZ() * q1q1 + _2q2 * _Magnetometer->GetMagY() * CurrentOrientation[3] - _Magnetometer->GetMagZ() * q2q2 + _Magnetometer->GetMagZ() * q3q3;
+		_4bx = 2.0f * _2bx;
+		_4bz = 2.0f * _2bz;
 
-        // Estimated direction of gravity and magnetic field
-        Math::Quaternion HalfV( 0.0f,
-                                q1q3 - q0q2,
-                                q0q1 + q2q3,
-                                q0q0 - 0.5f + q3q3);
-        Math::Quaternion HalfW( 0.0f,
-                                B[1] * (0.5f - q2q2 - q3q3) + B[3] * (q1q3 - q0q2),
-                                B[1] * (q1q2 - q0q3) + B[3] * (q0q1 + q2q3),
-                                B[1] * (q0q2 + q1q3) + B[3] * (0.5f - q1q1 - q2q2)); 
+		// Gradient decent algorithm corrective step
+        Math::Quaternion StepMagnitude;
+		StepMagnitude[0] = -_2q2 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q1 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) - _2bz * CurrentOrientation[2] * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (-_2bx * CurrentOrientation[3] + _2bz * CurrentOrientation[1]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + _2bx * CurrentOrientation[2] * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
+		StepMagnitude[1] = _2q3 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q0 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) - 4.0f * CurrentOrientation[1] * (1 - 2.0f * q1q1 - 2.0f * q2q2 - _Accelerometer->GetAccelZ()) + _2bz * CurrentOrientation[3] * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (_2bx * CurrentOrientation[2] + _2bz * CurrentOrientation[0]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + (_2bx * CurrentOrientation[3] - _4bz * CurrentOrientation[1]) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
+		StepMagnitude[2] = -_2q0 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q3 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) - 4.0f * CurrentOrientation[2] * (1 - 2.0f * q1q1 - 2.0f * q2q2 - _Accelerometer->GetAccelZ()) + (-_4bx * CurrentOrientation[2] - _2bz * CurrentOrientation[0]) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (_2bx * CurrentOrientation[1] + _2bz * CurrentOrientation[3]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + (_2bx * CurrentOrientation[0] - _4bz * CurrentOrientation[2]) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
+		StepMagnitude[3] = _2q1 * (2.0f * q1q3 - _2q0q2 - _Accelerometer->GetAccelX()) + _2q2 * (2.0f * q0q1 + _2q2q3 - _Accelerometer->GetAccelY()) + (-_4bx * CurrentOrientation[3] + _2bz * CurrentOrientation[1]) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - _Magnetometer->GetMagX()) + (-_2bx * CurrentOrientation[0] + _2bz * CurrentOrientation[2]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - _Magnetometer->GetMagY()) + _2bx * CurrentOrientation[1] * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - _Magnetometer->GetMagZ());
+        StepMagnitude = StepMagnitude.Normalize();
 
-        // Error is sum of cross product between estimated direction and measured direction of field vectors
-        Math::Quaternion Error = 2.0f * (Accel.CrossProduct(HalfV) + Mag.CrossProduct(HalfW));
-        
-        Gyro += AHRS.CalculatePID(Error, DeltaTime);
-        CurrentOrientation = 0.5f * CurrentOrientation * Gyro;
-        CurrentOrientation = CurrentOrientation.Normalize();
-    }
+		// Apply feedback step
+        //RateOfChange -= Beta*StepMagnitude;
+        RateOfChange -= AHRS.CalculatePID(StepMagnitude, DeltaTime);
+        RateOfChange = (RateOfChange + P1)/2;
+        P1 = RateOfChange;
+	}
+
+	// Integrate rate of change of quaternion to yield quaternion
+    CurrentOrientation += RateOfChange * DeltaTime;
+
+	// Normalize quaternion
+    CurrentOrientation = CurrentOrientation.Normalize();
+    return CurrentOrientation;
 }
+
+
+//Math::Quaternion System::AHRS_Update() {
+//    
+//    float recipNorm;
+//    float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;  
+//  float hx, hy, bx, bz;
+//  float halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
+//  float halfex, halfey, halfez;
+//  float qa, qb, qc;
+//  
+//  // Rate of change of quaternion from gyroscope
+//  Math::Quaternion Gyro(0, _Gyroscope->GetRateX(), _Gyroscope->GetRateY(), _Gyroscope->GetRateZ());
+//  Gyro = Gyro.Normalize();
+//
+//  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
+//  if(!(     (_Accelerometer->GetAccelX() == 0.0f) && 
+//            (_Accelerometer->GetAccelY() == 0.0f) && 
+//            (_Accelerometer->GetAccelZ() == 0.0f))) {
+//
+//        //Normalize accelerometer measurement
+//        Math::Quaternion Accel(0, _Accelerometer->GetAccelX(), _Accelerometer->GetAccelY(), _Accelerometer->GetAccelZ());
+//        Accel = Accel.Normalize();
+//
+//        //Normalize magnetometer measurement
+//        Math::Quaternion Mag(0, _Magnetometer->GetMagX(), _Magnetometer->GetMagY(), _Magnetometer->GetMagZ());
+//        Mag = Mag.Normalize();   
+//
+//        // Auxiliary variables to avoid repeated arithmetic
+//        q0q0 = CurrentOrientation[0] * CurrentOrientation[0];
+//        q0q1 = CurrentOrientation[0] * CurrentOrientation[1];
+//        q0q2 = CurrentOrientation[0] * CurrentOrientation[2];
+//        q0q3 = CurrentOrientation[0] * CurrentOrientation[3];
+//        q1q1 = CurrentOrientation[1] * CurrentOrientation[1];
+//        q1q2 = CurrentOrientation[1] * CurrentOrientation[2];
+//        q1q3 = CurrentOrientation[1] * CurrentOrientation[3];
+//        q2q2 = CurrentOrientation[2] * CurrentOrientation[2];
+//        q2q3 = CurrentOrientation[2] * CurrentOrientation[3];
+//        q3q3 = CurrentOrientation[3] * CurrentOrientation[3];
+//
+//        // Reference direction of Earth's magnetic field
+//        Math::Quaternion H( 0.0f,
+//                            2.0f * (Mag[1] * (0.5f - q2q2 - q3q3) + Mag[2] * (q1q2 - q0q3) + Mag[3] * (q1q3 + q0q2)),
+//                            2.0f * (Mag[1] * (q1q2 + q0q3) + Mag[2] * (0.5f - q1q1 - q3q3) + Mag[3] * (q2q3 - q0q1)),
+//                            0.0f);
+//        Math::Quaternion B( 0.0f,
+//                            H.AbsoluteValue(),  
+//                            0.0f,
+//                            2.0f * (Mag[1] * (q1q3 - q0q2) + Mag[2] * (q2q3 + q0q1) + Mag[3] * (0.5f - q1q1 - q2q2)));
+//
+//        // Estimated direction of gravity and magnetic field
+//        Math::Quaternion HalfV( 0.0f,
+//                                q1q3 - q0q2,
+//                                q0q1 + q2q3,
+//                                q0q0 - 0.5f + q3q3);
+//        Math::Quaternion HalfW( 0.0f,
+//                                B[1] * (0.5f - q2q2 - q3q3) + B[3] * (q1q3 - q0q2),
+//                                B[1] * (q1q2 - q0q3) + B[3] * (q0q1 + q2q3),
+//                                B[1] * (q0q2 + q1q3) + B[3] * (0.5f - q1q1 - q2q2)); 
+//
+//        // Error is sum of cross product between estimated direction and measured direction of field vectors
+//        Math::Quaternion Error = 2.0f * (Accel.CrossProduct(HalfV) + Mag.CrossProduct(HalfW));
+//        
+//        Gyro += AHRS.CalculatePID(Error, DeltaTime);
+//        CurrentOrientation = 0.5f * CurrentOrientation * Gyro;
+//        CurrentOrientation = CurrentOrientation.Normalize();
+//    }
+//}
 
 Math::Quaternion System::IMU_Update() {
     

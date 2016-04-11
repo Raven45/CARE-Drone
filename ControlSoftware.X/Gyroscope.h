@@ -43,12 +43,12 @@
                                         //Little Endian ordering
                                         //500 dps scaling
                                         //self-test disabled
-#define GYRO_SET_DATA_2000    0x2320    //Coninuous data update
+#define GYRO_SET_DATA_2000    0x2300    //Coninuous data update
                                         //Little Endian ordering
                                         //2000 dps scaling
                                         //self-test disabled
                                         //4-wire SPI interface.
-#define GYRO_BOOT             0x2480    //Boot the device.
+#define GYRO_BOOT             0x2490    //Boot the device.
 #define GYRO_READ             0xE800    //Command to burst read the data queue
 
 

@@ -40,6 +40,13 @@
 #define ENABLE_MOTOR_6
 #define ENABLE_USB
 
+#define ROLL_LIMIT          (15.0f)   //+/- 15 degrees bank limit
+#define PITCH_LIMIT         (15.0f)   //+/- 15 degrees pitch limit
+#define YAW_LIMIT           (30.0f)   //+/- 30 dps yaw rate
+#define THROTTLE_MAX        (80)      //80% maximum throttle
+#define THROTTLE_MIN        (20)      //20% minimum throttle
+#define THROTTLE_IDLE       (25)      //25% idle throttle
+
 #define ROLL_COEF_NO_CARGO 1.0f
 #define PITCH_COEF_NO_CARGO 1.0f
 #define YAW_COEF_NO_CARGO 1.0f
@@ -209,6 +216,7 @@ private:
     Math::Quaternion CurrentOrientation;
     
     Math::PID<Math::Quaternion> AHRS;
+    Math::PID<float> Throttle;
     
     //The magical delta-time variable. Used for integration.
     UnsignedInteger32 DeltaTime;
@@ -237,7 +245,14 @@ private:
     float Input_Throttle;
     float Input_Cargo;
     
-    
+    Math::Quaternion P1;
+    Math::Quaternion P2;
+    Math::Quaternion P3;
+    Math::Quaternion P4;
+    Math::Quaternion F1;
+    Math::Quaternion F2;
+    Math::Quaternion F3;
+    Math::Quaternion F4;
     
     //Motor engagement safety
     bool Safety;

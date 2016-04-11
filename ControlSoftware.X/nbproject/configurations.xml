@@ -16,7 +16,7 @@
         <itemPath>Accelerometer.h</itemPath>
         <itemPath>Magnetometer.h</itemPath>
         <itemPath>Timer.h</itemPath>
-        <itemPath>Transmitter.h</itemPath>
+        <itemPath>Transceiver.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Math" projectFiles="true">
         <itemPath>Quaternion.h</itemPath>
@@ -58,6 +58,7 @@
         <itemPath>Accelerometer.cpp</itemPath>
         <itemPath>Magnetometer.cpp</itemPath>
         <itemPath>Timer.cpp</itemPath>
+        <itemPath>Transceiver.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Math" projectFiles="true">
         <itemPath>Quaternion.cpp</itemPath>

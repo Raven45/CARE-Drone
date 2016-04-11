@@ -23,7 +23,7 @@ HAL::Gyroscope::Gyroscope(ADDRESS Address, SPIBus* DeviceManager):
                 HAL::SPIDevice::SPIDevice(Address, DeviceManager) {
     
     this->Parity = ParityTypes::NoParity;
-    this->Scale = 2000;
+    this->Scale = 245;
 }
 
 HAL::Gyroscope::~Gyroscope(){ }
@@ -55,30 +55,35 @@ bool HAL::Gyroscope::Initialize() {
 }
 
 bool HAL::Gyroscope::Update() {
+    
+    UnsignedInteger16 Status = SendAndReceive(0xA700) & 0x0008;
+    
+    if (Status == 0x0008) {
 
-    UnsignedInteger16 * Data;
-    Data = SendAndReceiveBurst(0xE800, 4);
+        UnsignedInteger16 * Data;
+        Data = SendAndReceiveBurst(0xE800, 4);
 
-    UnsignedInteger16 X = (Data[1] & 0xFF00) | (Data[0] & 0x00FF);
-    UnsignedInteger16 Y = (Data[2] & 0xFF00) | (Data[1] & 0x00FF);
-    UnsignedInteger16 Z = (Data[3] & 0xFF00) | (Data[2] & 0x00FF);
+        UnsignedInteger16 X = (Data[1] & 0xFF00) | (Data[0] & 0x00FF);
+        UnsignedInteger16 Y = (Data[2] & 0xFF00) | (Data[1] & 0x00FF);
+        UnsignedInteger16 Z = (Data[3] & 0xFF00) | (Data[2] & 0x00FF);
 
-    if (Scale == 245) { 
-      RateX = (SignedInteger16)X * 0.00748f;
-      RateY = (SignedInteger16)Y * 0.00748f;
-      RateZ = (SignedInteger16)Z * 0.00748f;
-    }
+        if (Scale == 245) { 
+          RateX = (SignedInteger16)X * 0.00748f;
+          RateY = (SignedInteger16)Y * 0.00748f;
+          RateZ = (SignedInteger16)Z * 0.00748f;
+        }
 
-    else if (Scale == 500) {
-      RateX = (SignedInteger16)X * 0.01526f;
-      RateY = (SignedInteger16)Y * 0.01526f;
-      RateZ = (SignedInteger16)Z * 0.01526f;
-    }
+        else if (Scale == 500) {
+          RateX = (SignedInteger16)X * 0.01526f;
+          RateY = (SignedInteger16)Y * 0.01526f;
+          RateZ = (SignedInteger16)Z * 0.01526f;
+        }
 
-    else if (Scale == 2000) {
-      RateX = (SignedInteger16)X * 0.06104f;
-      RateY = (SignedInteger16)Y * 0.06104f;
-      RateZ = (SignedInteger16)Z * 0.06104f;
+        else if (Scale == 2000) {
+          RateX = (SignedInteger16)X * 0.06104f;
+          RateY = (SignedInteger16)Y * 0.06104f;
+          RateZ = (SignedInteger16)Z * 0.06104f;
+        }
     }
 
 }

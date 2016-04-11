@@ -37,19 +37,24 @@ bool HAL::Magnetometer::Initialize() {
 
 bool HAL::Magnetometer::Update() {
     
-  UnsignedInteger16 * Data;
-  Data = SendAndReceiveBurst(MAG_READ, 4);
+    UnsignedInteger16 Status = SendAndReceive(0x8700) & 0x0008;
+    
+    if (Status == 0x0008) {
+    
+        UnsignedInteger16 * Data;
+        Data = SendAndReceiveBurst(MAG_READ, 4);
 
-  UnsignedInteger16 X = (Data[1] & 0xFF00) | (Data[0] & 0x00FF);
-  UnsignedInteger16 Y = (Data[2] & 0xFF00) | (Data[1] & 0x00FF);
-  UnsignedInteger16 Z = (Data[3] & 0xFF00) | (Data[2] & 0x00FF);
+        UnsignedInteger16 X = (Data[1] & 0xFF00) | (Data[0] & 0x00FF);
+        UnsignedInteger16 Y = (Data[2] & 0xFF00) | (Data[1] & 0x00FF);
+        UnsignedInteger16 Z = (Data[3] & 0xFF00) | (Data[2] & 0x00FF);
 
-  MagX = (SignedInteger16)X * 0.48f;
-  MagX /= 1000;
-  MagY = (SignedInteger16)Y * 0.48f;
-  MagY /= 1000;
-  MagZ = (SignedInteger16)Z * 0.48f;
-  MagZ /= 1000;
+        MagX = (SignedInteger16)X * 0.48f;
+        MagX /= 1000;
+        MagY = (SignedInteger16)Y * 0.48f;
+        MagY /= 1000;
+        MagZ = (SignedInteger16)Z * 0.48f;
+        MagZ /= 1000;
+    }
 }
 
 float HAL::Magnetometer::GetMagX() {

@@ -473,11 +473,11 @@ extern "C" {
         //Rising edge
         if (PORTBbits.RB13 == 1) {
             WriteTimer3(0);
-            //unsigned int trash = IC1BUF;
+            unsigned int trash = IC1BUF;
         }
         //Falling edge
         else {
-            CARE_Drone.SetRollInput(Capture);
+            CARE_Drone.SetYawInput(Capture);
         }
     }
     
@@ -492,7 +492,7 @@ extern "C" {
         }
         //Falling edge
         else {
-            CARE_Drone.SetRollInput(IC2BUF);
+            CARE_Drone.SetPitchInput(IC2BUF);
         }
     }
     
@@ -507,7 +507,7 @@ extern "C" {
         }
         //Falling edge
         else {
-            CARE_Drone.SetRollInput(IC3BUF);
+            CARE_Drone.SetThrottleInput(IC3BUF);
         }
     }
     
@@ -530,15 +530,15 @@ extern "C" {
         
         INTClearFlag(INT_IC5);
         
-//        //Rising edge
-//        if (PORTAbits.RA8 == 1) {
-//            WriteTimer3(0);
-//            unsigned int trash = IC5BUF;
-//        }
-//        //Falling edge
-//        else {
-//            CARE_Drone.SetRollInput(IC5BUF);
-//        }
+        //Rising edge
+        if (PORTAbits.RA8 == 1) {
+            WriteTimer3(0);
+            unsigned int trash = IC5BUF;
+        }
+        //Falling edge
+        else {
+            CARE_Drone.SetThrottleInput(IC5BUF);
+        }
 
     }
     
