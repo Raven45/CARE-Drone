@@ -73,6 +73,8 @@
             this.CommandLine = new System.Windows.Forms.TextBox();
             this.CommsWorker = new System.ComponentModel.BackgroundWorker();
             this.serialPort = new System.IO.Ports.SerialPort(this.components);
+            this.outCargo = new System.Windows.Forms.Label();
+            this.labelCargo = new System.Windows.Forms.Label();
             this.groupFlightData.SuspendLayout();
             this.groupCommands.SuspendLayout();
             this.SuspendLayout();
@@ -83,9 +85,10 @@
             this.labelOrientationQuaternion.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelOrientationQuaternion.Location = new System.Drawing.Point(6, 16);
             this.labelOrientationQuaternion.Name = "labelOrientationQuaternion";
-            this.labelOrientationQuaternion.Size = new System.Drawing.Size(272, 29);
+            this.labelOrientationQuaternion.Size = new System.Drawing.Size(65, 29);
             this.labelOrientationQuaternion.TabIndex = 0;
-            this.labelOrientationQuaternion.Text = "Orientation (Quaternion)";
+            this.labelOrientationQuaternion.Text = "Input";
+            this.labelOrientationQuaternion.Click += new System.EventHandler(this.labelOrientationQuaternion_Click);
             // 
             // labelQ0
             // 
@@ -93,9 +96,9 @@
             this.labelQ0.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelQ0.Location = new System.Drawing.Point(13, 50);
             this.labelQ0.Name = "labelQ0";
-            this.labelQ0.Size = new System.Drawing.Size(31, 17);
+            this.labelQ0.Size = new System.Drawing.Size(38, 17);
             this.labelQ0.TabIndex = 1;
-            this.labelQ0.Text = "Q0:";
+            this.labelQ0.Text = "Yaw:";
             // 
             // labelQ1
             // 
@@ -103,9 +106,9 @@
             this.labelQ1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelQ1.Location = new System.Drawing.Point(13, 67);
             this.labelQ1.Name = "labelQ1";
-            this.labelQ1.Size = new System.Drawing.Size(31, 17);
+            this.labelQ1.Size = new System.Drawing.Size(43, 17);
             this.labelQ1.TabIndex = 2;
-            this.labelQ1.Text = "Q1:";
+            this.labelQ1.Text = "Pitch:";
             // 
             // labelQ2
             // 
@@ -113,9 +116,9 @@
             this.labelQ2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelQ2.Location = new System.Drawing.Point(13, 84);
             this.labelQ2.Name = "labelQ2";
-            this.labelQ2.Size = new System.Drawing.Size(31, 17);
+            this.labelQ2.Size = new System.Drawing.Size(61, 17);
             this.labelQ2.TabIndex = 3;
-            this.labelQ2.Text = "Q2:";
+            this.labelQ2.Text = "Throttle:";
             // 
             // labelQ3
             // 
@@ -123,9 +126,9 @@
             this.labelQ3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelQ3.Location = new System.Drawing.Point(13, 101);
             this.labelQ3.Name = "labelQ3";
-            this.labelQ3.Size = new System.Drawing.Size(31, 17);
+            this.labelQ3.Size = new System.Drawing.Size(36, 17);
             this.labelQ3.TabIndex = 4;
-            this.labelQ3.Text = "Q3:";
+            this.labelQ3.Text = "Roll:";
             // 
             // labelYaw
             // 
@@ -169,6 +172,8 @@
             // 
             // groupFlightData
             // 
+            this.groupFlightData.Controls.Add(this.outCargo);
+            this.groupFlightData.Controls.Add(this.labelCargo);
             this.groupFlightData.Controls.Add(this.outMotor6);
             this.groupFlightData.Controls.Add(this.outMotor5);
             this.groupFlightData.Controls.Add(this.outMotor4);
@@ -285,7 +290,7 @@
             this.outAltitude.AutoSize = true;
             this.outAltitude.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outAltitude.ForeColor = System.Drawing.Color.DarkRed;
-            this.outAltitude.Location = new System.Drawing.Point(164, 165);
+            this.outAltitude.Location = new System.Drawing.Point(164, 198);
             this.outAltitude.Name = "outAltitude";
             this.outAltitude.Size = new System.Drawing.Size(91, 17);
             this.outAltitude.TabIndex = 31;
@@ -296,7 +301,7 @@
             this.outCurrentPressure.AutoSize = true;
             this.outCurrentPressure.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outCurrentPressure.ForeColor = System.Drawing.Color.DarkRed;
-            this.outCurrentPressure.Location = new System.Drawing.Point(164, 182);
+            this.outCurrentPressure.Location = new System.Drawing.Point(164, 215);
             this.outCurrentPressure.Name = "outCurrentPressure";
             this.outCurrentPressure.Size = new System.Drawing.Size(91, 17);
             this.outCurrentPressure.TabIndex = 30;
@@ -307,7 +312,7 @@
             this.outStartingPressure.AutoSize = true;
             this.outStartingPressure.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outStartingPressure.ForeColor = System.Drawing.Color.DarkRed;
-            this.outStartingPressure.Location = new System.Drawing.Point(164, 199);
+            this.outStartingPressure.Location = new System.Drawing.Point(164, 232);
             this.outStartingPressure.Name = "outStartingPressure";
             this.outStartingPressure.Size = new System.Drawing.Size(91, 17);
             this.outStartingPressure.TabIndex = 29;
@@ -318,7 +323,7 @@
             this.outCurrentTemp.AutoSize = true;
             this.outCurrentTemp.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outCurrentTemp.ForeColor = System.Drawing.Color.DarkRed;
-            this.outCurrentTemp.Location = new System.Drawing.Point(164, 216);
+            this.outCurrentTemp.Location = new System.Drawing.Point(164, 249);
             this.outCurrentTemp.Name = "outCurrentTemp";
             this.outCurrentTemp.Size = new System.Drawing.Size(91, 17);
             this.outCurrentTemp.TabIndex = 28;
@@ -362,7 +367,7 @@
             this.outQ3.AutoSize = true;
             this.outQ3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outQ3.ForeColor = System.Drawing.Color.DarkRed;
-            this.outQ3.Location = new System.Drawing.Point(50, 101);
+            this.outQ3.Location = new System.Drawing.Point(80, 101);
             this.outQ3.Name = "outQ3";
             this.outQ3.Size = new System.Drawing.Size(91, 17);
             this.outQ3.TabIndex = 24;
@@ -373,7 +378,7 @@
             this.outQ2.AutoSize = true;
             this.outQ2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outQ2.ForeColor = System.Drawing.Color.DarkRed;
-            this.outQ2.Location = new System.Drawing.Point(50, 84);
+            this.outQ2.Location = new System.Drawing.Point(80, 84);
             this.outQ2.Name = "outQ2";
             this.outQ2.Size = new System.Drawing.Size(91, 17);
             this.outQ2.TabIndex = 23;
@@ -384,7 +389,7 @@
             this.outQ1.AutoSize = true;
             this.outQ1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outQ1.ForeColor = System.Drawing.Color.DarkRed;
-            this.outQ1.Location = new System.Drawing.Point(50, 67);
+            this.outQ1.Location = new System.Drawing.Point(80, 67);
             this.outQ1.Name = "outQ1";
             this.outQ1.Size = new System.Drawing.Size(91, 17);
             this.outQ1.TabIndex = 22;
@@ -395,7 +400,7 @@
             this.outQ0.AutoSize = true;
             this.outQ0.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outQ0.ForeColor = System.Drawing.Color.DarkRed;
-            this.outQ0.Location = new System.Drawing.Point(50, 50);
+            this.outQ0.Location = new System.Drawing.Point(80, 50);
             this.outQ0.Name = "outQ0";
             this.outQ0.Size = new System.Drawing.Size(88, 17);
             this.outQ0.TabIndex = 21;
@@ -475,7 +480,7 @@
             // 
             this.labelTemp.AutoSize = true;
             this.labelTemp.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTemp.Location = new System.Drawing.Point(13, 216);
+            this.labelTemp.Location = new System.Drawing.Point(13, 249);
             this.labelTemp.Name = "labelTemp";
             this.labelTemp.Size = new System.Drawing.Size(145, 17);
             this.labelTemp.TabIndex = 13;
@@ -485,7 +490,7 @@
             // 
             this.labelStartingPressure.AutoSize = true;
             this.labelStartingPressure.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelStartingPressure.Location = new System.Drawing.Point(13, 199);
+            this.labelStartingPressure.Location = new System.Drawing.Point(13, 232);
             this.labelStartingPressure.Name = "labelStartingPressure";
             this.labelStartingPressure.Size = new System.Drawing.Size(122, 17);
             this.labelStartingPressure.TabIndex = 12;
@@ -495,7 +500,7 @@
             // 
             this.labelCurrentPressure.AutoSize = true;
             this.labelCurrentPressure.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelCurrentPressure.Location = new System.Drawing.Point(13, 182);
+            this.labelCurrentPressure.Location = new System.Drawing.Point(13, 215);
             this.labelCurrentPressure.Name = "labelCurrentPressure";
             this.labelCurrentPressure.Size = new System.Drawing.Size(120, 17);
             this.labelCurrentPressure.TabIndex = 11;
@@ -505,7 +510,7 @@
             // 
             this.labelAltitude.AutoSize = true;
             this.labelAltitude.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelAltitude.Location = new System.Drawing.Point(13, 165);
+            this.labelAltitude.Location = new System.Drawing.Point(13, 198);
             this.labelAltitude.Name = "labelAltitude";
             this.labelAltitude.Size = new System.Drawing.Size(59, 17);
             this.labelAltitude.TabIndex = 10;
@@ -515,7 +520,7 @@
             // 
             this.labelFlightData.AutoSize = true;
             this.labelFlightData.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelFlightData.Location = new System.Drawing.Point(6, 132);
+            this.labelFlightData.Location = new System.Drawing.Point(6, 165);
             this.labelFlightData.Name = "labelFlightData";
             this.labelFlightData.Size = new System.Drawing.Size(128, 29);
             this.labelFlightData.TabIndex = 9;
@@ -565,6 +570,29 @@
             // serialPort
             // 
             this.serialPort.PortName = "COM4";
+            // 
+            // outCargo
+            // 
+            this.outCargo.AutoSize = true;
+            this.outCargo.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.outCargo.ForeColor = System.Drawing.Color.DarkRed;
+            this.outCargo.Location = new System.Drawing.Point(80, 118);
+            this.outCargo.Name = "outCargo";
+            this.outCargo.Size = new System.Drawing.Size(91, 17);
+            this.outCargo.TabIndex = 39;
+            this.outCargo.Text = "Not Available";
+            this.outCargo.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // labelCargo
+            // 
+            this.labelCargo.AutoSize = true;
+            this.labelCargo.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelCargo.Location = new System.Drawing.Point(13, 118);
+            this.labelCargo.Name = "labelCargo";
+            this.labelCargo.Size = new System.Drawing.Size(50, 17);
+            this.labelCargo.TabIndex = 38;
+            this.labelCargo.Text = "Cargo:";
+            this.labelCargo.Click += new System.EventHandler(this.label2_Click);
             // 
             // ControlPanel
             // 
@@ -631,6 +659,8 @@
         private System.Windows.Forms.TextBox CommandLine;
         private System.ComponentModel.BackgroundWorker CommsWorker;
         private System.IO.Ports.SerialPort serialPort;
+        private System.Windows.Forms.Label outCargo;
+        private System.Windows.Forms.Label labelCargo;
     }
 }
 

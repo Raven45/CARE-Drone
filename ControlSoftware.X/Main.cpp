@@ -65,6 +65,8 @@
 
 unsigned int Roll = 0;
 
+UnsignedInteger32 TimerOffset = 0;
+
 int Timer2OverflowCounter = 0;
 
 void InitializeIO();
@@ -289,10 +291,10 @@ void InitializeRC() {
 
         //Configure input capture
         OpenCapture1(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
-        OpenCapture2(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
-        OpenCapture3(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
-        OpenCapture4(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
-        OpenCapture5(IC_ON | IC_EVERY_EDGE | IC_TIMER3_SRC);
+        OpenCapture2(IC_ON | IC_EVERY_FALL_EDGE | IC_TIMER3_SRC);
+        OpenCapture3(IC_ON | IC_EVERY_FALL_EDGE | IC_TIMER3_SRC);
+        OpenCapture4(IC_ON | IC_EVERY_FALL_EDGE | IC_TIMER3_SRC);
+        OpenCapture5(IC_ON | IC_EVERY_FALL_EDGE | IC_TIMER3_SRC);
         ConfigIntCapture1(IC_INT_ON | IC_INT_PRIOR_4 | IC_INT_SUB_PRIOR_3);
         ConfigIntCapture2(IC_INT_ON | IC_INT_PRIOR_4 | IC_INT_SUB_PRIOR_3);
         ConfigIntCapture3(IC_INT_ON | IC_INT_PRIOR_4 | IC_INT_SUB_PRIOR_3);
@@ -468,31 +470,39 @@ extern "C" {
     void __ISR (_INPUT_CAPTURE_1_VECTOR , IPL4AUTO) _InputCapture1Handler(void) {
         
         INTClearFlag(INT_IC1);
-        unsigned int Capture = IC1BUF;
         
-        //Rising edge
-        if (PORTBbits.RB13 == 1) {
-            WriteTimer3(0);
-            unsigned int trash = IC1BUF;
+        unsigned int Capture = 0;
+        
+        if (mIC1CaptureReady()) {
+            
+            Capture = mIC1ReadCapture();
+            
+            //Rising edge
+            if (PORTBbits.RB13 == 1) {
+                WriteTimer3(0);
+            }
+            //Falling edge
+            else {
+                CARE_Drone.SetYawInput(Capture);
+                WriteTimer3(0);
+            }
         }
-        //Falling edge
-        else {
-            CARE_Drone.SetYawInput(Capture);
-        }
+        
+        
     }
     
     void __ISR (_INPUT_CAPTURE_2_VECTOR , IPL4AUTO) _InputCapture2Handler(void) {
         
         INTClearFlag(INT_IC2);
         
-        //Rising edge
-        if (PORTBbits.RB9 == 1) {
+        unsigned int Capture = 0;
+        
+        if (mIC2CaptureReady()) {
+            
+            Capture = mIC2ReadCapture();
+
+            CARE_Drone.SetPitchInput(Capture);
             WriteTimer3(0);
-            unsigned int trash = IC2BUF;
-        }
-        //Falling edge
-        else {
-            CARE_Drone.SetPitchInput(IC2BUF);
         }
     }
     
@@ -500,14 +510,14 @@ extern "C" {
         
         INTClearFlag(INT_IC3);
         
-        //Rising edge
-        if (PORTBbits.RB15 == 1) {
+        unsigned int Capture = 0;
+        
+        if (mIC3CaptureReady()) {
+            
+            Capture = mIC3ReadCapture();
+            
+            CARE_Drone.SetThrottleInput(Capture);
             WriteTimer3(0);
-            unsigned int trash = IC3BUF;
-        }
-        //Falling edge
-        else {
-            CARE_Drone.SetThrottleInput(IC3BUF);
         }
     }
     
@@ -515,14 +525,14 @@ extern "C" {
         
         INTClearFlag(INT_IC4);
         
-        //Rising edge
-        if (PORTAbits.RA4 == 1) {
+        unsigned int Capture = 0;
+        
+        if (mIC4CaptureReady()) {
+            
+            Capture = mIC4ReadCapture();
+            
+            CARE_Drone.SetRollInput(Capture);
             WriteTimer3(0);
-            unsigned int trash = IC4BUF;
-        }
-        //Falling edge
-        else {
-            CARE_Drone.SetRollInput(IC4BUF);
         }
     }
     
@@ -530,16 +540,15 @@ extern "C" {
         
         INTClearFlag(INT_IC5);
         
-        //Rising edge
-        if (PORTAbits.RA8 == 1) {
+        unsigned int Capture = 0;
+        
+        if (mIC5CaptureReady()) {
+            
+            Capture = mIC5ReadCapture();
+            
+            CARE_Drone.SetCargoInput(Capture);
             WriteTimer3(0);
-            unsigned int trash = IC5BUF;
         }
-        //Falling edge
-        else {
-            CARE_Drone.SetThrottleInput(IC5BUF);
-        }
-
     }
     
     void __ISR (_OUTPUT_COMPARE_1_VECTOR , IPL4AUTO) _OutputCompare1Handler(void) {

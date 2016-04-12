@@ -7,3 +7,12 @@
 \\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.exe
 \\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.pdb
 \\m-drives\aburns2\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.csprojResolveAssemblyReference.cache
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\bin\Release\FlightComputerConsole.exe.config
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.exe
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.pdb
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\bin\Release\FlightComputerConsole.exe
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\bin\Release\FlightComputerConsole.pdb
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.csprojResolveAssemblyReference.cache
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.ControlPanel.resources
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.Properties.Resources.resources
+M:\Documents\School\Senior Design\FlightComputerConsole\FlightComputerConsole\obj\Release\FlightComputerConsole.csproj.GenerateResource.Cache

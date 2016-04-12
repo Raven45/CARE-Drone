@@ -41,8 +41,13 @@
 #define ENABLE_USB
 
 #define ROLL_LIMIT          (15.0f)   //+/- 15 degrees bank limit
+#define ROLL_FLOOR          (-15.0f)
+#define ROLL_OFFSET         (-0.8f)
 #define PITCH_LIMIT         (15.0f)   //+/- 15 degrees pitch limit
+#define PITCH_FLOOR         (-15.0f)
 #define YAW_LIMIT           (30.0f)   //+/- 30 dps yaw rate
+#define YAW_FLOOR           (-30.0f)
+#define YAW_OFFSET          (1.2f)
 #define THROTTLE_MAX        (80)      //80% maximum throttle
 #define THROTTLE_MIN        (20)      //20% minimum throttle
 #define THROTTLE_IDLE       (25)      //25% idle throttle
@@ -368,6 +373,7 @@ private:
     bool Command_GetYaw();
     bool Command_ID();
     bool Command_GetVersion();
+    bool Command_GetInputs();
     
 };
 

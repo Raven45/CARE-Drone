@@ -127,21 +127,21 @@ bool System::UpdateSystem() {
         Devices[i]->Update();
     }
     
-    Time CargoDelay;
-    CargoDelay.SetClock(3, 0, 0);
+//    Time CargoDelay;
+//    CargoDelay.SetClock(3, 0, 0);
     
-    if (Input_Cargo != 0.0f && CoreTimer.DelayTimer > CargoDelay) {
-        
-        #if defined(__32MX270F256D__)
-            PORTClearBits(IOPORT_C, BIT_4);
-            PORTClearBits(IOPORT_C, BIT_5);
-        #elif defined(__32MX270F256B__)
-            PORTClearBits(IOPORT_A, BIT_0);
-            PORTClearBits(IOPORT_A, BIT_1);
-        #endif
-
-        Input_Cargo = 0.0f;
-    }
+//    if (Input_Cargo != 0.0f && CoreTimer.DelayTimer > CargoDelay) {
+//        
+//        #if defined(__32MX270F256D__)
+//            PORTClearBits(IOPORT_C, BIT_4);
+//            PORTClearBits(IOPORT_C, BIT_5);
+//        #elif defined(__32MX270F256B__)
+//            PORTClearBits(IOPORT_A, BIT_0);
+//            PORTClearBits(IOPORT_A, BIT_1);
+//        #endif
+//
+//        Input_Cargo = 0.0f;
+//    }
     
     //Get the amount of time since last frame.
     DeltaTime = CoreTimer.DeltaTimer.GetTime_US();
@@ -197,87 +197,105 @@ bool System::IsUSBAttached() {
 
 void System::SetRollInput(unsigned int input) {
     
-    if (input < 0x2EE0) {
-        this->Input_Roll = 0;
+    //this->Input_Roll = input;
+    
+    this->Input_Roll = 4.2f * ROLL_LIMIT * ((float)(input - 0x3500)/(float)0x7000);
+    this->Input_Roll -= ROLL_LIMIT;
+    this->Input_Roll -= ROLL_OFFSET;
+    
+    if (Input_Roll > ROLL_LIMIT) {
+        Input_Roll = ROLL_LIMIT;
     }
-    else if (input > 0x5DC0) {
-        this->Input_Roll = ROLL_LIMIT;
-    }
-    else {
-        this->Input_Roll = 2.0f * ROLL_LIMIT * ((float)(input - 0x4650)/(float)0x5DC0);
+    else if (Input_Roll < ROLL_FLOOR) {
+        Input_Roll = ROLL_FLOOR;
     }
 }
 
 void System::SetPitchInput(unsigned int input) {
     
-    if (input < 0x2EE0) {
-        this->Input_Pitch = 0;
+    //this->Input_Pitch = input;
+    
+    this->Input_Pitch = 4.0f * PITCH_LIMIT * ((float)(input - 0x2000)/(float)0x6000);
+    this->Input_Pitch -= PITCH_LIMIT;
+    
+    if (Input_Pitch > PITCH_LIMIT) {
+        Input_Pitch = PITCH_LIMIT;
     }
-    else if (input > 0x5DC0) {
-        this->Input_Pitch = PITCH_LIMIT;
-    }
-    else {
-        this->Input_Pitch = 2.0f * PITCH_LIMIT * ((float)(input - 0x4650)/(float)0x5DC0);
+    else if (Input_Pitch < PITCH_FLOOR) {
+        Input_Pitch = PITCH_FLOOR;
     }
 }
 
 void System::SetYawInput(unsigned int input) {
     
-    if (input < 0x2EE0) {
-        this->Input_Yaw = 0;
+    //this->Input_Yaw = input;
+    
+    this->Input_Yaw = 4.0f * YAW_LIMIT * ((float)(input - 0x2000)/(float)0x6500);
+    this->Input_Yaw -= YAW_LIMIT;
+    this->Input_Yaw -= YAW_OFFSET;
+    
+    if (Input_Yaw > YAW_LIMIT) {
+        Input_Yaw = YAW_LIMIT;
     }
-    else if (input > 0x5DC0) {
-        this->Input_Yaw = YAW_LIMIT;
-    }
-    else {
-        this->Input_Yaw = 2.0f * YAW_LIMIT * ((float)(input - 0x4650)/(float)0x5DC0);
+    else if (Input_Yaw < YAW_FLOOR) {
+        Input_Yaw = YAW_FLOOR;
     }
 }
 
 void System::SetThrottleInput(unsigned int input) {
     
-    if (input < 0x2EE0) {
-        this->Input_Throttle = THROTTLE_MIN;
+    //this->Input_Throttle = input;
+    
+    this->Input_Throttle = 200.0f * ((float)(input - 0x3400)/(float)0x7000);
+    
+    if (Input_Throttle > THROTTLE_MAX) {
+        Input_Throttle = THROTTLE_MAX;
     }
-    else if (input > 0x5DC0) {
-        this->Input_Throttle = THROTTLE_MAX;
-    }
-    else {
-        this->Input_Throttle = 200.0f * ((float)(input - 0x2EE0)/(float)0x5DC0);
+    else if (Input_Throttle < THROTTLE_MIN) {
+        Input_Throttle = THROTTLE_MIN;
     }
 }
 
 void System::SetCargoInput(unsigned int input) {
     
-    if (input <= 0x4650 && CargoIsReleased) {
-        
+    //this->Input_Cargo = input;
+    
+    if (input > 0x4000) {
         Input_Cargo = 1.0f;
-        CargoIsReleased = false;
-        CoreTimer.DelayTimer.SetClock(0,0,0);
-
-        #if defined(__32MX270F256D__)
-            PORTClearBits(IOPORT_C, BIT_4);
-            PORTSetBits(IOPORT_C, BIT_5);
-        #elif defined(__32MX270F256B__)
-            PORTClearBits(IOPORT_A, BIT_0);
-            PORTSetBits(IOPORT_A, BIT_1);
-        #endif
     }
-
-    else if (input > 0x4650 && !CargoIsReleased) {
-
-        Input_Cargo = 1.0f;
-        CargoIsReleased = true;
-        CoreTimer.DelayTimer.SetClock(0,0,0);
-        
-        #if defined(__32MX270F256D__)
-            PORTSetBits(IOPORT_C, BIT_4);
-            PORTClearBits(IOPORT_C, BIT_5);
-        #elif defined(__32MX270F256B__)
-            PORTSetBits(IOPORT_A, BIT_0);
-            PORTClearBits(IOPORT_A, BIT_1);
-        #endif
+    else {
+        Input_Cargo = 0.0f;
     }
+    
+//    if (input <= 0x4650 && CargoIsReleased) {
+//        
+//        Input_Cargo = 1.0f;
+//        CargoIsReleased = false;
+//        CoreTimer.DelayTimer.SetClock(0,0,0);
+//
+//        #if defined(__32MX270F256D__)
+//            PORTClearBits(IOPORT_C, BIT_4);
+//            PORTSetBits(IOPORT_C, BIT_5);
+//        #elif defined(__32MX270F256B__)
+//            PORTClearBits(IOPORT_A, BIT_0);
+//            PORTSetBits(IOPORT_A, BIT_1);
+//        #endif
+//    }
+//
+//    else if (input > 0x4650 && !CargoIsReleased) {
+//
+//        Input_Cargo = 1.0f;
+//        CargoIsReleased = true;
+//        CoreTimer.DelayTimer.SetClock(0,0,0);
+//        
+//        #if defined(__32MX270F256D__)
+//            PORTSetBits(IOPORT_C, BIT_4);
+//            PORTClearBits(IOPORT_C, BIT_5);
+//        #elif defined(__32MX270F256B__)
+//            PORTSetBits(IOPORT_A, BIT_0);
+//            PORTClearBits(IOPORT_A, BIT_1);
+//        #endif
+//    }
 }
 
 //</editor-fold>
@@ -507,6 +525,9 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     else if (strstr((const char*)Command, "GetYaw") != 0) { 
         Command_GetYaw();
     }
+    else if (strstr((const char*)Command, "GetInput") != 0) { 
+        Command_GetInputs();
+    }
     
     return true;
 }
@@ -605,8 +626,8 @@ Math::Quaternion System::AHRS_Update() {
 		// Apply feedback step
         //RateOfChange -= Beta*StepMagnitude;
         RateOfChange -= AHRS.CalculatePID(StepMagnitude, DeltaTime);
-        RateOfChange = (RateOfChange + P1)/2;
-        P1 = RateOfChange;
+//        RateOfChange = (RateOfChange + P1)/2;
+//        P1 = RateOfChange;
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion
@@ -1027,6 +1048,27 @@ bool System::Command_ID() {
 bool System::Command_GetVersion() {
     
     SendUSBData("0.0.0.1\n");
+    return true;
+}
+
+bool System::Command_GetInputs() {
+    
+    unsigned int Yaw = Input_Yaw;
+    unsigned int Roll = Input_Roll;
+    unsigned int Pitch = Input_Pitch;
+    unsigned int Throttle = Input_Throttle;
+    unsigned int Cargo = Input_Cargo;
+    
+    char Inputs[50];
+    sprintf(Inputs, "%.2f %.2f %.2f %.2f %X\n", Input_Yaw,
+                                        Input_Pitch,
+                                        Input_Throttle,
+                                        Input_Roll,
+                                        Cargo);
+    
+    
+    SendUSBData(Inputs);
+    
     return true;
 }
 

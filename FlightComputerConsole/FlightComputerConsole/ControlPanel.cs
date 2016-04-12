@@ -231,7 +231,7 @@ namespace FlightComputerConsole
                     CurrentPressure = ReadPort("GetPressure");
                     StartingPressure = ReadPort("GetStartingPressure");
                     CurrentTemp = ReadPort("GetTemperature");
-                    Orientation = ReadPort("GetOrientation").Split(' ');
+                    Orientation = ReadPort("GetInputs").Split(' ');
                     Roll = ReadPort("GetRoll");
                     Pitch = ReadPort("GetPitch");
                     Yaw = ReadPort("GetYaw");
@@ -367,6 +367,11 @@ namespace FlightComputerConsole
                 if (Orientation[3].Contains("Not Available")) { outQ3.ForeColor = Color.Red; }
                 else { outQ3.ForeColor = Color.Black; }
                 outQ3.Text = Orientation[3];
+
+                //Output Q3
+                if (Orientation[4].Contains("Not Available")) { outCargo.ForeColor = Color.Red; }
+                else { outCargo.ForeColor = Color.Black; }
+                outCargo.Text = Orientation[4];
             }
             catch (Exception)
             {
@@ -380,16 +385,25 @@ namespace FlightComputerConsole
             if (Roll.Contains("Not Available"))             { outRoll.ForeColor = Color.Red; }
             else                                            { outRoll.ForeColor = Color.Black; }
             outRoll.Text = Roll;
+            //WriteToConsole(Roll, Color.Black);
 
             //Output Pitch
             if (Pitch.Contains("Not Available"))            { outPitch.ForeColor = Color.Red; }
             else                                            { outPitch.ForeColor = Color.Black; }
             outPitch.Text = Pitch;
+            //WriteToConsole(Pitch, Color.Black);
 
             //Output Yaw
             if (Yaw.Contains("Not Available"))              { outYaw.ForeColor = Color.Red; }
             else                                            { outYaw.ForeColor = Color.Black; }
             outYaw.Text = Yaw;
+            //try {
+            //    WriteToConsole(Orientation[0] + "\t" + Orientation[1] + "\t" + Orientation[2] + "\t" + Orientation[3] + "\t" + Roll + "\t" + Pitch + "\t" + Yaw, Color.Black);
+            //}
+            //catch (Exception error) {
+
+            //}
+            //WriteToConsole(Yaw, Color.Black);
 
             if (QueuedReponse != "")
             {
@@ -571,6 +585,21 @@ namespace FlightComputerConsole
         }
 
         private void ControlPanel_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelOrientationQuaternion_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }
