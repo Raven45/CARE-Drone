@@ -49,14 +49,6 @@ System::System() {
     AHRS.SetKi(0.03f);
     AHRS.SetKd(0.02f);
     
-    Attitude.DisableClamp();
-    Attitude.DisableDeadBand();
-    Attitude.DisableFeedForward();
-    Attitude.DisablePBalance();
-    Attitude.SetKp(900.0f);
-    Attitude.SetKi(0.0f);
-    Attitude.SetKd(0.0f);
-    
     Yaw_Controller.EnableClamp();
     Yaw_Controller.SetHighLimit(YAW_LIMIT);
     Yaw_Controller.SetLowLimit(YAW_FLOOR);
@@ -176,6 +168,18 @@ bool System::UpdateSystem() {
     //Get the amount of time since last frame.
     DeltaTime = CoreTimer.DeltaTimer.GetTime_US();
     CoreTimer.DeltaTimer.SetClock(0,0,0);
+    
+    Time CargoRelease;
+    CargoRelease.SetClock(3,0,0);
+    if (CoreTimer.DelayTimer >= CargoRelease) {
+        #if defined(__32MX270F256D__)
+            PORTClearBits(IOPORT_C, BIT_4);
+            PORTClearBits(IOPORT_C, BIT_5);
+        #elif defined(__32MX270F256B__)
+            PORTClearBits(IOPORT_A, BIT_0);
+            PORTClearBits(IOPORT_A, BIT_1);
+        #endif
+    }
     
     AHRS_Update();
     
@@ -314,35 +318,33 @@ void System::SetCargoInput(unsigned int input) {
         Input_Cargo = 0.0f;
     }
     
-//    if (input <= 0x4650 && CargoIsReleased) {
-//        
-//        Input_Cargo = 1.0f;
-//        CargoIsReleased = false;
-//        CoreTimer.DelayTimer.SetClock(0,0,0);
-//
-//        #if defined(__32MX270F256D__)
-//            PORTClearBits(IOPORT_C, BIT_4);
-//            PORTSetBits(IOPORT_C, BIT_5);
-//        #elif defined(__32MX270F256B__)
-//            PORTClearBits(IOPORT_A, BIT_0);
-//            PORTSetBits(IOPORT_A, BIT_1);
-//        #endif
-//    }
-//
-//    else if (input > 0x4650 && !CargoIsReleased) {
-//
-//        Input_Cargo = 1.0f;
-//        CargoIsReleased = true;
-//        CoreTimer.DelayTimer.SetClock(0,0,0);
-//        
-//        #if defined(__32MX270F256D__)
-//            PORTSetBits(IOPORT_C, BIT_4);
-//            PORTClearBits(IOPORT_C, BIT_5);
-//        #elif defined(__32MX270F256B__)
-//            PORTSetBits(IOPORT_A, BIT_0);
-//            PORTClearBits(IOPORT_A, BIT_1);
-//        #endif
-//    }
+    if (Input_Cargo == 1.0f && CargoIsReleased) {
+        
+        CargoIsReleased = false;
+        CoreTimer.DelayTimer.SetClock(0,0,0);
+
+        #if defined(__32MX270F256D__)
+            PORTClearBits(IOPORT_C, BIT_4);
+            PORTSetBits(IOPORT_C, BIT_5);
+        #elif defined(__32MX270F256B__)
+            PORTClearBits(IOPORT_A, BIT_0);
+            PORTSetBits(IOPORT_A, BIT_1);
+        #endif
+    }
+
+    else if (Input_Cargo == 0.0f && !CargoIsReleased) {
+
+        CargoIsReleased = true;
+        CoreTimer.DelayTimer.SetClock(0,0,0);
+        
+        #if defined(__32MX270F256D__)
+            PORTSetBits(IOPORT_C, BIT_4);
+            PORTClearBits(IOPORT_C, BIT_5);
+        #elif defined(__32MX270F256B__)
+            PORTSetBits(IOPORT_A, BIT_0);
+            PORTClearBits(IOPORT_A, BIT_1);
+        #endif
+    }
 }
 
 //</editor-fold>

@@ -224,7 +224,6 @@ private:
     Math::Quaternion CurrentOrientation;
     
     Math::PID<Math::Quaternion> AHRS;
-    Math::PID<Math::Quaternion> Attitude;
     Math::PID<float> Yaw_Controller;
     Math::PID<float> Roll_Controller;
     Math::PID<float> Pitch_Controller;
