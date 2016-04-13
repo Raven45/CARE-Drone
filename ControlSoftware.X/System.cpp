@@ -48,8 +48,8 @@ System::System() {
     AHRS.DisableFeedForward();
     AHRS.DisablePBalance();
     AHRS.SetKp(180.0f);
-    AHRS.SetKi(10.0f);
-    AHRS.SetKd(0.0f);
+    AHRS.SetKi(0.03f);
+    AHRS.SetKd(0.02f);
     
     Throttle.EnableClamp();
     Throttle.SetHighLimit(80.0f);
@@ -61,7 +61,33 @@ System::System() {
     Throttle.DisablePBalance();
     Throttle.SetKp(50.0f);
     Throttle.SetKi(0.0f);
-    Throttle.SetKd(0.0f);
+    Throttle.SetKd(1.0f);
+    
+    Attitude.EnableClamp();
+    Attitude.EnableDeadBand();
+    Attitude.DisableFeedForward();
+    Attitude.DisablePBalance();
+    Attitude.SetKp(50.0f);
+    Attitude.SetKi(1.0f);
+    Attitude.SetKd(0.0f);
+    
+    Yaw_Controller.EnableClamp();
+    Yaw_Controller.EnableDeadBand();
+    Yaw_Controller.DisableFeedForward();
+    Yaw_Controller.DisablePBalance();
+    Yaw_Controller.SetKp(50.0f);
+    Yaw_Controller.SetKi(1.0f);
+    Yaw_Controller.SetKd(0.0f);
+    
+    RollFilter.Initialize(0.013f, 0.0f);
+    PitchFilter.Initialize(0.01f, 0.0f);
+    YawFilter.Initialize(0.01f, 0.0f);
+    ThrottleFilter.Initialize(0.01f, 20.0f);
+    
+    Math::Quaternion ZeroPoint;
+    Gyro_Filter.Initialize(0.01, ZeroPoint);
+    Accel_Filter.Initialize(0.01, ZeroPoint);
+    Mag_Filter.Initialize(0.01, ZeroPoint);
 }
 
 System::~System() {
@@ -203,6 +229,8 @@ void System::SetRollInput(unsigned int input) {
     this->Input_Roll -= ROLL_LIMIT;
     this->Input_Roll -= ROLL_OFFSET;
     
+    this->Input_Roll = RollFilter.Filter(Input_Roll);
+    
     if (Input_Roll > ROLL_LIMIT) {
         Input_Roll = ROLL_LIMIT;
     }
@@ -215,8 +243,11 @@ void System::SetPitchInput(unsigned int input) {
     
     //this->Input_Pitch = input;
     
-    this->Input_Pitch = 4.0f * PITCH_LIMIT * ((float)(input - 0x2000)/(float)0x6000);
+    this->Input_Pitch = 4.0f * PITCH_LIMIT * ((float)(input - 0x1900)/(float)0x6000);
     this->Input_Pitch -= PITCH_LIMIT;
+    this->Input_Pitch -= PITCH_OFFSET;
+    
+    this->Input_Pitch = PitchFilter.Filter(Input_Pitch);
     
     if (Input_Pitch > PITCH_LIMIT) {
         Input_Pitch = PITCH_LIMIT;
@@ -234,6 +265,8 @@ void System::SetYawInput(unsigned int input) {
     this->Input_Yaw -= YAW_LIMIT;
     this->Input_Yaw -= YAW_OFFSET;
     
+    this->Input_Yaw = YawFilter.Filter(Input_Yaw);
+    
     if (Input_Yaw > YAW_LIMIT) {
         Input_Yaw = YAW_LIMIT;
     }
@@ -246,7 +279,9 @@ void System::SetThrottleInput(unsigned int input) {
     
     //this->Input_Throttle = input;
     
-    this->Input_Throttle = 200.0f * ((float)(input - 0x3400)/(float)0x7000);
+    this->Input_Throttle = 200.0f * ((float)(input - 0x3200)/(float)0x7000);
+    
+    this->Input_Throttle = ThrottleFilter.Filter(Input_Throttle);
     
     if (Input_Throttle > THROTTLE_MAX) {
         Input_Throttle = THROTTLE_MAX;
@@ -570,6 +605,7 @@ Math::Quaternion System::AHRS_Update() {
 
 	// Rate of change of quaternion from gyroscope
     Math::Quaternion Gyro(0, _Gyroscope->GetRateX(), _Gyroscope->GetRateY(), _Gyroscope->GetRateZ());
+    Gyro = Gyro_Filter.Filter(Gyro);
     Math::Quaternion RateOfChange = 0.5f * CurrentOrientation * Gyro;
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalization)
@@ -580,10 +616,12 @@ Math::Quaternion System::AHRS_Update() {
         //Normalize accelerometer measurement
         Math::Quaternion Accel(0, _Accelerometer->GetAccelX(), _Accelerometer->GetAccelY(), _Accelerometer->GetAccelZ());
         Accel = Accel.Normalize();
+        Accel = Accel_Filter.Filter(Accel);
 		 
         //Normalize magnetometer measurement
         Math::Quaternion Mag(0, _Magnetometer->GetMagX(), _Magnetometer->GetMagY(), _Magnetometer->GetMagZ());
         Mag = Mag.Normalize();
+        Mag = Mag_Filter.Filter(Mag);
 
 		// Auxiliary variables to avoid repeated arithmetic
         _2q0mx = 2.0f * CurrentOrientation[0] * _Magnetometer->GetMagX();
@@ -626,8 +664,6 @@ Math::Quaternion System::AHRS_Update() {
 		// Apply feedback step
         //RateOfChange -= Beta*StepMagnitude;
         RateOfChange -= AHRS.CalculatePID(StepMagnitude, DeltaTime);
-//        RateOfChange = (RateOfChange + P1)/2;
-//        P1 = RateOfChange;
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion

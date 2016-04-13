@@ -21,4 +21,5 @@ usb/include/usb_cdc.h  \
 Map.h  \
  Quaternion.h  \
 Accelerometer.h  \
-PID.hpp 
+PID.hpp  \
+ButterworthLP.hpp 

@@ -1,0 +1,25 @@
+build/default/production/DSP/source/Documentation.o:  \
+ DSP/source/Documentation.cpp  \
+DspFilters/Dsp.h  \
+DspFilters/Common.h  \
+ DspFilters/Biquad.h  \
+DspFilters/MathSupplement.h  \
+DspFilters/Types.h  \
+ DspFilters/Cascade.h  \
+DspFilters/Filter.h  \
+DspFilters/Params.h  \
+ DspFilters/State.h  \
+DspFilters/Layout.h  \
+DspFilters/PoleFilter.h  \
+ DspFilters/SmoothedFilter.h  \
+DspFilters/Utilities.h  \
+DspFilters/Bessel.h  \
+ DspFilters/Design.h  \
+DspFilters/RootFinder.h  \
+DspFilters/Butterworth.h  \
+ DspFilters/ChebyshevI.h  \
+DspFilters/ChebyshevII.h  \
+DspFilters/Custom.h  \
+ DspFilters/Elliptic.h  \
+DspFilters/Legendre.h  \
+DspFilters/RBJ.h 

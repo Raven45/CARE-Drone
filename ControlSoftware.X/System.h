@@ -42,12 +42,13 @@
 
 #define ROLL_LIMIT          (15.0f)   //+/- 15 degrees bank limit
 #define ROLL_FLOOR          (-15.0f)
-#define ROLL_OFFSET         (-0.8f)
+#define ROLL_OFFSET         (-0.96f)
 #define PITCH_LIMIT         (15.0f)   //+/- 15 degrees pitch limit
 #define PITCH_FLOOR         (-15.0f)
+#define PITCH_OFFSET        (4.4f)
 #define YAW_LIMIT           (30.0f)   //+/- 30 dps yaw rate
 #define YAW_FLOOR           (-30.0f)
-#define YAW_OFFSET          (1.2f)
+#define YAW_OFFSET          (1.05f)
 #define THROTTLE_MAX        (80)      //80% maximum throttle
 #define THROTTLE_MIN        (20)      //20% minimum throttle
 #define THROTTLE_IDLE       (25)      //25% idle throttle
@@ -67,6 +68,7 @@
 #include "Quaternion.h"
 #include "Accelerometer.h"
 #include "PID.hpp"
+#include "ButterworthLP.hpp"
 
 //Macro for allowing the flight computer to run outside of test mode.
 #define TEST_MODE_OFF 0
@@ -222,6 +224,16 @@ private:
     
     Math::PID<Math::Quaternion> AHRS;
     Math::PID<float> Throttle;
+    Math::PID<Math::Quaternion> Attitude;
+    Math::PID<float> Yaw_Controller;
+    
+    DSP::ButterworthLP<float> RollFilter;
+    DSP::ButterworthLP<float> PitchFilter;
+    DSP::ButterworthLP<float> YawFilter;
+    DSP::ButterworthLP<float> ThrottleFilter;
+    DSP::ButterworthLP<Math::Quaternion> Gyro_Filter;
+    DSP::ButterworthLP<Math::Quaternion> Accel_Filter;
+    DSP::ButterworthLP<Math::Quaternion> Mag_Filter;
     
     //The magical delta-time variable. Used for integration.
     UnsignedInteger32 DeltaTime;
@@ -250,14 +262,6 @@ private:
     float Input_Throttle;
     float Input_Cargo;
     
-    Math::Quaternion P1;
-    Math::Quaternion P2;
-    Math::Quaternion P3;
-    Math::Quaternion P4;
-    Math::Quaternion F1;
-    Math::Quaternion F2;
-    Math::Quaternion F3;
-    Math::Quaternion F4;
     
     //Motor engagement safety
     bool Safety;

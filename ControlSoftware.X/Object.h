@@ -36,6 +36,7 @@
 #define GetPeripheralClock()  (SYS_CLOCK/2)
 #define GetInstructionClock() (SYS_CLOCK)
 
+#define pi                    (3.14159265359)
 /*******************************************************************************
  * Fundamental bitwise operations.
  * The following macros define behavior that allows for basic, rudimentary 
