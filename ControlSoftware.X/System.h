@@ -42,13 +42,13 @@
 
 #define ROLL_LIMIT          (15.0f)   //+/- 15 degrees bank limit
 #define ROLL_FLOOR          (-15.0f)
-#define ROLL_OFFSET         (-0.96f)
+#define ROLL_OFFSET         (-0.83f)
 #define PITCH_LIMIT         (15.0f)   //+/- 15 degrees pitch limit
 #define PITCH_FLOOR         (-15.0f)
-#define PITCH_OFFSET        (4.4f)
+#define PITCH_OFFSET        (4.5f)
 #define YAW_LIMIT           (30.0f)   //+/- 30 dps yaw rate
 #define YAW_FLOOR           (-30.0f)
-#define YAW_OFFSET          (1.05f)
+#define YAW_OFFSET          (1.14f)
 #define THROTTLE_MAX        (80)      //80% maximum throttle
 #define THROTTLE_MIN        (20)      //20% minimum throttle
 #define THROTTLE_IDLE       (25)      //25% idle throttle
@@ -217,19 +217,24 @@ private:
     //Quaternion containing the desired orientation as indicated by
     //the ground controller.
     Math::Quaternion SetPoint;
+    Math::Quaternion ControlOutput;
     
     //Quaternion containing the current orientation as indicated by
     //the attached IMU and the sensor fusion algorithm. 
     Math::Quaternion CurrentOrientation;
     
     Math::PID<Math::Quaternion> AHRS;
-    Math::PID<float> Throttle;
     Math::PID<Math::Quaternion> Attitude;
     Math::PID<float> Yaw_Controller;
+    Math::PID<float> Roll_Controller;
+    Math::PID<float> Pitch_Controller;
     
     DSP::ButterworthLP<float> RollFilter;
     DSP::ButterworthLP<float> PitchFilter;
     DSP::ButterworthLP<float> YawFilter;
+    DSP::ButterworthLP<float> RollPV;
+    DSP::ButterworthLP<float> PitchPV;
+    DSP::ButterworthLP<float> YawPV;
     DSP::ButterworthLP<float> ThrottleFilter;
     DSP::ButterworthLP<Math::Quaternion> Gyro_Filter;
     DSP::ButterworthLP<Math::Quaternion> Accel_Filter;
@@ -237,30 +242,24 @@ private:
     
     //The magical delta-time variable. Used for integration.
     UnsignedInteger32 DeltaTime;
-    
-    //The output for the RC output channel
-    unsigned int RC_Output;
-    
-    //Control variable for conduction tests
-    unsigned int ValidationTestMode;
-    
-    //Gain for the Madgwick filters.
-    float Beta;
-    
-    //Proportional gain for PID controller.
-    float Kp;
-    
-    //Integral gain for PID controller.
-    float Ki;
-    
-    //Derivative gain for PID controller.
-    float Kd;
-    
+
     float Input_Roll;
     float Input_Pitch;
     float Input_Yaw;
     float Input_Throttle;
     float Input_Cargo;
+    
+    float Current_Roll;
+    float Current_Pitch;
+    float Current_Yaw;
+    
+    float Output_Roll;
+    float Output_Pitch;
+    float Output_Yaw;
+    
+    float Roll_Bias;
+    float Pitch_Bias;
+    float Yaw_Bias;
     
     
     //Motor engagement safety
@@ -348,14 +347,6 @@ private:
     ***************************************************************************/
     Math::Quaternion IMU_Update( );
     
-    /***************************************************************************
-     * The CalculatePID function will take a calculated error of the drone's 
-     * attitude (represented in quaternion form) and calculate the corrections
-     * that the drone needs to take. It will output the projected action in 
-     * quaternion form. 
-    ***************************************************************************/
-    Math::Quaternion CalculatePID(Math::Quaternion Error);
-    
     bool Command_GetOrientation();
     bool Command_GetGyroscope();
     bool Command_GetPressure();
@@ -378,6 +369,7 @@ private:
     bool Command_ID();
     bool Command_GetVersion();
     bool Command_GetInputs();
+    bool Command_SetBias();
     
 };
 

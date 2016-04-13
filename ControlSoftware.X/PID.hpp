@@ -344,6 +344,7 @@ namespace Math{
         Output = ApplyClampFilter(Output);
       }
 
+      PreviousError = Error;
       return Output;
     }
 
@@ -393,7 +394,6 @@ namespace Math{
 
       DataType Output;
       Output = (Kd * (Error - PreviousError)) / DeltaTime;
-      PreviousError = Error;
       return Output;
     }
 
@@ -408,7 +408,7 @@ namespace Math{
 
       DataType Percentage = Error/PreviousError;
 
-      if (Percentage >= DeadBandLow && Percentage <= DeadBandHigh) {
+      if (Percentage <= DeadBandLow && Percentage >= DeadBandHigh) {
         return PreviousError;
       }
       else {

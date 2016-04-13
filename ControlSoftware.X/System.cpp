@@ -28,13 +28,8 @@ System* System::Instance = 0;
 //<editor-fold defaultstate="collapsed" desc="Core Functions">
 System::System() {
     
-    Beta = 60.0f;
     State = States::Standby;
     DeltaTime = 0;
-    RC_Output = 0;
-    Kp = 1.0f;
-    Ki = 0.0f;
-    Kd = 0.0f;
     Input_Roll = 0.0f;
     Input_Pitch = 0.0f;
     Input_Yaw = 0.0f;
@@ -42,6 +37,9 @@ System::System() {
     Input_Cargo = 0.0f;
     Safety = true;
     SystemDebugging = false;
+    Roll_Bias = 0.0f;
+    Pitch_Bias = 0.0f;
+    Yaw_Bias = 0.0f;
     
     AHRS.DisableClamp();
     AHRS.DisableDeadBand();
@@ -51,37 +49,59 @@ System::System() {
     AHRS.SetKi(0.03f);
     AHRS.SetKd(0.02f);
     
-    Throttle.EnableClamp();
-    Throttle.SetHighLimit(80.0f);
-    Throttle.SetLowLimit(20.0f);
-    Throttle.EnableDeadBand();
-    Throttle.SetDeadBandLow(0.0f);
-    Throttle.SetDeadBandHigh(0.1f);
-    Throttle.DisableFeedForward();
-    Throttle.DisablePBalance();
-    Throttle.SetKp(50.0f);
-    Throttle.SetKi(0.0f);
-    Throttle.SetKd(1.0f);
-    
-    Attitude.EnableClamp();
-    Attitude.EnableDeadBand();
+    Attitude.DisableClamp();
+    Attitude.DisableDeadBand();
     Attitude.DisableFeedForward();
     Attitude.DisablePBalance();
-    Attitude.SetKp(50.0f);
-    Attitude.SetKi(1.0f);
+    Attitude.SetKp(900.0f);
+    Attitude.SetKi(0.0f);
     Attitude.SetKd(0.0f);
     
     Yaw_Controller.EnableClamp();
+    Yaw_Controller.SetHighLimit(YAW_LIMIT);
+    Yaw_Controller.SetLowLimit(YAW_FLOOR);
+    Yaw_Controller.SetZeroPoint(0.0f);
     Yaw_Controller.EnableDeadBand();
+    Yaw_Controller.SetDeadBandHigh(1.25f);
+    Yaw_Controller.SetDeadBandLow(0.25f);
     Yaw_Controller.DisableFeedForward();
     Yaw_Controller.DisablePBalance();
-    Yaw_Controller.SetKp(50.0f);
-    Yaw_Controller.SetKi(1.0f);
-    Yaw_Controller.SetKd(0.0f);
+    Yaw_Controller.SetKp(1.1f);
+    Yaw_Controller.SetKi(0.1f);
+    Yaw_Controller.SetKd(0.01f);
+    
+    Roll_Controller.EnableClamp();
+    Roll_Controller.SetHighLimit(ROLL_LIMIT);
+    Roll_Controller.SetLowLimit(ROLL_FLOOR);
+    Roll_Controller.SetZeroPoint(0.0f);
+    Roll_Controller.EnableDeadBand();
+    Roll_Controller.SetDeadBandHigh(0.25f);
+    Roll_Controller.SetDeadBandLow(-0.25f);
+    Roll_Controller.DisableFeedForward();
+    Roll_Controller.DisablePBalance();
+    Roll_Controller.SetKp(1.0f);
+    Roll_Controller.SetKi(0.1f);
+    Roll_Controller.SetKd(0.01f);
+    
+    Pitch_Controller.EnableClamp();
+    Pitch_Controller.SetHighLimit(PITCH_LIMIT);
+    Pitch_Controller.SetLowLimit(PITCH_FLOOR);
+    Pitch_Controller.SetZeroPoint(0.0f);
+    Pitch_Controller.EnableDeadBand();
+    Pitch_Controller.SetDeadBandHigh(0.25f);
+    Pitch_Controller.SetDeadBandLow(-0.25f);
+    Pitch_Controller.DisableFeedForward();
+    Pitch_Controller.DisablePBalance();
+    Pitch_Controller.SetKp(1.0f);
+    Pitch_Controller.SetKi(0.1f);
+    Pitch_Controller.SetKd(0.01f);
     
     RollFilter.Initialize(0.013f, 0.0f);
     PitchFilter.Initialize(0.01f, 0.0f);
     YawFilter.Initialize(0.01f, 0.0f);
+    RollPV.Initialize(0.013f, 0.0f);
+    PitchPV.Initialize(0.01f, 0.0f);
+    YawPV.Initialize(0.01f, 0.0f);
     ThrottleFilter.Initialize(0.01f, 20.0f);
     
     Math::Quaternion ZeroPoint;
@@ -152,59 +172,51 @@ bool System::UpdateSystem() {
     for (unsigned int i = 0; i < Devices.size(); i++) {
         Devices[i]->Update();
     }
-    
-//    Time CargoDelay;
-//    CargoDelay.SetClock(3, 0, 0);
-    
-//    if (Input_Cargo != 0.0f && CoreTimer.DelayTimer > CargoDelay) {
-//        
-//        #if defined(__32MX270F256D__)
-//            PORTClearBits(IOPORT_C, BIT_4);
-//            PORTClearBits(IOPORT_C, BIT_5);
-//        #elif defined(__32MX270F256B__)
-//            PORTClearBits(IOPORT_A, BIT_0);
-//            PORTClearBits(IOPORT_A, BIT_1);
-//        #endif
-//
-//        Input_Cargo = 0.0f;
-//    }
-    
+
     //Get the amount of time since last frame.
     DeltaTime = CoreTimer.DeltaTimer.GetTime_US();
     CoreTimer.DeltaTimer.SetClock(0,0,0);
     
     AHRS_Update();
+    
+    Current_Roll = CurrentOrientation.GetRoll();
+    if (Current_Roll <= -90.0f) {
+        Current_Roll += 180.0f;
+    }
+    else if (Current_Roll >= 90.0f) {
+        Current_Roll -= 180.0f;
+    }
+    Current_Pitch = CurrentOrientation.GetPitch();
+    Current_Yaw = _Gyroscope->GetRateZ();
+    Current_Roll -= Roll_Bias;
+    Current_Pitch -= Pitch_Bias;
+    Current_Yaw -= Yaw_Bias;
+    
+    Output_Roll = Input_Roll - Current_Roll;
+    Output_Roll = Roll_Controller.CalculatePID(Output_Roll, DeltaTime);
+    
+    Output_Pitch = Input_Pitch - Current_Pitch;
+    Output_Pitch = Pitch_Controller.CalculatePID(Output_Pitch, DeltaTime);
+    
+    Output_Yaw = Input_Yaw - Current_Yaw;
+    Output_Yaw = Yaw_Controller.CalculatePID(Output_Yaw, DeltaTime);
 }
 
 void System::Main() {
     
-    if (ValidationTestMode == TEST_MODE_OFF) {
-        //Run the debug main function if we're in debug mode.
-        if (State == States::Debug) {
-            DebugMain();
-        }
+    //Run the debug main function if we're in debug mode.
+    if (State == States::Debug) {
+        DebugMain();
+    }
 
-        //Run the main function for when the motors are running.
-        else if (State == States::Run) {
-            RunMain();
-        }
+    //Run the main function for when the motors are running.
+    else if (State == States::Run) {
+        RunMain();
+    }
 
-        //Go to standby.
-        else if (State == States::Standby) {
-            StandbyMain();
-        }
-    }
-    
-    else if (ValidationTestMode == TEST_PROPULSION) {
-        
-    }
-    
-    else if (ValidationTestMode == TEST_CARGO) {
-        
-    }
-    
-    else if (ValidationTestMode == TEST_FLIGHT_DATA) {
-        
+    //Go to standby.
+    else if (State == States::Standby) {
+        StandbyMain();
     }
 }
 
@@ -401,19 +413,7 @@ void System::RunMain() {
     //Else we're in the air.
     else {
 
-        //Calculate the error
-        Math::Quaternion Error = SetPoint*CurrentOrientation;
         
-        //Get the set point for our PID controller.
-        Math::Quaternion SetPoint(Input_Roll, Input_Pitch, Input_Yaw);
-
-        //Calculate our output
-        Math::Quaternion Output = CalculatePID(Error);
-
-        //Convert to euler angles.
-        Output_Roll = Output.GetRoll();
-        Output_Pitch = Output.GetPitch();
-        Output_Yaw = Output.GetYaw();
     
         //Calculate what throttles we need. This is where Matt's control
         //algorithm is utilized. 
@@ -562,6 +562,9 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     }
     else if (strstr((const char*)Command, "GetInput") != 0) { 
         Command_GetInputs();
+    }
+    else if (strstr((const char*)Command, "SetBias") != 0) { 
+        Command_SetBias();
     }
     
     return true;
@@ -790,7 +793,7 @@ Math::Quaternion System::IMU_Update() {
 		StepMagnitude = StepMagnitude.Normalize();
 
 		// Apply feedback step
-        RateOfChange -= Beta*StepMagnitude;
+        RateOfChange -= 60.0f*StepMagnitude;
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion
@@ -798,13 +801,6 @@ Math::Quaternion System::IMU_Update() {
 
 	// Normalize quaternion
     CurrentOrientation = CurrentOrientation.Normalize();
-}
-
-Math::Quaternion System::CalculatePID(Math::Quaternion Error) {
-    
-    Math::Quaternion IntegralComponent = Error * DeltaTime;
-    Math::Quaternion DerivativeComponent = Error / DeltaTime;
-    return Kp*Error + Ki*IntegralComponent + Kd*DerivativeComponent;
 }
 
 //</editor-fold>
@@ -1050,8 +1046,8 @@ bool System::Command_GetRCInput(char * Command) {
 
 bool System::Command_GetRoll() {
     
-    char roll[24];
-    sprintf(roll, "%f\n", CurrentOrientation.GetRoll());
+    char roll[48];
+    sprintf(roll, "%f %f\n", Current_Roll, Output_Roll);
     SendUSBData(roll);
     
     return true;
@@ -1059,8 +1055,8 @@ bool System::Command_GetRoll() {
 
 bool System::Command_GetPitch() {
     
-    char pitch[24];
-    sprintf(pitch, "%f\n", CurrentOrientation.GetPitch());
+    char pitch[48];
+    sprintf(pitch, "%f %f\n", Current_Pitch, Output_Pitch);
     SendUSBData(pitch);
     
     return true;
@@ -1068,8 +1064,8 @@ bool System::Command_GetPitch() {
 
 bool System::Command_GetYaw() {
     
-    char yaw[24];
-    sprintf(yaw, "%f\n", CurrentOrientation.GetYaw());
+    char yaw[48];
+    sprintf(yaw, "%f %f\n", Current_Yaw, Output_Yaw);
     SendUSBData(yaw);
     
     return true;
@@ -1101,6 +1097,24 @@ bool System::Command_GetInputs() {
                                         Input_Throttle,
                                         Input_Roll,
                                         Cargo);
+    
+    
+    SendUSBData(Inputs);
+    
+    return true;
+}
+
+bool System::Command_SetBias() {
+    
+    Roll_Bias = Current_Roll;
+    Pitch_Bias = Current_Pitch;
+    Yaw_Bias = Current_Yaw;
+    
+    char Inputs[50];
+    sprintf(Inputs, "Bias: %.2f\t%.2f\t%.2f\n", Roll_Bias,
+                                                Pitch_Bias,
+                                                Yaw_Bias);
+    
     
     
     SendUSBData(Inputs);
