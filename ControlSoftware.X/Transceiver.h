@@ -23,6 +23,22 @@
 
 #include "SPIDevice.h"
 #include "Quaternion.h"
+#include "Timer.h"
+
+#define COMMAND_NOP 0xFF00;
+
+/*******************************************************************************
+ * FloatBuf Union
+ * This union is present for the purpose of converting a single precision,
+ * IEEE-754 floating point number to an array of four chars. It will also help
+ * convert an array of four chars to a float. This is present for the purpose
+ * of sending floating point numbers over the SPI bus and the USB bus, of which
+ * both operate with char arrays.
+*******************************************************************************/
+typedef union {
+    float a;
+    UnsignedInteger16 b[2];
+}FloatBuf;
 
 namespace HAL {
     
@@ -44,12 +60,16 @@ namespace HAL {
                         UnsignedInteger16 Motor5Speed,
                         UnsignedInteger16 Motor6Speed);
         
-        bool Tansmit();
+        bool Transmit();
+        bool SetTimerReference(HAL::Timer* CoreTimerReference);
         
         
     private:
         UnsignedInteger16* Buffer;
         UnsignedInteger8 BufferSize;
+        UnsignedInteger8 Status;
+        
+        HAL::Timer* CoreTimerReference;
         
         float Q0;
         float Q1;

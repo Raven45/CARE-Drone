@@ -53,6 +53,16 @@
 #define THROTTLE_MIN        (20)      //20% minimum throttle
 #define THROTTLE_IDLE       (25)      //25% idle throttle
 
+#define LENGTH_OF_ARM       (18.308f)   //inches
+#define INERTIA_YAW         (1350.296f) //lbs*in^2
+#define INERTIA_ROLL        (1404.37f)  //lbs*in^2
+#define INERTIA_PITCH       (1081.298f) //lbs*in^2
+#define ACCEL_ROLL_PITCH    (5.0f)      //degrees/s^2
+#define ACCEL_YAW           (2.0f)      //degrees/s^2
+#define YAW_R1              (LENGTH_OF_ARM+7.5f)
+#define YAW_R2              (LENGTH_OF_ARM-7.5f)
+#define WEIGHT              (12.0f)
+
 #define ROLL_COEF_NO_CARGO 1.0f
 #define PITCH_COEF_NO_CARGO 1.0f
 #define YAW_COEF_NO_CARGO 1.0f
@@ -260,13 +270,21 @@ private:
     float Pitch_Bias;
     float Yaw_Bias;
     
+    float Motor1Thrust;
+    float Motor2Thrust;
+    float Motor3Thrust;
+    float Motor4Thrust;
+    float Motor5Thrust;
+    float Motor6Thrust;
+    float Motor1Throttle; 
+    float Motor2Throttle; 
+    float Motor3Throttle; 
+    float Motor4Throttle; 
+    float Motor5Throttle; 
+    float Motor6Throttle;
     
     //Motor engagement safety
     bool Safety;
-    
-    //Flag for enabling debugging. This is not the same
-    //as the DebugMode state.
-    bool SystemDebugging;
     
     //This object manages the SPI bus.
     HAL::SPIBus DeviceManager;
@@ -369,6 +387,7 @@ private:
     bool Command_GetVersion();
     bool Command_GetInputs();
     bool Command_SetBias();
+    bool Command_GetPlantOutput();
     
 };
 

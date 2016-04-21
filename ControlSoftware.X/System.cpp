@@ -36,7 +36,6 @@ System::System() {
     Input_Throttle = 0.0f;
     Input_Cargo = 0.0f;
     Safety = true;
-    SystemDebugging = false;
     Roll_Bias = 0.0f;
     Pitch_Bias = 0.0f;
     Yaw_Bias = 0.0f;
@@ -45,9 +44,9 @@ System::System() {
     AHRS.DisableDeadBand();
     AHRS.DisableFeedForward();
     AHRS.DisablePBalance();
-    AHRS.SetKp(180.0f);
-    AHRS.SetKi(0.03f);
-    AHRS.SetKd(0.02f);
+    AHRS.SetKp(405.0f);
+    AHRS.SetKi(0.047f);
+    AHRS.SetKd(0.0f);
     
     Yaw_Controller.EnableClamp();
     Yaw_Controller.SetHighLimit(YAW_LIMIT);
@@ -60,7 +59,7 @@ System::System() {
     Yaw_Controller.DisablePBalance();
     Yaw_Controller.SetKp(1.1f);
     Yaw_Controller.SetKi(0.1f);
-    Yaw_Controller.SetKd(0.01f);
+    Yaw_Controller.SetKd(0.0f);
     
     Roll_Controller.EnableClamp();
     Roll_Controller.SetHighLimit(ROLL_LIMIT);
@@ -73,7 +72,7 @@ System::System() {
     Roll_Controller.DisablePBalance();
     Roll_Controller.SetKp(1.0f);
     Roll_Controller.SetKi(0.1f);
-    Roll_Controller.SetKd(0.01f);
+    Roll_Controller.SetKd(0.0f);
     
     Pitch_Controller.EnableClamp();
     Pitch_Controller.SetHighLimit(PITCH_LIMIT);
@@ -86,7 +85,7 @@ System::System() {
     Pitch_Controller.DisablePBalance();
     Pitch_Controller.SetKp(1.0f);
     Pitch_Controller.SetKi(0.1f);
-    Pitch_Controller.SetKd(0.01f);
+    Pitch_Controller.SetKd(0.0f);
     
     RollFilter.Initialize(0.013f, 0.0f);
     PitchFilter.Initialize(0.01f, 0.0f);
@@ -204,6 +203,74 @@ bool System::UpdateSystem() {
     
     Output_Yaw = Input_Yaw - Current_Yaw;
     Output_Yaw = Yaw_Controller.CalculatePID(Output_Yaw, DeltaTime);
+    
+    float PitchThrust = (INERTIA_PITCH*ACCEL_ROLL_PITCH*(3.14f/180.0f)*Output_Pitch)/
+                        (LENGTH_OF_ARM);
+    float RollThrust = (INERTIA_ROLL*ACCEL_ROLL_PITCH*(3.14f/180.0f)*Output_Roll)/
+                        (LENGTH_OF_ARM);
+    float YawThrust = (INERTIA_YAW*ACCEL_YAW*(3.14f/180.0f)*Output_Yaw)/
+                        (YAW_R1 - YAW_R2);
+    float TotalThrust = Motor1Thrust + 
+                        Motor2Thrust + 
+                        Motor3Thrust + 
+                        Motor4Thrust + 
+                        Motor5Thrust + 
+                        Motor6Thrust;
+    float DeltaRoll = (TotalThrust*cosf(Current_Roll*3.14f/180.0f)) - TotalThrust;
+    float DeltaPitch = (TotalThrust*cosf(Current_Pitch*3.14f/180.0f)) - TotalThrust;
+    
+    Motor1Thrust = (WEIGHT/6.0f)*(2.0f*(Input_Throttle/100.0f)); 
+    Motor2Thrust = (WEIGHT/6.0f)*(2.0f*(Input_Throttle/100.0f)); 
+    Motor3Thrust = (WEIGHT/6.0f)*(2.0f*(Input_Throttle/100.0f)); 
+    Motor4Thrust = (WEIGHT/6.0f)*(2.0f*(Input_Throttle/100.0f));  
+    Motor5Thrust = (WEIGHT/6.0f)*(2.0f*(Input_Throttle/100.0f));   
+    Motor6Thrust = (WEIGHT/6.0f)*(2.0f*(Input_Throttle/100.0f)); 
+    
+    if (Output_Pitch >= 0.0f) {
+        Motor2Thrust += PitchThrust/2;
+        Motor4Thrust += PitchThrust/2;
+    }
+    else {
+        Motor1Thrust -= PitchThrust/2;
+        Motor3Thrust -= PitchThrust/2;
+    }
+    
+    if (Output_Roll >= 0.0f)    { Motor6Thrust += RollThrust; }
+    else                        { Motor5Thrust += RollThrust; }
+    
+
+    Motor1Thrust += YawThrust/3;
+    Motor2Thrust += YawThrust/3;
+    Motor3Thrust -= YawThrust/3;
+    Motor4Thrust -= YawThrust/3;
+    Motor5Thrust -= YawThrust/3;
+    Motor6Thrust += YawThrust/3;
+
+    
+    Motor1Thrust += (DeltaRoll + DeltaPitch) / 6.0f;
+    Motor2Thrust += (DeltaRoll + DeltaPitch) / 6.0f;
+    Motor3Thrust += (DeltaRoll + DeltaPitch) / 6.0f;
+    Motor4Thrust += (DeltaRoll + DeltaPitch) / 6.0f;
+    Motor5Thrust += (DeltaRoll + DeltaPitch) / 6.0f;
+    Motor6Thrust += (DeltaRoll + DeltaPitch) / 6.0f;
+    Motor1Throttle = Input_Throttle + (Motor1Thrust + 1.3566f)/5.9953f;
+    Motor2Throttle = Input_Throttle + (Motor2Thrust + 1.3566f)/5.9953f;
+    Motor3Throttle = Input_Throttle + (Motor3Thrust + 1.3566f)/5.9953f;
+    Motor4Throttle = Input_Throttle + (Motor4Thrust + 1.3566f)/5.9953f;
+    Motor5Throttle = Input_Throttle + (Motor5Thrust + 1.3566f)/5.9953f;
+    Motor6Throttle = Input_Throttle + (Motor6Thrust + 1.3566f)/5.9953f;
+    if (Motor_1 != NULL) Motor_1->SetThrottle((UnsignedInteger8)Motor1Throttle);
+    if (Motor_2 != NULL) Motor_2->SetThrottle((UnsignedInteger8)Motor2Throttle);
+    if (Motor_3 != NULL) Motor_3->SetThrottle((UnsignedInteger8)Motor3Throttle);
+    if (Motor_4 != NULL) Motor_4->SetThrottle((UnsignedInteger8)Motor4Throttle);
+    if (Motor_5 != NULL) Motor_5->SetThrottle((UnsignedInteger8)Motor5Throttle);
+    if (Motor_6 != NULL) Motor_6->SetThrottle((UnsignedInteger8)Motor6Throttle);
+    Motor1Throttle *= 64.38f;
+    Motor2Throttle *= 64.38f;
+    Motor3Throttle *= 64.38f;
+    Motor4Throttle *= 64.38f;
+    Motor5Throttle *= 64.38f;
+    Motor6Throttle *= 64.38f;
 }
 
 void System::Main() {
@@ -385,38 +452,30 @@ void System::StandbyMain() {
     if (IsUSBAttached()) {
         GoToState(States::Debug);
     }
-    else {
-        
-        if (Safety && Input_Throttle == 0) {
-            Safety = false;
-        }
-        else if (!Safety && Input_Throttle > 15) {
-            GoToState(States::Standby);
-        }
-    }
+//    else {
+//        
+//        if (Safety && Input_Throttle == THROTTLE_MIN) {
+//            Safety = false;
+//        }
+//        else if (!Safety && Input_Throttle > THROTTLE_IDLE) {
+//            GoToState(States::Standby);
+//        }
+//    }
 }
 
 void System::RunMain() {
-    
-    float Output_Roll;
-    float Output_Pitch;
-    float Output_Yaw;
     
     //Perform system wide update
     UpdateSystem();
 
     //If we are at zero throttle and we're under ten feet.
-    if (Input_Throttle == 0 && _Altimeter->GetAltitude() < 10) {
+    if (Input_Throttle == THROTTLE_MIN && _Altimeter->GetAltitude() < 10) {
         Command_StopAllMotors();
         GoToState(States::Standby);
         return;
-    }
-    
+    } 
     //Else we're in the air.
     else {
-
-        
-    
         //Calculate what throttles we need. This is where Matt's control
         //algorithm is utilized. 
         if (CargoIsReleased) {
@@ -567,6 +626,9 @@ bool System::ExecuteCommand(const unsigned char * Command) {
     }
     else if (strstr((const char*)Command, "SetBias") != 0) { 
         Command_SetBias();
+    }
+    else if (strstr((const char*)Command, "GetPlantOutput") != 0) { 
+        Command_GetPlantOutput();
     }
     
     return true;
@@ -1124,4 +1186,21 @@ bool System::Command_SetBias() {
     return true;
 }
 
+
+bool System::Command_GetPlantOutput() {
+    
+    char Inputs[100];
+    sprintf(Inputs, "%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",       Motor1Throttle,
+                                                Motor2Throttle,
+                                                Motor3Throttle,
+                                                Motor4Throttle,
+                                                Motor5Throttle,
+                                                Motor6Throttle);
+    
+    
+    
+    SendUSBData(Inputs);
+    
+    return true;
+}
 //</editor-fold>
